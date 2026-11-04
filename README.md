@@ -41,33 +41,37 @@ Organize by **feature ownership**, not by one huge Scripts/Scenes folder. Prefer
 
 The following is the **target structure**, not a claim that these folders already exist:
 
+**Fortress-owned systems live under one top-level `FORTRESS/` umbrella**. `ENEMIES/`, `PLAYER/` and `WORLD/` remain separate top-level gameplay domains. The sections within `FORTRESS/` remain distinct owners, not one giant controller.
+
 ```text
-AUDIO/           Shared playback, mixing and sound policies
-CAMERA/          Player-follow, panning, zoom and camera behavior
-COMBAT/          Shared damage types, hits, shields and resolution
-ECONOMY/         Resource identities, balances, costs and transactions
-ENEMIES/         Enemy catalog, types, AI, movement, spawning and abilities
-FEEDBACK/        Hit effects, health bars, particles, alerts and world feedback
-LEVELS/          Level definitions, scenarios, wave/pressure authoring
-NOTES/           Coding conventions, plans, migration notes and decisions
-PLAYER/          Chassis catalog, player movement, stats, weapons and abilities
-BUILDINGS/       Shared non-tower structures, walls, foundations, utilities
-TOWERS/          Tower catalog, placement, targeting, weapons and upgrades
-POWER/           Connected local energy networks, batteries and distribution
-PRODUCTION/      Mining processes, refining, fabrication and recipes
-LOGISTICS/       Cargo drones, delivery jobs, storage transfers and reservations
-SYSTEMS/         App-level profiles, saving and cross-scene services
-TESTS/           Headless regression and performance checks
-UI/              Boot/menu screens, gameplay HUD, construction and inspectors
-WORLD/           Terrain, grid, navigation, resource nodes and world objects
+AUDIO/                    Shared playback, mixing and sound
+CAMERA/                   Player-follow, panning and zoom
+COMBAT/                   Shared damage, hit and shield resolution
+DEBUG/                    Performance monitoring and stress tools
+ENEMIES/                  Enemy data, AI, movement and spawning
+FEEDBACK/                 Shared effects and alerts
+FORTRESS/                 All base, building and resource infrastructure
+  BUILDINGS/              Construction, CPU, walls, durability, repairs
+  TOWERS/                 Tower targeting, weapons, upgrades and rank
+  ECONOMY/                Resource identities, balances and transfers
+  POWER/                  Local generation, batteries and networks
+  PRODUCTION/             Extraction, refining, fabrication and recipes
+  LOGISTICS/              Cargo drones, jobs and material delivery
+LEVELS/                   Scenarios and wave/pressure definitions
+NOTES/                    Coding conventions and design plans
+PLAYER/                   Chassis, movement, stats and weapons
+SYSTEMS/                  Session, profiles, saves and app services
+TESTS/                    Lightweight focused checks
+UI/                       HUD, menus and inspectors
+WORLD/                    Terrain, authoritative grid, navigation, deposits
 ```
 
 ### Ownership rules
 
 - **WORLD** owns the authoritative terrain/grid and occupancy state. **ENEMIES** uses navigation services; it should not maintain a competing world grid.
-- **BUILDINGS** owns generic construction, durability and non-tower structure behavior. **TOWERS** owns tower-specific targeting, weapons, upgrades and combat behavior.
+- **FORTRESS/BUILDINGS** owns generic construction, durability, CPU, walls and other structures. **FORTRESS/TOWERS** owns tower-specific targeting, weapons, upgrades and combat behavior.
 - **COMBAT** owns reusable damage/shield calculations. The attacker delivers the hit; the target owns its lifecycle and death consequences.
-- **ECONOMY** owns resource identities and transfers. **PRODUCTION** transforms materials; **LOGISTICS** physically moves them; **POWER** manages electrical supply. Keep responsibilities distinct.
+- Inside **FORTRESS/**: **ECONOMY** owns resource identities and transfers, **PRODUCTION** transforms materials, **LOGISTICS** physically moves them, and **POWER** manages electrical supply. Keep responsibilities distinct.
 - **PLAYER** owns chassis-specific state and abilities. **UI** displays state and sends actions but does not own the gameplay models.
 - **LEVELS** provides level-specific content and configuration; **SYSTEMS** owns persistence across scenes and sessions.
 - Prefer data-driven definitions and reusable components over duplicate scripts for every enemy, tower or building. Keep feature-specific files near their owning feature.
