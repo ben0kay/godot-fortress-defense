@@ -49,7 +49,7 @@ Define an Inspector-exposed `WorldGridConfig` when implementation begins:
 - `GroundClearanceCells` or size class based on agent radius. A 1-cell path between walls is **not** traversable by an enemy wider than its clearance.
 - `Seed`, prototype obstacle preset and initial CPU clearing dimensions.
 
-Each structure definition supplies **footprint width/height cells**, placement anchor and occupancy policy. Placeholder examples (illustrative only): CPU 5×5, tower 2×2, wall 1×1; these are not final gameplay dimensions. Validate bounds, building overlap, terrain legality, deposits and clear starting CPU placement. Placement events update occupancy once and increment a **topology revision**. Removing/destroying a building releases its cells. Avoid scanning all buildings each update.
+**Required from the first implementation: structures are NOT restricted to 1×1 cells.** Every building definition specifies a configurable integer **WidthCells × HeightCells** footprint (e.g., 1×1 wall, 2×3 tower, 3×4 refinery, 5×5 CPU; sizes illustrative). A placement anchor/origin determines which grid cells are occupied; rectangular asymmetric footprints and future orientation/rotation rules must be considered without hard-coding a single size. A building may be rendered larger or smaller than its actual navigation footprint, but its logical occupied cells must remain accurate. Placement must validate **every** cell in the footprint against map bounds, existing terrain solids, other buildings, deposits and placement restrictions; reserve/release **all** cells atomically. Destruction/removal updates all previously occupied cells and increments one topology revision, not one global recalculation per cell. Keep a cell-to-building reference for selecting/damaging the actual structure when an enemy attacks a blocked perimeter. Building collisions and enemy clearance must match this multi-cell occupancy model. Do not silently treat a multi-cell structure as a center point or a 1×1 obstacle.
 
 **Target approach cells:** CPU and towers usually occupy blocked cells. Never ask A* to route into the solid center of the CPU; select a reachable perimeter/attack position appropriate for the enemy's attack radius and footprint. The same holds for walls/obstacles chosen as fallback targets.
 
@@ -68,7 +68,7 @@ Ground Citadel-seeker decision algorithm:
 
 **Important nuance:** A cached unreachable result is only valid for a particular topology revision **and relevant starting region/agent clearance**. When a moving enemy crosses regions or topology changes, revisit as necessary. Prefer a cheap shared connectivity/flood-fill cache for many CPU-bound ground units if measurements show per-enemy A* reachability checks are too expensive. The CPU's impassable footprint is distinct from an accessible perimeter.
 
-**Future traversal classes:** Ground (terrain + built walls block), Flying (flies over ordinary ground blockers, subject to later air restrictions), Phasing/Breach (selective pass-through of some buildings but not necessarily terrain), Underground (future). Expose traversal policy; don't duplicate the whole AI per traversal class or assume flying always ignores map boundaries.
+**Future traversal classes and phasing requirement:** Ordinary Ground (terrain + built walls block), Flying (ignores ordinary ground blockers subject to later air restrictions), **Phasing Ground** (ignores **permitted building-occupied cells** such as walls/towers/structures while still respecting **natural solid terrain, map boundaries and any phase-proof blockers**), Underground (future). Phasing is a configurable enemy capability/traversal policy, **not** a separate duplicated enemy AI or an assumption that all ground obstacles disappear. Its optional ability flag changes path validity, actual physical collision/movement filtering and reachable target calculations consistently; a path that crosses a building must not cause physics collision to block the phasing enemy. Do **not** globally mark buildings walkable just to support one phasing enemy; ordinary ground enemies must remain blocked. Design traversal-specific nav queries/layers or derived grid views from the single authoritative WORLD occupancy data, updated on topology revisions; only materialize extra grids when the feature actually begins. A phaser should not automatically attack the surrounding walls when the CPU is enclosed if a legal phase-through path exists; ground non-phasers still breach walls. Never assume phasing bypasses terrain rocks or void cells.
 
 ## AI scheduler: strategic checks vs continuous movement
 
@@ -139,7 +139,7 @@ C. Full wall enclosure: seeker recognizes CPU unreachable, approaches and destro
 D. Wall placed mid-fight: navigation invalidation and staggered repath with no mass spike.  
 E. Tower defends CPU: 10 → 50 → 100 → 200 moving enemies with attack and effects.  
 F. Offscreen/fog: hidden enemies remain dangerous but expensive visuals are culled; when revealed they appear correctly.  
-G. Multiple enemy clearances/roles later: flying bypasses blockers while grounded enemies route/breach.
+G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing ground enemy** may traverse permitted building footprints without crossing solid terrain, while ordinary ground enemies route or breach.\nH. Multi-cell construction: 1×1 wall, 2×3 tower and larger CPU block every logical cell; removal/destruction clears exactly the occupied cells; no partial clipping or false passable routes.
 
 **Debug F1 / metrics** (real samples only): FPS, frame time, alive/visible/engaged enemy count, active projectile count, AI decision counts and duration, path requests pending/executed, navigation topology revision, enemy draw/cull counts, world seed, scenario and spawn cap. Clearly label unavailable timings or inferred totals; Godot engine frame time is not interchangeable with a custom timed C# section. Profiling should include frame-time spikes and GC allocations when meaningful.
 
@@ -154,7 +154,7 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers while grounde
 - Single ground `AStarGrid2D` path service + valid approach cells, clearance policy, diagonal/corner policy.
 - Expose one navigation revision / dirty invalidation event for dynamic footprint edits.
 - No full procgen, rendering framework or enemy AI yet.
-- **Owner acceptance:** can view/debug blocked vs walkable cells and verify a route around a fixed obstacle; placement/removal updates cells.
+- **Owner acceptance:** can view/debug blocked vs walkable cells, verify a route around a fixed obstacle, place a 2×3 (or larger) footprint without overlap, and remove/destroy it to restore **all** occupied cells.
 
 ### ST1 — Citadel, wall and pathing enemy
 **Status: Planned** · Depends ST0
@@ -162,7 +162,7 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers while grounde
 - Central enemy registry with safe spawn/despawn, one target profile (CPU seeker).
 - Path when reachable; when enclosed, fallback to reachable wall/building target and attack it; release footprint on destruction and recover route.
 - Keep core movement responsive even while tactical choices are throttled.
-- **Owner acceptance:** blocked-but-open route works, fully enclosed CPU triggers wall attack and then resumed path after breach.
+- **Owner acceptance:** blocked-but-open route works around multi-cell obstacles; fully enclosed CPU triggers non-phasing ground enemies to attack a wall, then resume Citadel pursuit after breach.
 
 ### ST2 — Shared scheduling and profiler overlay
 **Status: Planned** · Depends ST1
