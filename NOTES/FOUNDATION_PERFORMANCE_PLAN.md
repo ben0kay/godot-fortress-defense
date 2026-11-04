@@ -18,6 +18,8 @@ Do **not** turn the project into a speculative custom engine. Begin with simple 
 
 ## Proposed eventual folder structure
 
+**Structural rule:** all six building/base subsystems — `BUILDINGS`, `TOWERS`, `ECONOMY`, `POWER`, `PRODUCTION`, `LOGISTICS` — live exclusively under top-level `FORTRESS/`. Do not create same-named standalone root folders. `COMBAT/` stays root because the player and enemies also use it.
+
 These are **ownership destinations, not folders to pre-create empty in FD0**. Create each umbrella as the corresponding feature starts; include a short `README.md` and a feature `*MasterConfig`/default `.tres` **when enough tunable settings justify it**. Names below are illustrative; inspect existing source before adding parallel owners.
 
 ```text
@@ -62,35 +64,37 @@ godot-fortress-defense/
 │   ├── Movement/                      # flying / ground / steering behaviors
 │   ├── Rendering/                     # vector silhouettes and VFX adapters
 │   └── Spawning/
-├── BUILDINGS/
+├── FORTRESS/                       # single root umbrella for base systems
 │   ├── README.md
-│   ├── Construction/
-│   ├── CPU/                            # central objective
-│   ├── Walls/
-│   └── Infrastructure/
-├── TOWERS/
-│   ├── README.md
-│   ├── Data/
-│   ├── Targeting/
-│   └── Weapons/
-├── COMBAT/
+│   ├── BUILDINGS/                   # shared construction and structures
+│   │   ├── README.md
+│   │   ├── Construction/
+│   │   ├── CPU/                     # central objective
+│   │   ├── Walls/
+│   │   └── Infrastructure/
+│   ├── TOWERS/
+│   │   ├── README.md
+│   │   ├── Data/
+│   │   ├── Targeting/
+│   │   └── Weapons/
+│   ├── ECONOMY/
+│   │   ├── README.md
+│   │   └── Resources/              # balances, costs, transfers
+│   ├── POWER/
+│   │   └── README.md
+│   ├── PRODUCTION/
+│   │   ├── README.md
+│   │   ├── Mining/
+│   │   ├── Refining/
+│   │   └── Fabrication/
+│   └── LOGISTICS/
+│       ├── README.md
+│       └── CargoDrones/
+├── COMBAT/                         # shared by player, enemies and fortress
 │   ├── README.md
 │   ├── Damage/
 │   ├── Shields/
 │   └── Projectiles/
-├── ECONOMY/
-│   ├── README.md
-│   └── Resources/                     # currency/material ownership & transfer
-├── POWER/
-│   └── README.md
-├── PRODUCTION/
-│   ├── README.md
-│   ├── Mining/
-│   ├── Refining/
-│   └── Fabrication/
-├── LOGISTICS/
-│   ├── README.md
-│   └── CargoDrones/
 ├── FEEDBACK/
 │   └── README.md
 ├── UI/
@@ -103,7 +107,7 @@ godot-fortress-defense/
     └── README.md
 ```
 
-**Ownership rules:** WORLD owns terrain/grid/building occupancy and reusable navigation data. ENEMIES owns enemy behavior and calls WORLD services. BUILDINGS owns durability/placement of ordinary structures, TOWERS owns turret-specific behavior, COMBAT owns hit and damage resolution, and PLAYER owns the chassis. ECONOMY owns quantities/transfers; PRODUCTION converts materials; LOGISTICS moves physical goods; POWER distributes energy. DEBUG observes state; it must not become the game's authoritative gameplay manager. UI displays state and sends actions, and FEEDBACK owns cosmetics.
+**Ownership rules:** WORLD owns terrain/grid/occupancy and reusable navigation data. ENEMIES owns enemy behavior and calls WORLD services. The single root `FORTRESS/` umbrella contains `BUILDINGS/`, `TOWERS/`, `ECONOMY/`, `POWER/`, `PRODUCTION/` and `LOGISTICS/`; **none are standalone root folders**. Within it, BUILDINGS owns durability/placement, TOWERS owns turret behavior, ECONOMY owns quantities/transfers, PRODUCTION converts materials, LOGISTICS moves physical goods and POWER distributes energy. COMBAT owns shared hit/damage resolution for enemies, player and buildings; PLAYER owns the chassis. DEBUG observes state; it must not become the game's authoritative gameplay manager. UI displays state and sends actions, and FEEDBACK owns cosmetics.
 
 **Keep scene trees lean:** plain node containers for organization; scripts/process callbacks only when needed. Avoid one script per visual piece, needless autoloads and a huge all-purpose controller. **Don't build a generic ECS, multithreading scheduler or custom physics engine without profiler evidence.**
 
@@ -182,7 +186,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** Move freely in a world that has a defendable objective.
 
-- Add lightweight vector player chassis, movement/camera controls and a central CPU/health state.
+- Add lightweight vector player chassis, movement/camera controls and a central CPU/health state. The CPU's own scene/data belongs under `FORTRESS/BUILDINGS/CPU/` (create only needed folders); shared damage logic stays in root `COMBAT/`.
 - Introduce a compact `COMBAT/` foundation for generic damage/health ownership; no full shield/resistance hierarchy yet.
 - Ensure player and CPU lifecycle, death and future save identity are clearly separated.
 - Keep drawing/lightweight player input distinct from future enemy coordination.
@@ -210,7 +214,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** A small actual game loop: **player + CPU + buildable tower/wall + attacking enemies**.
 
-- Add `BUILDINGS/` placement/occupancy, durable wall/CPU and one reusable tower under `TOWERS/`.
+- Add `FORTRESS/BUILDINGS/` placement/occupancy, durable wall/CPU and one reusable tower under `FORTRESS/TOWERS/`.
 - Make enemies target CPU, structures and visible player according to configurable roles; add basic ranged and/or kamikaze attack as a small initial roster.
 - Implement basic player/tower weapons, projectiles/hits and CPU loss condition; expose relevant Inspector settings.
 - Make navigation react to building placement/destruction without per-frame global path rebuild.
