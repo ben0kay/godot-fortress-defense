@@ -126,7 +126,7 @@ Plan a root `WORLD/Visibility/` or `WORLD/FogOfWar/` owner only **when fog imple
 
 ## Mandatory shared building scene foundation — BF0/BF1
 
-**Status: Planned. This is a prerequisite for creating Citadel, Wall001 or Tower001 scenes in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
+**Status: Shared folder structure and `Building.tscn` shell created; BF0 runtime and BF1 inherited gameplay scenes still planned. This foundation is a prerequisite for Citadel, Wall001 and Tower001 in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
 
 ```text
 FORTRESS/BUILDINGS/
@@ -162,8 +162,8 @@ FORTRESS/BUILDINGS/
 
 ## Placeholder encounter and stress harness
 
-**Initial scene** (naming suggestions, adjust to real repo ownership):
-- `LEVELS/StressSandbox/` or `LEVELS/Scenarios/` entry/test scene.
+**Initial scene:**
+- **`DEBUG/test.tscn`** is the dedicated world/navigation/combat stress-test map (a blank `Node2D` shell currently). Keep campaign/scenario levels in `LEVELS/` separately.
 - `WORLD/` temporary seed/preset or deterministic obstacle layout; grid-backed solids/clearings.
 - `FORTRESS/BUILDINGS/Core/` simple static CPU with blocked footprint, health/damage receiver.
 - `FORTRESS/BUILDINGS/Defense/OffensiveTowers/` one simple non-upgraded tower, same shared health/building model; optional 1-cell wall under `Defense/Walls/`.
