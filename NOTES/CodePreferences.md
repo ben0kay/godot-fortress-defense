@@ -40,7 +40,7 @@ The goal is a maintainable, performant, playable **vector-style fortress-defense
 
 ## Folder ownership, scenes and configuration
 
-- Organize by **feature ownership** with recognizable uppercase umbrella folders as described in the root README; don't make one giant Scripts/Scenes directory.
+- Organize by **feature ownership** with recognizable uppercase umbrella folders as described in the root README; don't make one giant Scripts/Scenes directory. **Never put `BUILDINGS/`, `TOWERS/`, `ECONOMY/`, `POWER/`, `PRODUCTION/` or `LOGISTICS/` individually at repository root: all six belong inside `FORTRESS/`.**
 - Each substantial feature folder should have a short `README.md`: purpose, important files, dependencies, configurable values, current implementation status and any known limitations.
 - Prefer one **feature-level master config** with exported settings or typed `Resource` / `.tres` defaults when there are enough related knobs to justify it. Do not create empty config frameworks just to satisfy a naming convention.
 - Keep scene trees readable. Plain container `Node` helpers are welcome; container-only nodes **do not require processing scripts**. Avoid unnecessary autoloads, giant controllers and deep hard-coded `GetNode` paths.
@@ -50,13 +50,14 @@ The goal is a maintainable, performant, playable **vector-style fortress-defense
   - `LEVELS/`: scenarios, difficulty and attack-wave composition.
   - `ENEMIES/`: fortress-specific enemy catalog, behaviors, targeting, spawners and movement integration.
   - `PLAYER/`: combat chassis, movement, health, weapons and abilities.
-  - `BUILDINGS/`: generic structures, construction, walls, durability, repair and destruction.
-  - `TOWERS/`: tower definitions, weapons, targeting, heat, upgrades and rank.
-  - `COMBAT/`: shared hits, damage types, shields and resistance resolution.
-  - `ECONOMY/`: resource identities, balances, costs, inventory and transfers.
-  - `POWER/`: networks, producers, consumers, buffers and outages.
-  - `PRODUCTION/`: extraction, refining, fabrication and recipes.
-  - `LOGISTICS/`: drones, jobs, collection, deliveries and reservations.
+  - `FORTRESS/`: single top-level umbrella for **all base-owned systems**; it is an organizational folder, not a monolithic manager.
+    - `FORTRESS/BUILDINGS/`: construction, CPU, walls, durability, repair and destruction.
+    - `FORTRESS/TOWERS/`: definitions, targeting, heat, weapons, upgrades and rank.
+    - `FORTRESS/ECONOMY/`: resource identities, balances, costs, inventory and transfers.
+    - `FORTRESS/POWER/`: generators, relays, networks, consumers, buffers and outages.
+    - `FORTRESS/PRODUCTION/`: extraction, mining, refining, fabrication and recipes.
+    - `FORTRESS/LOGISTICS/`: cargo drones, jobs, collection, delivery and reservations.
+  - `COMBAT/`: shared hits, damage types, shields and resistance resolution (also used by enemies and player).
   - `UI/` and `FEEDBACK/`: menus, HUD, inspectors and shared audiovisual feedback.
   - `SYSTEMS/`, `CAMERA/`, `AUDIO/`, `TESTS/`: cross-scene services/persistence, camera, sound and lightweight checks.
 - These are **target owners, not proof these folders exist**. Do not relocate working subsystems solely to match an aspirational diagram.
@@ -83,7 +84,7 @@ The goal is a maintainable, performant, playable **vector-style fortress-defense
 - The battlefield uses **procedural open-map generation** and free building placement; do not import fixed portal-path assumptions from `godot-tower-defense`.
 - Preserve the game's distinct **minimal geometric/vector aesthetic**: arrows, rotating circles, unusual shapes, legible silhouettes and efficient 2D effects. Avoid importing Classic TD art or styling by default.
 - Keep tower data/inspector, damage, power and feedback concepts reusable, but **port selectively** and adapt to Fortress Defense's own rules; don't create a live cross-repository dependency without explicit authorization.
-- For mining and manufacturing, let `ECONOMY` own resource quantities/transfers, `PRODUCTION` own recipes, `LOGISTICS` own physical movement, and `POWER` own supply. Avoid parallel inventories or hidden resource mutation across subsystems.
+- For mining and manufacturing, keep everything under `FORTRESS/`: `ECONOMY` owns quantities/transfers, `PRODUCTION` owns recipes, `LOGISTICS` owns physical movement and `POWER` owns supply. World deposits and terrain remain in `WORLD/`. Avoid parallel inventories or hidden resource mutation across subsystems.
 - Ship features in **small playable milestones**: first CPU + player + tower/wall + one attacker, then behavior variety, then power/resources/logistics. Do not build the entire production chain before the core loop works.
 
 ## Godot 4 C# reliability
