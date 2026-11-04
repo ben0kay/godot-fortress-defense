@@ -134,9 +134,27 @@ Every major *implemented* feature folder should have a short `README.md` describ
 **Ownership and performance:** WORLD owns the grid/occupancy and navigation; BUILDINGS uses it for placement. ENEMIES owns target selection/AI. Root COMBAT owns shared damage rules. FORTRESS/SYSTEMS owns reusable base mechanics; no one giant fortress manager. Root UI owns presentation/interaction, not gameplay state. Root DEBUG owns metrics/stress tooling, while UI/DebugPanels owns F1 panels. Keep caches, bounded work, event-driven UI, staggered AI, power topology invalidation and storage/logistics reservations performance-conscious.
 
 
-## Building scene inheritance rule (BF0/BF1)
+## Shared Building scene and artwork contract (BF0/BF1)
 
-**Planned requirement:** Every constructible building, including Citadel, walls, towers, generators, mining, credit, industrial and storage structures, must derive from a single shared `FORTRESS/BUILDINGS/SHARED/BuildingBase.tscn` inherited Godot scene and the lightweight `BuildingBase.cs` lifecycle contract. The concrete Citadel, Wall001 and Tower001 placeholder scenes must use it from the outset. The base should provide shared building identity, config/footprint, health, placement, selection and destruction hooks, **not** mandatory weapon/power/resource processing. Special behavior remains optional in inheriting scenes or components. Rectangular multi-cell collision, occupancy and registration must be consistent, with no default per-frame building processing. Details and BF0/BF1 acceptance are in [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). Do not create an alternative tower-only shared root.
+**Planned requirement:** Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
+
+```text
+FORTRESS/BUILDINGS/
+  SHARED/
+    Building.tscn             # canonical inherited building scene
+    Building.cs               # event-driven root, health, footprint, selection
+    BuildingDefinition.cs     # stable ID/category/scene/footprint
+    BuildingRegistry.cs       # valid building references for target lookup
+  Core/Citadel/Citadel.tscn
+  Defense/Walls/Wall001/Wall001.tscn
+  Defense/OffensiveTowers/Tower001/Tower001.tscn
+```
+
+**Visual authoring conventions:** A concrete building can have an optional non-moving `BaseSprite` (building body/foundation), independently rotating `RotatingParts` (turret, barrel, muzzle marker), and optional `AnimatedParts` made from **baked animation sprites/sprite sheets** for small details such as fans or moving machinery. These are **optional attachments under the shared scene's Visuals anchor**, not mandatory components or processing scripts for every building. Turret rotation must never rotate the static base or change the placement footprint. Preserve sensible draw order and aligned origins.
+
+**Future construction presentation:** Keep room for a distinct optional `ConstructionVisuals` layer and staged construction sprites similar in spirit to `godot-tower-defense`, but explicitly defer their implementation until a construction pass. Building health, identity, multi-cell occupancy and placement must work without them.
+
+No automatic per-building processing; passive static visuals incur minimal overhead. Different capabilities (tower weapons, power, storage, mining, repair, construction) should be opt-in without an enormous universal building controller. Follow the detailed acceptance and BF0/BF1 prerequisites in [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). Avoid separate tower-only scene roots.
 
 ## Enemy architecture — modular expansion (folder foundation only)
 
