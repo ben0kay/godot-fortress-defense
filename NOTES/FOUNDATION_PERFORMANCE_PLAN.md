@@ -49,12 +49,18 @@ godot-fortress-defense/
 │   └── Scenes/
 ├── CAMERA/
 ├── ENEMIES/
-│   ├── Data/
-│   ├── Simulation/
-│   ├── AI/
-│   ├── Movement/
-│   ├── Rendering/
-│   └── Spawning/
+│   ├── README.md
+│   ├── CORE/                        # identity, runtime, lifecycle
+│   ├── DATA/                        # editable enemy definitions / presets
+│   ├── TYPES/                       # named enemy variants and families
+│   ├── AI/                          # tactical decisions, targeting, orders
+│   ├── MOVEMENT/                    # navigation integration and steering
+│   ├── ATTACKS/                     # contact, shots, beams, siege, ram
+│   ├── ABILITIES/                   # phasing, splitting, support, transport
+│   ├── MODIFIERS/                   # shielded, stealthed, armored, elite
+│   ├── SPAWNING/                    # waves, formation, queue and caps
+│   ├── VISUALS/                     # vector geometry and animation
+│   └── PERFORMANCE/                 # scheduling, indexing, metrics
 ├── FORTRESS/
 │   ├── BUILDINGS/                   # Every buildable structure
 │   │   ├── Core/                    # Citadel / CPU
@@ -125,6 +131,26 @@ Every major *implemented* feature folder should have a short `README.md` describ
 
 **Ownership and performance:** WORLD owns the grid/occupancy and navigation; BUILDINGS uses it for placement. ENEMIES owns target selection/AI. Root COMBAT owns shared damage rules. FORTRESS/SYSTEMS owns reusable base mechanics; no one giant fortress manager. Root UI owns presentation/interaction, not gameplay state. Root DEBUG owns metrics/stress tooling, while UI/DebugPanels owns F1 panels. Keep caches, bounded work, event-driven UI, staggered AI, power topology invalidation and storage/logistics reservations performance-conscious.
 
+
+## Enemy architecture — modular expansion (folder foundation only)
+
+**Status:** Only `ENEMIES/` README scaffolding is currently created. Gameplay systems remain planned for FD4/FD5. Read `ENEMIES/README.md` and individual ownership READMEs before implementing.
+
+- **CORE:** Small enemy entity/runtime, identity, state, spawn and cleanup. Avoid a huge all-in-one Enemy controller and avoid a script/timer for every decoration.
+- **DATA + TYPES:** `EnemyDefinition` (future C# Resource and .tres presets) expresses an enemy's base identity, visuals, vitals, targeting profile, movement, attack, rewards, modifiers and abilities. `TYPES/` contains concrete presets/scenes grouped by actual future family, *not* one duplicated behavior engine per class.
+- **AI:** Separates target selection (CPU/player/building priorities, visibility, reachability), orders (e.g. focus a miner/tower/player) and tactical behaviors (standard, pursue, standoff, orbit, anchor beam, support). No full-scene scan for every enemy every frame.
+- **MOVEMENT:** Ground/flying/underground movement, obstacle/phase rules, steering and standoff positions. `WORLD/` owns terrain, occupancy and reusable navigation services.
+- **ATTACKS:** Contact, regular/triple projectile, sniper, continuous beam, rocket/siege and kamikaze ram/explosion. Actual shared damage, hit handling and generic projectile systems belong to root `COMBAT/`.
+- **ABILITIES:** Phasing, splitting, transporting, regeneration, ally shield support, explosions and future special mechanics. Complex abilities have opt-in configuration/state; do not make a single huge flags switch.
+- **MODIFIERS:** Optional Shielded/Stealthed/Armored/Elite traits; flags are useful for classification, while actual mutable health/shields, reveal states and cooldowns live in runtime components.
+- **SPAWNING:** Staggered, capped enemy creation and contextual formations; wave definitions and scenario authoring may live in `LEVELS/`.
+- **VISUALS + PERFORMANCE:** Cost-conscious vector drawing, cosmetic culling independent of simulation, bounded AI work, spatial lookups and accurate counters. Do not claim a 200-enemy benchmark based only on stationary shapes.
+
+**Reference roster confirmed in GameMaker `VECTOR_TD_2026` enemy data:** weak seekers and MK2; building hunters and MK2; single/triple shooters and sniper; phaser; kamikaze; splitter/child; brute/berserker; flyer/heavy flyer/gunship; transporter MK1/MK2 and flying transporter; shield generator; siege beam/rocket; centipede head/child. Old enums define ground/flying/underground layers, contact/projectile/continuous beam attacks, abilities (phasing, explode, split, transport, regenerate, shield allies), modifiers (shielded, stealthed), tactical orders (player/miner/tower) and standoff/orbit/support behaviors. These are **references**, not proof that every old capability was finished.
+
+**Composition examples:** Siege Beam = heavy preset + standoff/anchor AI + beam attack + optional shield modifier. Kamikaze Arrow = fast flying preset + structure target priority + ram/explosion. Phaser Hunter = hunter preset + phasing ability + optionally stealth. Keep behavior and targeting separate from art shape. Add unique boss-specific scripts only when necessary.
+
+**Codex FD4 implementation order:** one runtime enemy, one definition, one vector visual, basic target/move/attack contracts, bounded spawning; then stress harness. Add categories and modules only as concrete enemy variants require them. **Do not create an ECS or 11 separate manager nodes just because the directories exist.**
 
 ## Performance architecture and measurable goals
 
@@ -214,7 +240,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** Establish high-count enemy representation **before** introducing a large enemy catalog.
 
-- Add `ENEMIES/` with data-driven definition for first geometric variant and extensible movement/attack/target role fields.
+- Use the already scaffolded `ENEMIES/CORE/`, `DATA/`, `TYPES/`, `AI/`, `MOVEMENT/`, `ATTACKS/`, `SPAWNING/`, `VISUALS/` and `PERFORMANCE/` ownership. Implement one data-driven geometric enemy with extensible movement/attack/target-role fields; opt into `ABILITIES/` and `MODIFIERS/` only when needed.
 - Implement only enough behavior to test **target selection among CPU, player and buildings (when buildings exist)**. Until FD5, use lightweight target dummies where necessary.
 - Shared/staggered target decisions, bounded path requests, cheap geometric rendering and robust spawn/despawn bookkeeping; ground vs flying only when justified for the test.
 - Add bounded stress controls via F1 for **10 / 50 / 100 / 200** active enemies, cleanup/reset and seed consistency. Do not spawn unbounded bursts.
