@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/SHARED/Building.tscn" id="1"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="2"]
+[ext_resource type="Script" path="res://DEBUG/Foundation/TestBuildingVisual.cs" id="3"]
+
+[sub_resource type="Resource" id="Definition"]
+script = ExtResource("2")
+BuildingId = "foundation_test"
+DisplayName = "Foundation Test (2x3)"
+Footprint = Vector2i(2, 3)
+MaxHealth = 100.0
+
+[node name="FoundationTestBuilding" instance=ExtResource("1")]
+Definition = SubResource("Definition")
+
+[node name="PrototypeVisual" type="Node2D" parent="Visuals" index="0"]
+script = ExtResource("3")

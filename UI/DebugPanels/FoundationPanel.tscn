@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[node name="FoundationPanel" type="CanvasLayer"]
+
+[node name="Controls" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 8.0
+mouse_filter = 2
+text = "FOUNDATION SANDBOX — BF0 / ST0\nLMB: place 2x3 / select | RMB: remove | MMB: terrain | H: damage selected | Delete: remove selected\nS / G: set route start / goal at cursor | Green route; orange goal; gray terrain; red clearance / invalid preview"
+
+[node name="Status" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 82.0
+mouse_filter = 2
+text = "Initializing foundation…"

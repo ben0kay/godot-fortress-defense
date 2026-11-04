@@ -1,7 +1,7 @@
 # Fortress Defense — Foundation & Performance Roadmap (FD0–FD5)
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** **Planned** — this document is an implementation brief for Codex, **not** evidence that its systems already exist.  
+**Status:** BF0 + ST0 **Source Implemented / Awaiting Owner Validation** in the focused stress track; FD0–FD5 remain a broader roadmap, not completed milestones. See `../DEBUG/README.md` for the current sandbox and owner checks.
 **Gameplay reference:** `ben0kay/VECTOR_TD_2026` (GameMaker/GML).  
 **Architecture/style reference:** `ben0kay/godot-tower-defense` (Godot 4 C#).  
 **Authoritative local guidance:** root `README.md`, `NOTES/CodePreferences.md`, `AGENTS.md` if present, and the actual owning source files.
@@ -136,7 +136,7 @@ Every major *implemented* feature folder should have a short `README.md` describ
 
 ## Shared Building scene and artwork contract (BF0/BF1)
 
-**Planned requirement:** Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
+**BF0 Source Implemented / Awaiting Owner Validation:** shared Building scene/runtime, definition, registry and atomic placement exist, demonstrated by an inherited DEBUG test fixture. Concrete Citadel/wall/tower remain planned. Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
 
 ```text
 FORTRESS/BUILDINGS/

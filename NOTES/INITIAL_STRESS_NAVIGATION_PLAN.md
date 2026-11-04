@@ -1,6 +1,6 @@
 # Fortress Defense — Initial Navigation & 200-Enemy Stress-Test Plan (ST0–ST5)
 
-**Status:** Planned (documentation only; no gameplay coded by this plan)  
+**Status:** BF0 + ST0 **Source Implemented / Awaiting Owner Validation**; BF1/ST1–ST5 remain Planned. See `../DEBUG/README.md` for controls and checks.
 **Owner repo / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Read first:** `AGENTS.md`, root `README.md`, `NOTES/CodePreferences.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `ENEMIES/README.md`.  
 **References:** `ben0kay/VECTOR_TD_2026` `scripts/scr_navigation/scr_navigation.gml`, `scr_enemy_data`, `scr_enemy_behavior`, `scr_enemy_spawner` and world/grid scripts; Godot 4 `AStarGrid2D` documentation. Do **not** modify reference repositories.  
@@ -126,7 +126,7 @@ Plan a root `WORLD/Visibility/` or `WORLD/FogOfWar/` owner only **when fog imple
 
 ## Mandatory shared building scene foundation — BF0/BF1
 
-**Status: Shared folder structure and `Building.tscn` shell created; BF0 runtime and BF1 inherited gameplay scenes still planned. This foundation is a prerequisite for Citadel, Wall001 and Tower001 in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
+**Status: BF0 shared scene/runtime, definitions, health, selection, registry and rectangular placement/collision are Source Implemented / Awaiting Owner Validation. DEBUG contains an inherited 2×3 test building. BF1 gameplay scenes remain planned. This foundation is a prerequisite for Citadel, Wall001 and Tower001 in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
 
 ```text
 FORTRESS/BUILDINGS/
@@ -163,7 +163,7 @@ FORTRESS/BUILDINGS/
 ## Placeholder encounter and stress harness
 
 **Initial scene:**
-- **`DEBUG/test.tscn`** is the dedicated world/navigation/combat stress-test map (a blank `Node2D` shell currently). Keep campaign/scenario levels in `LEVELS/` separately.
+- **`DEBUG/test.tscn`** is the dedicated world/navigation/combat stress-test map (BF0/ST0 interactive foundation sandbox; encounter content below remains planned). Keep campaign/scenario levels in `LEVELS/` separately.
 - `WORLD/` temporary seed/preset or deterministic obstacle layout; grid-backed solids/clearings.
 - `FORTRESS/BUILDINGS/Core/` simple static CPU with blocked footprint, health/damage receiver.
 - `FORTRESS/BUILDINGS/Defense/OffensiveTowers/` one simple non-upgraded tower, same shared health/building model; optional 1-cell wall under `Defense/Walls/`.
@@ -194,7 +194,9 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing 
 **These are sequential authorization slices**; each can be implemented without the full later economy/production systems. Keep existing FD0/FD1 foundation intent and reuse already completed work instead of replacing it.
 
 ### ST0 — Grid and navigation contract (no enemies yet)
-**Status: Planned**
+**Status: Source Implemented / Awaiting Owner Validation**
+
+Implemented: finite grid/config resource, atomic multi-cell occupancy, distinct terrain/building collision, one shared corner-safe ground A*, clearance policy, approach-cell candidates and incremental dirty-rectangle revision events. `DEBUG/test.tscn` is the launch scene with route preview and manual placement/removal/damage/terrain controls. SDK metadata added (Godot.NET.Sdk 4.7.2 / net8.0); no Godot or dotnet installed here, so source/diff review only. No stress/FPS result or editor acceptance claimed. Request queue/movement safety remain ST1/ST2; full procgen/fog/combat remain later.
 - Confirm project boot state and available Godot 4 C# API.
 - Establish small `WORLD/Grid/` occupancy/footprint data and world/cell transformations; configurable test cell size; deterministic simple obstacle test scene.
 - Single ground `AStarGrid2D` path service + valid approach cells, clearance policy, diagonal/corner policy.

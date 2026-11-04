@@ -1,10 +1,10 @@
 # BUILDINGS
 
-**Status:** Category folders and the shared scene shell are scaffolded; health, footprints, construction, placement, collision, weapons and registration are **not implemented**.
+**Status:** BF0 shared scene/runtime, definitions, health, selection, rectangular footprints, collision, placement and registry are Source Implemented / Awaiting Owner Validation. Construction, concrete gameplay buildings and weapons remain planned.
 
 All actual structures inherit `SHARED/Building.tscn` (Godot inherited scenes). Concrete scenes are organized by **purpose**, not by shared gameplay system:
 
-- `SHARED/` — universal building scene and future Building.cs, definitions and registry.
+- `SHARED/` — universal building scene, Building.cs, definitions and per-world registry.
 - `Core/` — Citadel/CPU and unique base structures.
 - `Defense/` — offensive towers, repair towers, shields and walls.
 - `Energy/` — power generators, solar, wind, relays/pylons and batteries.
@@ -15,6 +15,6 @@ All actual structures inherit `SHARED/Building.tscn` (Godot inherited scenes). C
 
 Building category is independent of capabilities. A tower can consume power; a miner may produce physical inventory; neither justifies duplicating global resources or navigation.
 
-**Visuals:** Each inherited building can add a non-rotating `BaseSprite`, optional independently rotating `RotatingParts` (with muzzle marker if needed) and optional baked `AnimatedParts`. `ConstructionVisuals` (staged sprites/drones) is reserved for later. Do not attach unused processing nodes to every building. Rectangular multi-cell footprints must be authored as data when BF0 is implemented, not inferred from sprites.
+**Visuals:** Each inherited building can add a non-rotating `BaseSprite`, optional independently rotating `RotatingParts` (with muzzle marker if needed) and optional baked `AnimatedParts`. `ConstructionVisuals` (staged sprites/drones) is reserved for later. Do not attach unused processing nodes to every building. Rectangular multi-cell footprints are authored in BuildingDefinition, not inferred from sprites.
 
-**Next code passes:** BF0 creates the shared Building.cs/definition/registry, footprint/collision and lifecycle. BF1 creates inherited Citadel, Tower001 and Wall001 scenes. Root `DEBUG/test.tscn` hosts the future stress map. See `../../NOTES/INITIAL_STRESS_NAVIGATION_PLAN.md`.
+**Current pass:** BF0 is source implemented; see `SHARED/README.md`. Root `DEBUG/test.tscn` hosts an inherited 2×3 foundation test fixture. **Next:** BF1/ST1 creates Citadel and Wall001; Tower001/combat belongs to ST3. See `../../NOTES/INITIAL_STRESS_NAVIGATION_PLAN.md`.
