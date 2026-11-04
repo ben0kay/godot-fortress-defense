@@ -4,7 +4,7 @@ A top-down, sci-fi **fortress-defense, action, and base-management** game built 
 
 The goal is to recreate and then expand the gameplay of my earlier **VECTOR TD 2026** GameMaker project, while using the cleaner, modular, documented architecture established in **godot-tower-defense**.
 
-> **Project status:** BF0 + ST0 foundation is **Source Implemented / Awaiting Owner Validation**: reusable inherited building lifecycle and an interactive finite grid/navigation sandbox in `DEBUG/test.tscn`. See [DEBUG controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). Citadel, enemies, towers/combat, procedural generation, power and logistics remain planned. The game-concept mechanics below describe the intended game, not completed features.
+> **Project status:** New Godot project / foundation stage. The mechanics below describe the intended game and architecture, **not features already implemented** here.
 
 ## Reference repositories
 
@@ -52,20 +52,20 @@ ENEMIES/                      Enemy data, AI, movement and spawning
 FEEDBACK/                     World visual effects and feedback
 FORTRESS/
   BUILDINGS/                  Every player-built structure
-    Core/                     Citadel / CPU and unique central structures
-    Defense/                  Offensive towers, repair towers, shields, walls
-    Energy/                   Generators, solar, wind, pylons/relays, batteries
-    Extraction/               Ore-specific mines and extractors
-    Economy/                  Credit-producing structures
-    Industry/                 Refineries, fabricators, ammunition plants
-    Infrastructure/           Storage, cargo hubs, construction support
+	Core/                     Citadel / CPU and unique central structures
+	Defense/                  Offensive towers, repair towers, shields, walls
+	Energy/                   Generators, solar, wind, pylons/relays, batteries
+	Extraction/               Ore-specific mines and extractors
+	Economy/                  Credit-producing structures
+	Industry/                 Refineries, fabricators, ammunition plants
+	Infrastructure/           Storage, cargo hubs, construction support
   SYSTEMS/                    Shared mechanics, NOT additional buildings
-    BuildingPlacement/        Placement, construction rules and occupancy calls
-    BuildingHealth/           Structure lifecycle and durability
-    Resources/                Credits, physical materials, accounting
-    PowerNetwork/             Connected supply, consumption and buffers
-    Production/               Mining/refining/fabrication processing
-    Logistics/                Drone dispatch and material transfers
+	BuildingPlacement/        Placement, construction rules and occupancy calls
+	BuildingHealth/           Structure lifecycle and durability
+	Resources/                Credits, physical materials, accounting
+	PowerNetwork/             Connected supply, consumption and buffers
+	Production/               Mining/refining/fabrication processing
+	Logistics/                Drone dispatch and material transfers
 LEVELS/                       Scenarios and waves
 NOTES/                        Code preferences and plans
 PLAYER/                       Chassis and weapons
