@@ -18,98 +18,113 @@ Do **not** turn the project into a speculative custom engine. Begin with simple 
 
 ## Proposed eventual folder structure
 
-**Structural rule:** all six building/base subsystems — `BUILDINGS`, `TOWERS`, `ECONOMY`, `POWER`, `PRODUCTION`, `LOGISTICS` — live exclusively under top-level `FORTRESS/`. Do not create same-named standalone root folders. `COMBAT/` stays root because the player and enemies also use it.
+**Structural rule:** `FORTRESS/BUILDINGS/` contains **all** constructible structures, including towers. Organize them by purpose; `FORTRESS/SYSTEMS/` holds the reusable mechanics powering those structures. Keep **all UI at repository root `UI/`**, including build menus, building inspectors and debug panels. Root `SYSTEMS/` (app lifecycle/saving) is intentionally distinct from `FORTRESS/SYSTEMS/` (building/base mechanics). Root `COMBAT/` remains shared by the player, enemies and fortress.
 
-These are **ownership destinations, not folders to pre-create empty in FD0**. Create each umbrella as the corresponding feature starts; include a short `README.md` and a feature `*MasterConfig`/default `.tres` **when enough tunable settings justify it**. Names below are illustrative; inspect existing source before adding parallel owners.
+This is a **proposed eventual structure**, not a command to create empty folders in FD0. Add subfolders/READMEs/configs only when implementing the relevant features; use feature-level master config resources when justified.
 
 ```text
 godot-fortress-defense/
 ├── project.godot
 ├── README.md
-├── AGENTS.md                         # optional; create only if useful
 ├── NOTES/
 │   ├── CodePreferences.md
 │   └── FOUNDATION_PERFORMANCE_PLAN.md
-│
 ├── SYSTEMS/
-│   ├── README.md
-│   ├── GameSession/                   # boot, game state, pause, transitions
-│   └── Persistence/                   # future save/load contracts
+│   ├── GameSession/                 # boot/pause/transitions
+│   └── Persistence/                 # session save/load
 ├── DEBUG/
-│   ├── README.md
-│   ├── Performance/                   # F1 counters and samples
-│   └── StressTools/                   # bounded manual test spawning
+│   ├── Performance/                 # measurements/counters, not panel
+│   └── StressTools/                 # manual enemy benchmarks
 ├── WORLD/
-│   ├── README.md
-│   ├── Generation/                    # seed, stages, generation settings
-│   ├── Grid/                          # authoritative cells and occupancy
-│   ├── Navigation/                    # navigation queries / dirty revisions
-│   ├── Resources/                     # world deposits, not economy totals
-│   └── Scenes/                        # battlefield scene and world visuals
+│   ├── Generation/                  # reproducible map seed/stages
+│   ├── Grid/                        # authoritative occupancy
+│   ├── Navigation/                  # world path services
+│   ├── Resources/                   # physical ore nodes/deposits
+│   └── Scenes/
 ├── LEVELS/
-│   ├── README.md
-│   └── Scenarios/                     # game-mode rules and wave content
+│   └── Scenarios/
 ├── PLAYER/
-│   ├── README.md
 │   ├── Chassis/
 │   ├── Weapons/
 │   └── Scenes/
 ├── CAMERA/
-│   └── README.md
 ├── ENEMIES/
-│   ├── README.md
-│   ├── Data/                          # enemy definitions / inspector resources
-│   ├── Simulation/                    # lifecycle and coordinated updates
-│   ├── AI/                            # role, target selection and combat
-│   ├── Movement/                      # flying / ground / steering behaviors
-│   ├── Rendering/                     # vector silhouettes and VFX adapters
+│   ├── Data/
+│   ├── Simulation/
+│   ├── AI/
+│   ├── Movement/
+│   ├── Rendering/
 │   └── Spawning/
-├── FORTRESS/                       # single root umbrella for base systems
-│   ├── README.md
-│   ├── BUILDINGS/                   # shared construction and structures
-│   │   ├── README.md
-│   │   ├── Construction/
-│   │   ├── CPU/                     # central objective
-│   │   ├── Walls/
+├── FORTRESS/
+│   ├── BUILDINGS/                   # Every buildable structure
+│   │   ├── Core/                    # Citadel / CPU
+│   │   ├── Defense/
+│   │   │   ├── OffensiveTowers/
+│   │   │   ├── RepairTowers/
+│   │   │   ├── Shields/
+│   │   │   └── Walls/
+│   │   ├── Energy/
+│   │   │   ├── Generators/
+│   │   │   ├── SolarPanels/
+│   │   │   ├── WindTurbines/
+│   │   │   ├── Relays/
+│   │   │   └── Batteries/
+│   │   ├── Extraction/
+│   │   │   ├── CopperMine/
+│   │   │   ├── IronMine/
+│   │   │   └── SiliconMine/
+│   │   ├── Economy/
+│   │   │   └── CreditGenerators/
+│   │   ├── Industry/
+│   │   │   ├── Refineries/
+│   │   │   ├── Fabricators/
+│   │   │   └── Ammunition/
 │   │   └── Infrastructure/
-│   ├── TOWERS/
-│   │   ├── README.md
-│   │   ├── Data/
-│   │   ├── Targeting/
-│   │   └── Weapons/
-│   ├── ECONOMY/
-│   │   ├── README.md
-│   │   └── Resources/              # balances, costs, transfers
-│   ├── POWER/
-│   │   └── README.md
-│   ├── PRODUCTION/
-│   │   ├── README.md
-│   │   ├── Mining/
-│   │   ├── Refining/
-│   │   └── Fabrication/
-│   └── LOGISTICS/
-│       ├── README.md
-│       └── CargoDrones/
-├── COMBAT/                         # shared by player, enemies and fortress
-│   ├── README.md
+│   │       ├── Storage/
+│   │       ├── CargoHubs/
+│   │       └── Construction/
+│   └── SYSTEMS/                     # Shared mechanics, not building types
+│       ├── BuildingPlacement/
+│       ├── BuildingHealth/
+│       ├── Resources/               # Credits / physical inventory
+│       ├── PowerNetwork/            # Connected electrical supply
+│       ├── Production/              # Extraction/conversion recipes
+│       └── Logistics/               # Cargo jobs, reservations
+├── COMBAT/
 │   ├── Damage/
 │   ├── Shields/
 │   └── Projectiles/
-├── FEEDBACK/
-│   └── README.md
-├── UI/
-│   ├── README.md
+├── FEEDBACK/                        # World VFX and non-UI effects
+├── UI/                              # ALL user interfaces
+│   ├── Menus/
 │   ├── HUD/
-│   └── Inspectors/
+│   ├── BuildMenu/
+│   ├── BuildingInspector/
+│   └── DebugPanels/
 ├── AUDIO/
-│   └── README.md
 └── TESTS/
-    └── README.md
 ```
 
-**Ownership rules:** WORLD owns terrain/grid/occupancy and reusable navigation data. ENEMIES owns enemy behavior and calls WORLD services. The single root `FORTRESS/` umbrella contains `BUILDINGS/`, `TOWERS/`, `ECONOMY/`, `POWER/`, `PRODUCTION/` and `LOGISTICS/`; **none are standalone root folders**. Within it, BUILDINGS owns durability/placement, TOWERS owns turret behavior, ECONOMY owns quantities/transfers, PRODUCTION converts materials, LOGISTICS moves physical goods and POWER distributes energy. COMBAT owns shared hit/damage resolution for enemies, player and buildings; PLAYER owns the chassis. DEBUG observes state; it must not become the game's authoritative gameplay manager. UI displays state and sends actions, and FEEDBACK owns cosmetics.
+Every major *implemented* feature folder should have a short `README.md` describing ownership, configs, dependencies and status. Avoid empty placeholder folders or individual per-building managers.
 
-**Keep scene trees lean:** plain node containers for organization; scripts/process callbacks only when needed. Avoid one script per visual piece, needless autoloads and a huge all-purpose controller. **Don't build a generic ECS, multithreading scheduler or custom physics engine without profiler evidence.**
+### Building categories and systems
+
+| Player-facing building category | Example structures | Shared systems it may use |
+| --- | --- | --- |
+| Core | Citadel/CPU | Health, combat, power, resources |
+| Defense | Offensive/repair towers, static shields, walls | Combat, power, targeting, repair |
+| Energy | Generator, solar, wind, relay/pylon, battery | Power network, health |
+| Extraction | Copper/iron/silicon mine | World deposits, power, production, physical inventory, logistics |
+| Economy | Credit generator | Credit balance, optionally power |
+| Industry | Refinery, fabricator, ammo plant | Production, power, inventory, logistics |
+| Infrastructure | Storage, cargo hub, construction support | Inventory, logistics, building placement |
+
+**These categories classify the buildings in code and the build menu, not their exclusive functions.** Buildings may opt into multiple systems. A repair tower is still a `Defense/` building; a solar panel is an `Energy/` building that participates in a network; a copper mine is an `Extraction/` building that consumes power and produces physical inventory. The Citadel remains under `Core/` even if initially not buildable. Store progression/unlock requirements in each building definition, not in category-wide hard-coded checks. One mining building per ore can gate progression without separate duplicated miner engines.
+
+**Resource types:** (1) **Credits** are currency credited/spent through resource accounting, potentially generated per second by an Economy building; (2) **Power** is real-time connected generation/demand, with batteries/storage but not a cargo item; (3) **Physical ores/materials** (e.g. copper, iron, silicon) are mined, held in hoppers/storage, transferred by logistics and consumed by recipes. Distinguish world ore deposits (`WORLD/Resources/`) from owned resource quantities (`FORTRESS/SYSTEMS/Resources/`).
+
+**Ownership and performance:** WORLD owns the grid/occupancy and navigation; BUILDINGS uses it for placement. ENEMIES owns target selection/AI. Root COMBAT owns shared damage rules. FORTRESS/SYSTEMS owns reusable base mechanics; no one giant fortress manager. Root UI owns presentation/interaction, not gameplay state. Root DEBUG owns metrics/stress tooling, while UI/DebugPanels owns F1 panels. Keep caches, bounded work, event-driven UI, staggered AI, power topology invalidation and storage/logistics reservations performance-conscious.
+
 
 ## Performance architecture and measurable goals
 
@@ -143,7 +158,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 **Goal:** A small, bootable foundation with clean ownership and no speculative gameplay engine.
 
 - Confirm Godot 4 C#/.NET project setup and launch path, current actual repo contents.
-- Add only immediately necessary umbrellas: `SYSTEMS/`, `WORLD/`, `UI/` or `CAMERA/` as needed, plus succinct feature README(s). Existing `NOTES/` remains the plan authority.
+- Add only immediately necessary umbrellas: `SYSTEMS/`, `WORLD/`, root `UI/` or `CAMERA/` as needed, plus succinct feature README(s). Existing `NOTES/` remains the plan authority.
 - Add a minimal main scene/session/level handoff with a blank vector-styled battlefield and camera or viewport framing.
 - Establish a single place for game/session state and a few Inspector-exported settings; do not create empty configs for every future subsystem.
 - Set up logical entry points so later player/CPU/towers/world modules can be composed, not hard-coded into one controller.
@@ -157,7 +172,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** Expose performance before gameplay complexity appears.
 
-- Add `DEBUG/` with an **F1** debug panel; show FPS, frame milliseconds, live enemies, visible enemies and projectiles, plus optional tracked subsystem timings.
+- Add `DEBUG/` for instrumentation and root `UI/DebugPanels/` for an **F1** debug panel; show FPS, frame milliseconds, live enemies, visible enemies and projectiles, plus optional tracked subsystem timings.
 - Distinguish **Godot-reported frame timing** from any custom **measured code-section timing**; label missing counters as unavailable rather than fabricate values.
 - Add cheap counters/hooks for future enemy/spawner/combat owners; no polling over the entire scene each frame solely to display counts.
 - Keep debug work dormant when closed and use bounded/throttled text refreshes; a persistent tiny FPS readout is optional via config.
@@ -186,7 +201,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** Move freely in a world that has a defendable objective.
 
-- Add lightweight vector player chassis, movement/camera controls and a central CPU/health state. The CPU's own scene/data belongs under `FORTRESS/BUILDINGS/CPU/` (create only needed folders); shared damage logic stays in root `COMBAT/`.
+- Add lightweight vector player chassis, movement/camera controls and a central CPU/health state. The CPU's own scene/data belongs under `FORTRESS/BUILDINGS/Core/` (create only needed folders); shared damage logic stays in root `COMBAT/`.
 - Introduce a compact `COMBAT/` foundation for generic damage/health ownership; no full shield/resistance hierarchy yet.
 - Ensure player and CPU lifecycle, death and future save identity are clearly separated.
 - Keep drawing/lightweight player input distinct from future enemy coordination.
@@ -214,7 +229,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 
 **Goal:** A small actual game loop: **player + CPU + buildable tower/wall + attacking enemies**.
 
-- Add `FORTRESS/BUILDINGS/` placement/occupancy, durable wall/CPU and one reusable tower under `FORTRESS/TOWERS/`.
+- Add the shared placement/health functionality under `FORTRESS/SYSTEMS/`, durable wall/CPU under `FORTRESS/BUILDINGS/`, and one tower under `FORTRESS/BUILDINGS/Defense/OffensiveTowers/`. Put its construction menu and inspector views in root `UI/`.
 - Make enemies target CPU, structures and visible player according to configurable roles; add basic ranged and/or kamikaze attack as a small initial roster.
 - Implement basic player/tower weapons, projectiles/hits and CPU loss condition; expose relevant Inspector settings.
 - Make navigation react to building placement/destruction without per-frame global path rebuild.
