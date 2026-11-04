@@ -134,6 +134,10 @@ Every major *implemented* feature folder should have a short `README.md` describ
 **Ownership and performance:** WORLD owns the grid/occupancy and navigation; BUILDINGS uses it for placement. ENEMIES owns target selection/AI. Root COMBAT owns shared damage rules. FORTRESS/SYSTEMS owns reusable base mechanics; no one giant fortress manager. Root UI owns presentation/interaction, not gameplay state. Root DEBUG owns metrics/stress tooling, while UI/DebugPanels owns F1 panels. Keep caches, bounded work, event-driven UI, staggered AI, power topology invalidation and storage/logistics reservations performance-conscious.
 
 
+## Building scene inheritance rule (BF0/BF1)
+
+**Planned requirement:** Every constructible building, including Citadel, walls, towers, generators, mining, credit, industrial and storage structures, must derive from a single shared `FORTRESS/BUILDINGS/SHARED/BuildingBase.tscn` inherited Godot scene and the lightweight `BuildingBase.cs` lifecycle contract. The concrete Citadel, Wall001 and Tower001 placeholder scenes must use it from the outset. The base should provide shared building identity, config/footprint, health, placement, selection and destruction hooks, **not** mandatory weapon/power/resource processing. Special behavior remains optional in inheriting scenes or components. Rectangular multi-cell collision, occupancy and registration must be consistent, with no default per-frame building processing. Details and BF0/BF1 acceptance are in [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). Do not create an alternative tower-only shared root.
+
 ## Enemy architecture — modular expansion (folder foundation only)
 
 **Status:** Only `ENEMIES/` README scaffolding is currently created. Gameplay systems remain planned for FD4/FD5. Read `ENEMIES/README.md` and individual ownership READMEs before implementing.
