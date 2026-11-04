@@ -41,40 +41,53 @@ Organize by **feature ownership**, not by one huge Scripts/Scenes folder. Prefer
 
 The following is the **target structure**, not a claim that these folders already exist:
 
-**Fortress-owned systems live under one top-level `FORTRESS/` umbrella**. `ENEMIES/`, `PLAYER/` and `WORLD/` remain separate top-level gameplay domains. The sections within `FORTRESS/` remain distinct owners, not one giant controller.
+**All player-constructible structures are buildings** and live in `FORTRESS/BUILDINGS/`, grouped by player-facing purpose. The shared gameplay services used by those buildings live in `FORTRESS/SYSTEMS/`. Root `UI/` owns **all interfaces** including fortress build menus and inspectors. Other gameplay domains remain separate at root.
 
 ```text
-AUDIO/                    Shared playback, mixing and sound
-CAMERA/                   Player-follow, panning and zoom
-COMBAT/                   Shared damage, hit and shield resolution
-DEBUG/                    Performance monitoring and stress tools
-ENEMIES/                  Enemy data, AI, movement and spawning
-FEEDBACK/                 Shared effects and alerts
-FORTRESS/                 All base, building and resource infrastructure
-  BUILDINGS/              Construction, CPU, walls, durability, repairs
-  TOWERS/                 Tower targeting, weapons, upgrades and rank
-  ECONOMY/                Resource identities, balances and transfers
-  POWER/                  Local generation, batteries and networks
-  PRODUCTION/             Extraction, refining, fabrication and recipes
-  LOGISTICS/              Cargo drones, jobs and material delivery
-LEVELS/                   Scenarios and wave/pressure definitions
-NOTES/                    Coding conventions and design plans
-PLAYER/                   Chassis, movement, stats and weapons
-SYSTEMS/                  Session, profiles, saves and app services
-TESTS/                    Lightweight focused checks
-UI/                       HUD, menus and inspectors
-WORLD/                    Terrain, authoritative grid, navigation, deposits
+AUDIO/                        Shared audio
+CAMERA/                       Player camera
+COMBAT/                       Shared damage / shields / projectiles
+DEBUG/                        Runtime metrics / stress tools (UI views in root UI)
+ENEMIES/                      Enemy data, AI, movement and spawning
+FEEDBACK/                     World visual effects and feedback
+FORTRESS/
+  BUILDINGS/                  Every player-built structure
+    Core/                     Citadel / CPU and unique central structures
+    Defense/                  Offensive towers, repair towers, shields, walls
+    Energy/                   Generators, solar, wind, pylons/relays, batteries
+    Extraction/               Ore-specific mines and extractors
+    Economy/                  Credit-producing structures
+    Industry/                 Refineries, fabricators, ammunition plants
+    Infrastructure/           Storage, cargo hubs, construction support
+  SYSTEMS/                    Shared mechanics, NOT additional buildings
+    BuildingPlacement/        Placement, construction rules and occupancy calls
+    BuildingHealth/           Structure lifecycle and durability
+    Resources/                Credits, physical materials, accounting
+    PowerNetwork/             Connected supply, consumption and buffers
+    Production/               Mining/refining/fabrication processing
+    Logistics/                Drone dispatch and material transfers
+LEVELS/                       Scenarios and waves
+NOTES/                        Code preferences and plans
+PLAYER/                       Chassis and weapons
+SYSTEMS/                      Game session, profiles, persistence (not fortress systems)
+TESTS/                        Focused checks
+UI/                           ALL menus, HUD, build menu, inspectors, debug panels
+WORLD/                        Procedural map, grid, navigation, ore deposits
 ```
+
+**Categories are player/build-menu labels, not exclusive gameplay capabilities.** A Copper Mine is in `BUILDINGS/Extraction/` but uses power, inventories and logistics. A Repair Tower is in `BUILDINGS/Defense/` and can consume electricity. The central CPU is in `BUILDINGS/Core/`, not a separate root class. A universal building definition can identify category, footprint, unlock requirements, health, build cost and optional capabilities without a separate manager for every building.
+
+**Resource semantics:** Credits are currency/account balances, electricity is networked power generation/demand with optional batteries, and ores are physical inventory (e.g., copper/iron/silicon) mined from deposits, stored and moved by logistics. Power is **not** treated as physical cargo. The `BUILDINGS/Economy/` category means credit-generation buildings only; the common `FORTRESS/SYSTEMS/Resources/` owns resource accounting for all categories.
 
 ### Ownership rules
 
-- **WORLD** owns the authoritative terrain/grid and occupancy state. **ENEMIES** uses navigation services; it should not maintain a competing world grid.
-- **FORTRESS/BUILDINGS** owns generic construction, durability, CPU, walls and other structures. **FORTRESS/TOWERS** owns tower-specific targeting, weapons, upgrades and combat behavior.
-- **COMBAT** owns reusable damage/shield calculations. The attacker delivers the hit; the target owns its lifecycle and death consequences.
-- Inside **FORTRESS/**: **ECONOMY** owns resource identities and transfers, **PRODUCTION** transforms materials, **LOGISTICS** physically moves them, and **POWER** manages electrical supply. Keep responsibilities distinct.
-- **PLAYER** owns chassis-specific state and abilities. **UI** displays state and sends actions but does not own the gameplay models.
-- **LEVELS** provides level-specific content and configuration; **SYSTEMS** owns persistence across scenes and sessions.
-- Prefer data-driven definitions and reusable components over duplicate scripts for every enemy, tower or building. Keep feature-specific files near their owning feature.
+- **WORLD** owns authoritative terrain, resource deposits and grid/occupancy state. Buildings query or request occupancy changes through its services; **ENEMIES** uses navigation services, not a competing grid.
+- **FORTRESS/BUILDINGS** owns the constructible catalog, its scenes/data and category organization. **All towers are buildings**. Place offensive and repair towers under `Defense/`; put ore-specific mines in `Extraction/`, generators and relays in `Energy/`, credit earners in `Economy/`.
+- **FORTRESS/SYSTEMS** owns shared building mechanics: placement, building health, resource accounting, power topology, processing and logistics. Don't copy these mechanics into each building. Systems can serve more than one building category.
+- **COMBAT** owns reusable damage/shield resolution for buildings, player and enemies. **PLAYER** owns player state. **ENEMIES** owns its own AI, targets, roles and spawning.
+- **Root UI/** owns all user interfaces — gameplay HUD, menus, building placement UI, building inspectors and F1 panels. `DEBUG/` owns collection/instrumentation, not the panel views.
+- **LEVELS** defines scenarios; root **SYSTEMS** owns session/save services (distinct from `FORTRESS/SYSTEMS`).
+- Keep everything modular and data-driven; categories are not a forced one-to-one mapping to systems or capabilities.
 
 ## Coding and configuration conventions
 
@@ -88,7 +101,7 @@ In particular:
 - Keep scene trees readable by grouping related nodes; avoid unnecessary node clutter.
 - Centralize shared systems (navigation, economy, damage, audio) without putting unrelated behavior into one controller.
 - Consider hundreds of enemies and towers early: avoid repeated full-scene searches, pathfinding every frame, wasteful allocations and expensive per-entity work.
-- Add or extend headless regression tests for major systems; preserve working gameplay.
+- Follow the minimal AI validation policy in CodePreferences; the owner performs extensive Godot tests.
 - Record **implemented vs planned** functionality accurately in feature READMEs. Large future-design documents are not proof that a feature exists.
 
 ## Suggested development order
