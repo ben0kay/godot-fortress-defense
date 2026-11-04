@@ -126,29 +126,39 @@ Plan a root `WORLD/Visibility/` or `WORLD/FogOfWar/` owner only **when fog imple
 
 ## Mandatory shared building scene foundation — BF0/BF1
 
-**Status: Planned. This is a prerequisite for creating Citadel, Wall001 or Tower001 scenes in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/BuildingBase.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
+**Status: Planned. This is a prerequisite for creating Citadel, Wall001 or Tower001 scenes in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
 
 ```text
 FORTRESS/BUILDINGS/
   SHARED/
-    BuildingBase.tscn       # canonical scene for every structure
-    BuildingBase.cs         # lightweight root Node2D and building lifecycle
+    Building.tscn       # canonical scene for every structure
+    Building.cs         # lightweight root Node2D and building lifecycle
     BuildingDefinition.cs   # data-driven identity, footprint, base health, category
     BuildingRegistry.cs     # centralized living building lookup / targeting
-  Core/Citadel/Citadel.tscn                  # inherited from BuildingBase.tscn
-  Defense/Walls/Wall001/Wall001.tscn        # inherited from BuildingBase.tscn
-  Defense/OffensiveTowers/Tower001/Tower001.tscn  # inherited from BuildingBase.tscn
+  Core/Citadel/Citadel.tscn                  # inherited from Building.tscn
+  Defense/Walls/Wall001/Wall001.tscn        # inherited from Building.tscn
+  Defense/OffensiveTowers/Tower001/Tower001.tscn  # inherited from Building.tscn
 ```
 
-**Base scene essentials:** a root `Node2D` with `BuildingBase.cs`, one modest/common graphics anchor for a building silhouette and optional selection/damage feedback anchors; any base collision shape should be authored/configured from the **full rectangular footprint** in world units and collision policy. Keep the initial tree lean. The base script owns building ID/definition, world grid anchor, `Vector2I` footprint, health and alive/destroyed state, placement/selection and events (placed, damaged, destroyed, removed), and cooperation with `FORTRESS/SYSTEMS/BuildingPlacement` and root `WORLD/Grid`. Definition data is shared/read-only; runtime state is per instance.
+**Shared scene essentials:** `Building.tscn` has a lightweight `Node2D` root running `Building.cs`, a reusable `Visuals` anchor and footprint-aware collision/selection anchors. It owns building identity, definition, grid anchor, `Vector2I` footprint, health, destruction and change notifications, and communicates with `FORTRESS/SYSTEMS/BuildingPlacement` and `WORLD/Grid`. Do **not** force an empty sprite, turret, animation player, or construction effect onto every structure. Shared authored definitions stay separate from instance runtime state.
 
-**Inherited concrete scenes:** Citadel, Wall001 and Tower001 add their **own visuals and optional nodes/scripts**; Tower001 alone can mount a weapon/targeting component, without imposing an attack loop on other buildings. Power producer/consumer, resource hopper, mine, refinery, shield, construction and logistics capabilities are future opt-ins, **not** mandatory children of `BuildingBase.tscn`. Keep the generic damage calculation in root `COMBAT/`, not duplicated per building.
+**Concrete inherited scenes:** `Citadel.tscn`, `Wall001.tscn`, `Tower001.tscn` inherit `Building.tscn`. The actual world instance is the particular inherited scene (e.g., Tower001), *not* an unrelated building root. Inherit the common base and add only the children that building uses.
 
-**Avoid scene-inheritance traps:** validate Godot inherited-scene relationships in editor; do not replace a shared inherited root script with unrelated derivatives that bypass the lifecycle. Prefer typed reusable components, composition and virtual hooks sparingly. A scene-specific script can derive from `BuildingBase` if necessary. Root `UI/` owns selection/Inspector presentation, not the base scene.
+**Building visuals / layering (authoring contract):**
+- `BaseSprite` (optional `Sprite2D`): **static base/platform/body** that never rotates during combat. Tower foundations, chassis housing and floor mounts belong here.
+- `RotatingParts` (optional `Node2D` with `Sprite2D` or other lightweight visual): turret head/barrel/aiming section rotates *independently* around an intentional pivot; its muzzle marker (when necessary) rotates with it. The base sprite and footprint collision **never rotate** just because a turret tracks a target.
+- `AnimatedParts` (optional `Node2D`/`Sprite2D` with `AnimatedSprite2D`, `AnimationPlayer` or shader, as appropriate): small moving pieces, lights, fans, conveyor segments, etc. Prefer **pre-baked sprite/sprite-sheet layers** rather than numerous individual processing nodes. An animated overlay can be combined with a static base and rotating section.
+- `ConstructionVisuals` (future, optional): separate build-progress visual/sprite layer or inherited construction-stage presentation, inspired by `godot-tower-defense`. Construction state can later drive staged sprites/animations without replacing the final artwork or creating a separate building hierarchy. **Do not implement construction effects, drones, scaffolding, or staged sprites during the first stress test.**
+- These are **optional scene child conventions**, not four mandatory children for every wall or mine. The shared scene exposes a common `Visuals` attachment point; type-specific artwork and visual logic stay inside the concrete building scene, not in the building engine.
+- Define stable 2D draw ordering (e.g., base below rotating/animated elements, effects above when appropriate) and local origins so baked sprite pieces align to the same placement/footprint. Graphics dimensions and navigation footprint are independent.
+
+**Performance:** static sprites remain passive. Aim a turret only when necessary (active targeting or visible presentation), no per-building visual polling just to maintain an unchanging base. Avoid spinning up dozens of child nodes for a handful of baked animated pixels; animations run only while relevant. Cosmetic culling may skip offscreen animation, but gameplay logic, damage and tower fire must continue when a tower is offscreen.
+
+**Avoid scene-inheritance traps:** validate Godot inherited-scene relationships in editor; do not replace a shared inherited root script with unrelated derivatives that bypass the lifecycle. Prefer typed reusable components, composition and virtual hooks sparingly. A scene-specific script can derive from `Building` if necessary. Root `UI/` owns selection/Inspector presentation, not the base scene.
 
 **Performance and footprint contracts:** base building is **event-driven, with no default `_Process` or `_PhysicsProcess`**. Building registration/unregistration updates a shared registry without global scene scans. A multi-cell footprint (1×1, 2×3, 5×5 etc.) occupies/releases every cell in one atomic grid operation; collision and navigation match the same rectangle. Placing/removing a wall generates one navigation batch/topology change; prioritize impacted enemies' repath work rather than updating all enemies synchronously. The visuals may exceed the navigation footprint but must never change grid occupancy silently.
 
-**BF0 acceptance:** one inherited test building shares base health, selection and footprint behavior; supports non-1×1 footprints and leaves no occupied cells after removal. **BF1 acceptance:** Citadel/Wall001/Tower001 all visibly inherit `BuildingBase.tscn`; only Tower001 fires, and placing/removing Wall001 changes ground navigation. Use these same scenes in ST1 and ST3—do not create disposable, incompatible placeholder roots.
+**BF0 acceptance:** one inherited test building shares base health, selection and footprint behavior; supports non-1×1 footprints and leaves no occupied cells after removal. **BF1 acceptance:** Citadel/Wall001/Tower001 all visibly inherit `Building.tscn`; Tower001 has a non-rotating base visual and optional independent rotating turret visual; only Tower001 fires, and placing/removing Wall001 changes ground navigation. Use these same scenes in ST1 and ST3—do not create disposable, incompatible placeholder roots.
 
 ## Placeholder encounter and stress harness
 
@@ -194,7 +204,7 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing 
 
 ### ST1 — Citadel, wall and pathing enemy
 **Status: Planned** · Depends ST0
-- Create BF0's shared `BuildingBase.tscn` foundation if it doesn't exist; the placeholder Citadel and wall **must inherit it**. Implement CPU footprint/health, basic vector ground enemy, edge-of-map spawn and waypoint movement.
+- Create BF0's shared `Building.tscn` foundation if it doesn't exist; the placeholder Citadel and wall **must inherit it**. Implement CPU footprint/health, basic vector ground enemy, edge-of-map spawn and waypoint movement.
 - Central enemy registry with safe spawn/despawn, **Enemy001** with cached default Citadel target and a separate temporary wall/building breach target. No weighted target-choice implementation.
 - Path when reachable; when enclosed, fallback to reachable wall/building target and attack it; release footprint on destruction and recover route.
 - Keep core movement responsive even while tactical choices are throttled.
@@ -210,7 +220,7 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing 
 
 ### ST3 — Placeholder tower and combat load
 **Status: Planned** · Depends ST2
-- Implement Tower001 as an **inherited scene of `BuildingBase.tscn`**, with footprint, range, optional weapon node, simple fire/projectile/damage, shared COMBAT behavior and destruction cleanup.
+- Implement Tower001 as an **inherited scene of `Building.tscn`**, with footprint, range, optional weapon node, simple fire/projectile/damage, shared COMBAT behavior and destruction cleanup.
 - One or a few walls/buildings and active combat; same dynamic grid edit path as ST0. Basic Citadel default plus wall-breach fallback is enough; defer sophisticated/weighted target priorities.
 - Stress conditions include tower shots, enemy attacks, AI switching and wall destruction, not merely silhouettes.
 - **Owner acceptance:** 10/50/100/200 active simulated Enemy001 units and a tower operate together; placing/removing walls mid-fight causes correct staggered rerouting and/or breach behavior; owner reports representative FPS/spikes.
