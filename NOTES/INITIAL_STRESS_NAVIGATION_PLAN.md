@@ -55,6 +55,16 @@ Define an Inspector-exposed `WorldGridConfig` when implementation begins:
 
 **Map changes:** New walls, demolished walls and procedural obstacle changes invalidate relevant cached reachability/path data. Queue expensive follow-up work with stagger/budget; avoid doing 200 full repaths synchronously during a build action. Immediate locally necessary state change is allowed, but queue costly searches.
 
+### Enemy001 initial targeting and future extensibility
+
+**For the first stress test, keep this deliberately simple:** `Enemy001` is a regular ground attacker whose **strategic/default target is the Citadel**. Assign/cache the Citadel reference at spawn (or resolve via a stable target registry); do not re-scan for a preferred building/player every frame. A missing/destroyed target, navigation topology change, blocked approach, or explicit order can **invalidate** the cached active route/target and trigger a bounded re-evaluation. A temporary wall/building **breach target** is different from the enemy's enduring strategic Citadel target: after an opening appears, it can return to the Citadel.
+
+**The world can change while enemies are moving.** Player-built walls may seal an open corridor or be removed/destroyed. Footprint placement/removal modifies `WORLD` occupancy and increments a topology revision; enemies must not continue to follow stale paths through newly solid cells. Revalidate affected next steps and queue staggered repaths / reachability decisions rather than calculating all routes in one frame. A wall can be placed after enemies spawn; navigation and fallback behavior must still work.
+
+**Future, not in this test:** support an explicit target assignment/order (e.g., attack the player, a tower, a mine, a specific building), and optional per-enemy **target-selection profiles** such as a weighted initial 80% Citadel / 20% nearby building choice. Treat percentages as an optional future *selection policy at an event or scheduled decision*, **not a per-frame lottery** and not a requirement for Enemy001. Don't implement percentages, commander orders, sophisticated building scoring, or player aggro until requested. Keep `strategic_target`, `active_target`, and `breach_target` concepts distinct so they can be introduced without rewriting the movement engine.
+
+**Initial acceptance emphasis:** the useful benchmark is **enemies navigating dynamically changed walls while one or more towers shoot them**; measure movement, pathfinding, attack/projectile costs and frame spikes with 10/50/100/200 simultaneous enemies. Do not spend this pass on extra factions, advanced target switching, elaborate tower upgrades, full player AI aggro, or content breadth.
+
 ### Dynamic nav and Citadel fallback behavior
 
 Ground Citadel-seeker decision algorithm:
@@ -159,7 +169,7 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing 
 ### ST1 — Citadel, wall and pathing enemy
 **Status: Planned** · Depends ST0
 - Placeholder CPU footprint and health, basic vector ground enemy, edge-of-map spawn, movement along waypoints.
-- Central enemy registry with safe spawn/despawn, one target profile (CPU seeker).
+- Central enemy registry with safe spawn/despawn, **Enemy001** with cached default Citadel target and a separate temporary wall/building breach target. No weighted target-choice implementation.
 - Path when reachable; when enclosed, fallback to reachable wall/building target and attack it; release footprint on destruction and recover route.
 - Keep core movement responsive even while tactical choices are throttled.
 - **Owner acceptance:** blocked-but-open route works around multi-cell obstacles; fully enclosed CPU triggers non-phasing ground enemies to attack a wall, then resume Citadel pursuit after breach.
@@ -175,9 +185,9 @@ G. Multiple enemy clearances/roles later: flying bypasses blockers; a **phasing 
 ### ST3 — Placeholder tower and combat load
 **Status: Planned** · Depends ST2
 - One tower with footprint, range, simple fire/projectile/damage; shared COMBAT behavior and destruction cleanup.
-- One or a few walls/buildings, target priorities and active combat; same grid edit path as ST0.
+- One or a few walls/buildings and active combat; same dynamic grid edit path as ST0. Basic Citadel default plus wall-breach fallback is enough; defer sophisticated/weighted target priorities.
 - Stress conditions include tower shots, enemy attacks, AI switching and wall destruction, not merely silhouettes.
-- **Owner acceptance:** 10/50/100/200 active simulated enemies and a tower operate together; owner reports representative FPS/spikes.
+- **Owner acceptance:** 10/50/100/200 active simulated Enemy001 units and a tower operate together; placing/removing walls mid-fight causes correct staggered rerouting and/or breach behavior; owner reports representative FPS/spikes.
 
 ### ST4 — Procedural layout and fog foundation
 **Status: Planned** · Depends ST3
