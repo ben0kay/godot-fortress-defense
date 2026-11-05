@@ -66,3 +66,5 @@ Tower001 uses local copies of the original Battle Tower base/gun and approximate
 BM0: this fixed sandbox explicitly uses TryPlaceFree, including W/T placement. Its credit diagnostic labels FREE DEBUG placement; no purchases or refunds occur. Level001 uses authored costs unless its Config.FreeDebugPlacement is enabled.
 
 BM1: shared Ctrl → category → building menu is available here, labelled FREE DEBUG. The sandbox initially keeps wall placement armed. W/T select, LMB/drag builds repeatedly, Esc/RMB cancels. After cancellation, clicking selects and RMB/Delete removes. F1/F2 remain unchanged. [Shared build menu](../UI/BuildMenu/README.md).
+
+Revised PL0/CAM0: this sandbox has no player by default and uses the shared free camera. C safely toggles follow only for a living player; Home frames the map, MMB pans and wheel zooms. B + MMB retains terrain editing. Clear enemies using F2 → Clear; C no longer clears. RootPlayer stays empty unless a configured level enables spawning.

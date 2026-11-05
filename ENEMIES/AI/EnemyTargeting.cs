@@ -3,16 +3,27 @@ using Godot;
 
 public static class EnemyTargeting
 {
-    public static bool Live(Building target) => GodotObject.IsInstanceValid(target) && target.IsPlaced && !target.IsDestroyed;
+    public static bool Live(ICombatTarget target) => CombatTarget.IsAlive(target);
 
     // Attack range is center-to-footprint distance; another wall/terrain blocks contact line of sight.
-    public static bool CanAttackFrom(WorldGrid grid, Vector2 position, Building target, float range)
+    public static bool CanAttackFrom(WorldGrid grid, Vector2 position, ICombatTarget target, float range)
     {
         if (!Live(target)) return false;
-        Rect2 rect = grid.FootprintRect(target.OccupiedArea);
+        Rect2 rect = target.TargetBounds(grid);
         Vector2 closest = position.Clamp(rect.Position, rect.End);
         return position.DistanceSquaredTo(closest) <= range * range
-            && grid.SegmentClear(position, closest, 0, target);
+            && grid.SegmentClear(position, closest, 0, target as Building);
+    }
+
+    // Only explicit cached candidates are considered; target choice never owns movement or attack execution.
+    public static ICombatTarget ChooseObjective(Enemy enemy, ICombatTarget mobile)
+    {
+        if (enemy.TargetRule == EnemyDefinition.TargetPriority.CitadelOnly || !Live(mobile)) return enemy.StrategicTarget;
+        float playerDistance = enemy.GlobalPosition.DistanceSquaredTo(mobile.TargetNode.GlobalPosition);
+        if (playerDistance > enemy.PlayerDetectionRange * enemy.PlayerDetectionRange) return enemy.StrategicTarget;
+        if (enemy.TargetRule == EnemyDefinition.TargetPriority.NearestWithinRange && Live(enemy.StrategicTarget)
+            && playerDistance >= enemy.GlobalPosition.DistanceSquaredTo(enemy.StrategicTarget.GlobalPosition)) return enemy.StrategicTarget;
+        return mobile;
     }
 
     // Local boundary lookup, never a registry/world-wide target scan for every enemy.

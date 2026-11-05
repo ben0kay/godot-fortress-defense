@@ -1,6 +1,6 @@
 # Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0)
 
-**Status:** BM0 and BM1 **Source Implemented / Awaiting Owner Validation**. PL0, CAM0 and FW0 remain **Planned**. No later-pass implementation authorized by this note alone.
+**Status:** BM0, BM1, revised PL0 and CAM0 **Source Implemented / Awaiting Owner Validation**. FW0 remains **Planned**. No later-pass implementation authorized by this note alone.
 **Repository / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Sequence:** BM0 (catalogue/resources) → BM1 (category-based build menu) → PL0 (player) → CAM0 (camera) → FW0 (fog of war). Each pass requires explicit approval.  
 **First:** read `AGENTS.md`, `NOTES/CodePreferences.md`, root `README.md`, this plan, owning READMEs, and current source/scenes. Preserve `LEVELS/Level001` combat-stress baseline and debug tools.
@@ -52,25 +52,25 @@ Do **not** implement power, ammo, heat, upgrades, research, production, logistic
 - Initially keep Godot Tower Defense-like UI presentation but do **not** copy upgrade/heat/ammo/power Inspector panels or introduce a full tower-upgrade system.
 - Acceptance: Ctrl → Defense → Tower001/Wall001 → preview → valid purchase placement; cancel doesn't charge; blocked/unaffordable visibly communicated; repeated placement is deliberate; Level001 and Level005 can reuse the same UI scene without duplicated implementation.
 
-## PL0 — player foundation
+## PL0 — revised optional modular player
 
-**Ownership:** root `PLAYER/` player scene/controller/movement/health foundation; `LEVELS/SHARED/` spawns; future combat in root `COMBAT/` and `PLAYER/Weapons/` when authorized.
+**Source Implemented / Awaiting Owner Validation.** This revision supersedes the original mandatory-player/AI-excluded foundation. See [PLAYER](../PLAYER/README.md).
 
-- Replace/consume Level001's current reserved `PlayerSpawn` `Marker2D` with actual spawned lightweight, visually identifiable top-down mobile chassis, initially beside the Citadel. Keep start position legal, preserve world cell reservation lifecycle, and do not overlap Citadel, terrain or other solids.
-- Basic movement with configurable acceleration/top speed/collision radius (simple first pass), facing/aim driven by pointer if helpful; input mapping Inspector-configurable; no weapon fire, ammo, chassis class/progression, stats-heavy UI, AI player targeting or complex animation yet.
-- Player must respect terrain/building collisions and not bypass world boundaries; walls should not be placed on an occupied player. Keep building interface usable without accidentally steering/shooting while it has focus.
-- Do not mix player state, camera code, and world generation in one large controller.
-- Acceptance: player spawns next to CPU, moves visibly and collides correctly, can build and cannot occupy a newly placed wall.
+- Reusable PLAYER/Player.tscn supplies Inspector-configurable arrow movement, speed/acceleration/radius, health and simple aqua vector chassis visuals. No weapons/upgrades/abilities.
+- LevelConfig exposes SpawnPlayer, PlayerScene and PlayerRequiredForDefeat. Player spawning defaults **off** in Level001; an optional absence is valid and preserves the benchmark. Enabled players spawn at PlayerSpawn beside the CPU. Plain RootPlayer owns the instance.
+- WORLD grid sweeps enforce terrain/buildings/bounds. Shared placement and spawning reject overlap with a living player; no actor-specific pathfinding grid or mandatory player reference in WORLD/buildings.
+- Shared ICombatTarget geometry/damage/loss events let Enemy001 consider an explicitly injected mobile target. EnemyDefinition selects CitadelOnly, PreferNearbyPlayer or NearestWithinRange and a detection radius. A bounded round-robin roster staggers decisions; every route uses the existing queue/budgets. Dead/removed/unreachable player targets safely fall back to the Citadel; CPU wall-breach behavior remains.
+- LevelObjectiveSignals publishes PlayerDied/CitadelDestroyed and conditional one-shot DefeatRequested. Player-required levels request defeat on death/removal; optional/no-player levels do not. CitadelRequiredForDefeat defaults true. No results screen, gameplay stop or mission-end flow implemented.
 
-## CAM0 — follow/free-roam camera modes
+## CAM0 — revised optional follow / default Free Roam
 
-**Ownership:** root `CAMERA/` camera scripts/settings; level scene contains/configures a reusable camera instance, not separate custom camera algorithms per level.
+**Source Implemented / Awaiting Owner Validation.** This revision supersedes the earlier default-follow/Tab plan. See [CAMERA](../CAMERA/README.md).
 
-- **Default camera follows player**, with smoothness, offset, zoom and bounds exposed in Inspector.
-- **Tab** toggles to free-roam camera (mouse pan/middle-drag and/or configured keyboard movement) and back; zoom with wheel. Switching should be deliberate and ideally preserve view smoothly.
-- Define camera-vs-player input ownership and priority so moving the free camera does not issue player movement by accident. Menu/UI input must not leak into map placement.
-- Camera position **must not change fog visibility**. The player can inspect parts of the world without revealing them just by moving the free camera.
-- Level001 full-map/debug inspection remains achievable (debug override where needed). Keep current world regeneration/debug controls, scrolling/zoom, and preserve an option to test without the player cam.
+- Reusable CAMERA/BattlefieldCamera.tscn starts **Free Roam**, full-map framed, independent of player presence. MMB pans; wheel zooms; Home frames the full map.
+- **C** toggles follow for a living injected player. With none it safely stays free; death/removal returns to free automatically. Inspector configures zoom, follow smoothing/offset, pan sensitivity/button and world bounds.
+- C is reserved for camera toggling in every level. Enemy clearing/cancelling/pausing stays in the existing **F2 Clear** control; the old C clear shortcut is removed.
+- Ctrl/GUI input does not leak into camera/player movement or building placement. F1/F2 and W/T quick building controls remain intact. Arrow keys belong to the player, not the free camera.
+- Only follow runs continuously; free motion/zoom/resize is input/event-driven. No camera-driven world reveal; fog remains FW0, unimplemented.
 
 ## FW0 — three-state fog of war (later)
 

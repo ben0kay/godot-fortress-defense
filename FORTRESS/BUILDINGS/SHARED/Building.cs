@@ -2,8 +2,12 @@
 using Godot;
 using System;
 
-public partial class Building : Node2D
+public partial class Building : Node2D, ICombatTarget
 {
+    public Node2D TargetNode => this;
+    public bool TargetAlive => IsPlaced && !IsDestroyed && !IsQueuedForDeletion();
+    public Rect2 TargetBounds(WorldGrid grid) => grid.FootprintRect(OccupiedArea);
+    public event Action TargetLost { add => Detached += value; remove => Detached -= value; }
     [Export] public BuildingDefinition Definition { get; set; }
     public string BuildingId { get; private set; }
     public Vector2I Footprint { get; private set; }

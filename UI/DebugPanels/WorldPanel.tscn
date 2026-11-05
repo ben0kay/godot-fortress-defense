@@ -4,7 +4,7 @@
 offset_left = 16.0
 offset_top = 8.0
 mouse_filter = 2
-text = "LEVEL001 — PROCEDURAL FORTRESS DEFENSE\nCtrl: build menu | W/T: quick build | LMB/drag: build | Esc/RMB: cancel | Click: select (idle) | Delete/RMB (idle): remove | F1: world | F2: spawn | R: reset"
+text = "LEVEL001 — PROCEDURAL FORTRESS DEFENSE\nCtrl: build menu | W/T: quick build | LMB/drag: build | Esc/RMB: cancel | Click: select (idle) | Delete/RMB (idle): remove | Arrows: player | C: camera | Home: map | F1: world | F2: spawn/clear | R: reset"
 [node name="Status" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 58.0

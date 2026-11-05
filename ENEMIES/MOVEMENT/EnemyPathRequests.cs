@@ -16,7 +16,8 @@ public partial class EnemyPathRequests : Node
     private Enemy _active;
     private Vector2I _origin, _goal;
     private ulong _revision;
-    private Building _chosen, _breach;
+    private ICombatTarget _chosen;
+    private Building _breach;
     private Vector2I _breachGoal;
     private float _breachScore;
     private bool _readyForPath;
@@ -69,9 +70,9 @@ public partial class EnemyPathRequests : Node
             if (_probe.TryVisit(out Vector2I cell))
             {
                 visited++;
-                if (EnemyTargeting.CanAttackFrom(_grid, _grid.CellCenter(cell), _active.StrategicTarget, _active.AttackRange))
-                { _chosen = _active.StrategicTarget; _goal = cell; _readyForPath = true; continue; }
-                Building candidate = EnemyTargeting.BreachAt(_grid, cell, _active.StrategicTarget, _active.AttackRange);
+                if (EnemyTargeting.CanAttackFrom(_grid, _grid.CellCenter(cell), _active.NavigationTarget, _active.AttackRange))
+                { _chosen = _active.NavigationTarget; _goal = cell; _readyForPath = true; continue; }
+                Building candidate = _active.NavigationTarget != _active.StrategicTarget ? null : EnemyTargeting.BreachAt(_grid, cell, _active.StrategicTarget, _active.AttackRange);
                 if (candidate != null)
                 {
                     float score = candidate.GlobalPosition.DistanceSquaredTo(_active.StrategicTarget.GlobalPosition)
@@ -85,7 +86,7 @@ public partial class EnemyPathRequests : Node
         }
         if (_active == null && _queue.Count == 0) SetPhysicsProcess(false);
     }
-    private void Finish(Building target, Vector2[] route)
+    private void Finish(ICombatTarget target, Vector2[] route)
     { Enemy enemy = _active; _active = null; enemy.AcceptRoute(target, route); }
     public override void _ExitTree() { _queue.Clear(); _queued.Clear(); _active = null; }
 }

@@ -1,0 +1,19 @@
+# PL0 — optional modular player
+
+**Source Implemented / Awaiting Owner Validation.** `Player.tscn` is a small Node2D chassis with geometric aqua visuals inspired by VECTOR TD's player, scalar health, damage flash and health arc. No weapon, ability, upgrade, physics-body crowd system or global player singleton.
+
+In **Level001 root → Config**, enable **SpawnPlayer** and choose **PlayerScene** (authored default `res://PLAYER/Player.tscn`). The default is **disabled**, preserving the no-player benchmark. Shared level composition spawns at RootWorld/PlayerSpawn beside the CPU; RootPlayer is a plain container. Missing player is normal. Enabled spawning with a missing/wrong scene or obstructed spawn reports a clear authoring error. Player-required + spawning-disabled is invalid configuration, rather than a hidden defeat on optional-player levels.
+
+For reuse in other scenes, instantiate Player.tscn and call Initialize(world) before AddChild, or assign its World Inspector property to an initialized WorldGrid. Unbound scenes remain dormant. InputBlocked is an optional callback; the level uses it for the Ctrl menu. No scene-wide lookup. Player scene exports MovementSpeed230px/s, Acceleration1400px/s², Radius12px, MaxHealth100 and arrow-key bindings. Radius must be positive and less than half the world's cell size. Restart after authoring stats.
+
+**Arrow keys move.** W/T remain building shortcuts. Release keys to decelerate; menu/text-input focus immediately stops motion. Closing the build menu or clicking the world resumes held movement. Idle actors sleep until movement input wakes them. Movement sweeps each axis against WORLD's current grid, exactly like enemy collision authority, allowing wall sliding and preventing tunnelling through terrain/buildings/bounds. It does not use a competing physics/navigation grid. Player and enemies may overlap; crowd separation/pushing is deferred.
+
+Placement rejects the player's conservative radius/clearance area through the shared AdditionalValidation hook, including free debug builds. Spawn preflight also rejects player overlap. The actor is **not a permanent navigation solid**; enemies can pursue it. The original reserved spawn-marker cell stays reserved as before, including in no-player levels; moving the player does not reserve every cell it crosses.
+
+`ICombatTarget` under COMBAT is the common damage/target geometry contract. Player.ApplyDamage follows the existing finite-positive scalar receiver convention. HealthChanged and Died publish actual changes; TargetLost publishes once on death or removal. Camera/enemy references invalidate through that event. Destruction/removal never resurrects or silently replaces a required actor.
+
+EnemyDefinition exposes CitadelOnly / PreferNearbyPlayer (default) / NearestWithinRange and PlayerDetectionRange500px. See ENEMIES/AI for bounded selection, moving-goal and unreachable-target behavior. No-player levels retain the original CPU/breach behavior.
+
+`LevelObjectiveSignals` exposes unconditional PlayerDied and CitadelDestroyed events plus one-shot DefeatRequested(reason). LevelConfig.PlayerRequiredForDefeat defaults false; CitadelRequiredForDefeat defaults true. Required-player removal also requests defeat; optional/no-player absence/death does not. EndSession unsubscribes during reload, and the objective node exits before actors during scene teardown. This is only an integration hook: no pause, mission-end flow or results screen. The CPU's existing death/spawner stop behavior remains intact even when its future defeat hook is disabled.
+
+Owner check: run Level001 unchanged (no player), then enable SpawnPlayer. Inspect arrow movement/collision, wall placement on actor, health/damage/death, and removal while followed. Configure an eligible enemy versus CitadelOnly, and compare player-required/optional death events. These are owner editor checks; no gameplay/FPS acceptance is claimed.

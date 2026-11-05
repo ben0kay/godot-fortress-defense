@@ -15,14 +15,15 @@ public partial class LevelController
     // Cancellation clears input state and the ghost, never submitting a purchase.
     public void CancelPlacement()
     {
-        SelectedBuildingId = null; _painting = false; _panning = false; SetProcess(false);
+        SelectedBuildingId = null; _painting = false; SetProcess(false);
         _buildMenu.Preview.Hide(); _notice = "Placement cancelled — Ctrl opens building menu";
         PlacementSelectionChanged?.Invoke(); RefreshDisplay();
     }
     // Browsing suspends world placement while preserving its selected definition.
     public void SetBuildMenuOpen(bool open)
     {
-        _buildMenuOpen = open; _painting = false; _panning = false;
+        _buildMenuOpen = open; _painting = false;
+        if (PlayerAlive) CurrentPlayer.WakeMovement();
         UpdatePlacementActivity();
     }
     private void OnPlacementAvailabilityChanged()

@@ -5,7 +5,7 @@ public sealed class EnemyMeleeAttack
     public void Tick(double delta) => _remaining = System.Math.Max(0, _remaining - (float)delta);
 
     // At most one hit per physics tick; no accumulated burst after a pause or long frame.
-    public bool TryAttack(Enemy enemy, WorldGrid grid, Building target)
+    public bool TryAttack(Enemy enemy, WorldGrid grid, ICombatTarget target)
     {
         if (_remaining > 0 || !EnemyTargeting.CanAttackFrom(grid, enemy.GlobalPosition, target, enemy.AttackRange)) return false;
         _remaining = enemy.AttackCooldown; target.ApplyDamage(enemy.AttackDamage); return true;

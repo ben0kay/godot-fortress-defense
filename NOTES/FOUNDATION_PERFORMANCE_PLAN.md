@@ -8,7 +8,7 @@
 
 > **Initial stress sandbox:** For the concrete early implementation slices (grid/footprints, CPU enclosure fallback, staggered AI and path budgets, edge spawning, tower, fog-of-war and 10–200 enemy scenarios), follow [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). These ST0–ST5 phases refine this roadmap; they are not automatically authorized gameplay work.
 
-> **Gameplay infrastructure after the initial combat benchmark:** Follow [GAMEPLAY_INFRASTRUCTURE_PLAN.md](GAMEPLAY_INFRASTRUCTURE_PLAN.md) for the separately authorized BM0 (catalogue/credits), BM1 (Ctrl category-first build menu), PL0 (player), CAM0 (follow/free camera) and FW0 (three-state fog with F2 debug bypass) passes. For now, preferentially match the local visual/UI patterns of `ben0kay/godot-tower-defense` while keeping Fortress Defense's own shared Building scene and gameplay ownership. BM0 and BM1 are now **Source Implemented / Awaiting Owner Validation**; PL0, CAM0 and FW0 remain **Planned**.
+> **Gameplay infrastructure after the initial combat benchmark:** Follow [GAMEPLAY_INFRASTRUCTURE_PLAN.md](GAMEPLAY_INFRASTRUCTURE_PLAN.md) for the separately authorized BM0 (catalogue/credits), BM1 (Ctrl category-first build menu), PL0 (player), CAM0 (follow/free camera) and FW0 (three-state fog with F2 debug bypass) passes. For now, preferentially match the local visual/UI patterns of `ben0kay/godot-tower-defense` while keeping Fortress Defense's own shared Building scene and gameplay ownership. BM0, BM1 and revised optional PL0/CAM0 are **Source Implemented / Awaiting Owner Validation**; FW0 remains **Planned**.
 
 ## Intent and non-negotiables
 

@@ -27,12 +27,12 @@ public partial class LevelController : Node2D
     private Label _status, _worldDetails;
     private Control _worldPanel;
     private Button _newWorld, _sameWorld;
-    private Camera2D _camera;
+    private BattlefieldCamera _camera;
     private Timer _statusTimer;
     private Building _citadel, _selected;
     private Vector2I _start, _goal, _hover, _lastPaint = new(-1, -1);
     private Vector2[] _path = System.Array.Empty<Vector2>();
-    private bool _overlay, _painting, _panning, _closing, _reloading;
+    private bool _overlay, _painting, _closing, _reloading;
     private string _notice = "Defend the CPU — place walls to redirect attackers";
     private long _seed;
     private WorldGenerator.Result _generated;
@@ -61,7 +61,7 @@ public partial class LevelController : Node2D
         _enemies = GetNode<EnemyRegistry>("RootEnemies/EnemyRegistry"); _spawner = GetNode<EdgeEnemySpawner>("RootEnemies/EdgeEnemySpawner");
         var requests = GetNode<EnemyPathRequests>("RootEnemies/EnemyPathRequests");
         _view = GetNodeOrNull<TerrainRenderer>("RootWorld/TerrainRenderer") ?? GetNode<TerrainRenderer>("RootWorld/GridDebugView"); _status = GetNode<Label>("RootUI/FoundationPanel/Status");
-        _camera = GetNode<Camera2D>("RootCamera/Camera2D"); _statusTimer = GetNode<Timer>("RootUI/StatusTimer");
+        _camera = GetNode<BattlefieldCamera>("RootCamera/Camera2D"); _statusTimer = GetNode<Timer>("RootUI/StatusTimer");
         Vector2I cpuSize = SceneFootprint(CitadelScene), map = _grid.Dimensions;
         Rect2I cpuArea = new((map - cpuSize) / 2, cpuSize);
         if (Config != null)
@@ -72,7 +72,7 @@ public partial class LevelController : Node2D
         else PopulateSandboxTerrain(_grid);
         _navigation.Initialize(_grid); requests.Initialize(_grid, _navigation);
         _placement.Initialize(_grid, GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), GetNode<Node2D>("RootFortress/Buildings"));
-        _placement.AdditionalValidation = area => _enemies.CanPlace(_grid, area);
+        _placement.AdditionalValidation = CanPlaceActors;
         Resources = GetNode<ResourceWallet>("RootFortress/Resources");
         Resources.Initialize(Config?.StartingCredits ?? 0);
         var catalogue = Config?.Catalogue ?? GD.Load<BuildingCatalogue>("res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres");
@@ -91,15 +91,16 @@ public partial class LevelController : Node2D
             _spawner.Seed = unchecked((ulong)_seed);
             _spawner.SpawnCellFilter = cell => _generated.ReachableFromCpu[cell.Y * map.X + cell.X];
         }
+        InitializeOptionalActors();
         _spawner.Initialize(_grid, _navigation, _enemies, requests, GetNode<Node2D>("RootEnemies/Enemies"), _citadel);
         _start = new(_grid.ClearanceCells, map.Y / 2);
         _goal = new(cpuArea.Position.X - _grid.ClearanceCells - 1, map.Y / 2);
         _grid.TopologyChanged += OnTopologyChanged;
-        _statusTimer.Timeout += RefreshDisplay; GetViewport().SizeChanged += FitCamera;
+        _statusTimer.Timeout += RefreshDisplay;
         _buildMenu = GetNode<BuildMenu>("RootUI/BuildMenu"); _buildMenu.Bind(this);
         SetProcess(false);
         if (Config == null) RequestPlacement("wall001");
-        WireWorldPanel(); FitCamera(); UpdateWorldView(); RefreshDisplay();
+        WireWorldPanel(); UpdateWorldView(); RefreshDisplay();
     }
 
     // DEBUG supplies its fixed obstacles through this hook, not a duplicate gameplay controller.
@@ -116,13 +117,6 @@ public partial class LevelController : Node2D
         _worldDetails = _worldPanel.GetNode<Label>("Details");
         _newWorld = _worldPanel.GetNode<Button>("Actions/NewWorld"); _sameWorld = _worldPanel.GetNode<Button>("Actions/SameSeed");
         _newWorld.Pressed += RegenerateNew; _sameWorld.Pressed += RegenerateSame;
-    }
-    private void FitCamera()
-    {
-        Vector2 viewport = GetViewportRect().Size, map = (Vector2)_grid.Dimensions * _grid.CellSize;
-        float zoom = Mathf.Max(.05f, Mathf.Min((viewport.X - 64) / map.X, (viewport.Y - 120) / map.Y));
-        _camera.Zoom = Vector2.One * zoom;
-        _camera.GlobalPosition = _grid.ToGlobal(map * .5f) - new Vector2(0, 35 / zoom);
     }
     private void OnTopologyChanged(Rect2I changed)
     {
@@ -141,7 +135,8 @@ public partial class LevelController : Node2D
         bool alive = EnemyTargeting.Live(_citadel);
         string cpu = alive ? $"CPU {_citadel.Health:0}/{_citadel.MaxHealth:0}" : "CPU DESTROYED — R to restart";
         string selected = EnemyTargeting.Live(_selected) ? $" | Selected {_selected.BuildingId} {_selected.Health:0}/{_selected.MaxHealth:0} HP" : "";
-        _status.Text = $"{cpu} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
+        string player = PlayerAlive ? $"Player {CurrentPlayer.Health:0}/{CurrentPlayer.MaxHealth:0}" : "Player absent";
+        _status.Text = $"{cpu} | {player} | Camera {(_camera.IsFollowing ? "FOLLOW" : "FREE")} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
         if (_generated != null)
         {
             _status.Text += $" | Seed {_generated.Seed} | Dead terrain {_generated.Coverage:P1} | F1: world details";
@@ -177,18 +172,12 @@ public partial class LevelController : Node2D
         if (input is InputEventMouseButton mouse)
         {
             if (_buildMenuOpen || GetViewport().GuiGetHoveredControl() != null) return;
-            if (Config != null && mouse.Pressed && (mouse.ButtonIndex == MouseButton.WheelUp || mouse.ButtonIndex == MouseButton.WheelDown))
-            {
-                float old = _camera.Zoom.X, zoom = Mathf.Clamp(old * (mouse.ButtonIndex == MouseButton.WheelUp ? 1.15f : 1 / 1.15f), .1f, 2);
-                Vector2 offset = GetViewport().GetMousePosition() - GetViewportRect().Size * .5f;
-                _camera.GlobalPosition += offset * (1 / old - 1 / zoom); _camera.Zoom = Vector2.One * zoom;
-            }
-            if (Config != null && mouse.ButtonIndex == MouseButton.Middle) _panning = mouse.Pressed;
             if (mouse.ButtonIndex == MouseButton.Left)
             {
                 _painting = mouse.Pressed;
                 if (mouse.Pressed)
                 {
+                    GetViewport().GuiReleaseFocus(); if (PlayerAlive) CurrentPlayer.WakeMovement();
                     _lastPaint = new(-1, -1); Building building = _grid.BuildingAt(_hover);
                     if (SelectedBuildingId != null) PaintBuilding();
                     else { Select(building); _painting = false; }
@@ -199,14 +188,13 @@ public partial class LevelController : Node2D
             if (Config == null && _overlay && mouse.Pressed && mouse.ButtonIndex == MouseButton.Middle && _grid.Contains(_hover))
             {
                 Rect2I area = new(_hover, Vector2I.One);
-                if (_grid.IsTerrain(_hover) || _enemies.CanPlace(_grid, area)) _grid.TrySetTerrain(area, !_grid.IsTerrain(_hover));
+                if (_grid.IsTerrain(_hover) || CanPlaceActors(area)) _grid.TrySetTerrain(area, !_grid.IsTerrain(_hover));
             }
         }
         if (input is InputEventMouseMotion motion)
         {
-            _painting &= Input.IsMouseButtonPressed(MouseButton.Left); _panning &= Input.IsMouseButtonPressed(MouseButton.Middle);
-            if (_buildMenuOpen || GetViewport().GuiGetHoveredControl() != null) { _painting = false; _panning = false; }
-            else if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom;
+            _painting &= Input.IsMouseButtonPressed(MouseButton.Left);
+            if (_buildMenuOpen || GetViewport().GuiGetHoveredControl() != null) _painting = false;
             else if (_painting) PaintBuilding();
         }
         if (input is InputEventKey key && key.Pressed && !key.Echo)
@@ -220,7 +208,6 @@ public partial class LevelController : Node2D
             if (key.Keycode == Key.H) _selected?.ApplyDamage(25);
             if (key.Keycode == Key.Delete && _selected != _citadel) _selected?.Remove();
             if (key.Keycode == Key.P) _spawner.SpawningEnabled = !_spawner.SpawningEnabled;
-            if (key.Keycode == Key.C) { _spawner.SpawningEnabled = false; _spawner.CancelDebugSpawns(); _enemies.ClearEnemies(); _notice = "Enemies cleared; P resumes spawning"; }
             if (key.Keycode == Key.K)
             {
                 Enemy hovered = null;
@@ -244,7 +231,7 @@ public partial class LevelController : Node2D
     private void ReloadWithSeed(long seed)
     {
         if (_reloading || Config == null) return;
-        _reloading = true; _pendingScene = SceneFilePath; _pendingSeed = seed;
+        _reloading = true; Objectives?.EndSession(); _pendingScene = SceneFilePath; _pendingSeed = seed;
         Callable.From(() =>
         {
             Error error = GetTree().ReloadCurrentScene();
@@ -261,6 +248,6 @@ public partial class LevelController : Node2D
         if (GodotObject.IsInstanceValid(_statusTimer)) _statusTimer.Timeout -= RefreshDisplay;
         if (GodotObject.IsInstanceValid(_newWorld)) _newWorld.Pressed -= RegenerateNew;
         if (GodotObject.IsInstanceValid(_sameWorld)) _sameWorld.Pressed -= RegenerateSame;
-        GetViewport().SizeChanged -= FitCamera;
+        if (GodotObject.IsInstanceValid(_camera)) _camera.Notice -= OnCameraNotice;
     }
 }

@@ -5,6 +5,8 @@ public partial class EdgeEnemySpawner : Node
 {
     [Export] public PackedScene EnemyScene { get; set; }
     [Export] public EnemyDefinition DefinitionOverride { get; set; }
+    public EnemyTargetRoster TargetRoster { get; set; }
+    public System.Func<Vector2, float, bool> AdditionalSpawnValidation { get; set; }
     public System.Func<Vector2I, bool> SpawnCellFilter { get; set; }
     private bool _spawningEnabled = true;
     [Export] public bool SpawningEnabled
@@ -95,9 +97,10 @@ public partial class EdgeEnemySpawner : Node
             Vector2 position = _grid.CellCenter(cell);
             if ((SpawnCellFilter != null && !SpawnCellFilter(cell)) || !_navigation.IsWalkable(cell) || !_grid.SegmentClear(position, position, _definition.Radius)
                 || position.DistanceSquaredTo(_citadel.GlobalPosition) < Mathf.Pow(Mathf.Max(0, MinCitadelDistance), 2)
-                || !_registry.SpawnSpaceFree(position, _definition.Radius)) continue;
+                || !_registry.SpawnSpaceFree(position, _definition.Radius)
+                || !(AdditionalSpawnValidation?.Invoke(position, _definition.Radius) ?? true)) continue;
             Enemy enemy = EnemyScene.Instantiate<Enemy>(); enemy.Definition = _definition;
-            enemy.Initialize(_grid, _registry, _requests, _citadel);
+            enemy.Initialize(_grid, _registry, _requests, _citadel, TargetRoster);
             enemy.Position = _container.ToLocal(position); _container.AddChild(enemy);
             return true;
         }
@@ -114,6 +117,6 @@ public partial class EdgeEnemySpawner : Node
     {
         if (GodotObject.IsInstanceValid(_citadel)) _citadel.Detached -= OnCitadelLost;
         if (GodotObject.IsInstanceValid(_registry)) _registry.Changed -= RefreshProcessing;
-        PendingDebugSpawns = 0; SpawnCellFilter = null; _random.Dispose();
+        PendingDebugSpawns = 0; SpawnCellFilter = null; AdditionalSpawnValidation = null; TargetRoster = null; _random.Dispose();
     }
 }

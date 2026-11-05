@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://DEBUG/Foundation/FoundationSandbox.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -23,6 +23,10 @@
 [ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceWallet.cs" id="Wallet"]
 
 [ext_resource type="PackedScene" path="res://UI/BuildMenu/BuildMenu.tscn" id="BuildMenu"]
+
+[ext_resource type="PackedScene" path="res://CAMERA/BattlefieldCamera.tscn" id="Camera"]
+[ext_resource type="Script" path="res://ENEMIES/AI/EnemyTargetRoster.cs" id="TargetRoster"]
+[ext_resource type="Script" path="res://LEVELS/SHARED/LevelObjectiveSignals.cs" id="Objectives"]
 
 [node name="TestWorld" type="Node2D"]
 script = ExtResource("1")
@@ -83,7 +87,7 @@ autostart = true
 z_index = -1
 script = ExtResource("7")
 
-[node name="Camera2D" type="Camera2D" parent="RootCamera"]
+[node name="Camera2D" parent="RootCamera" instance=ExtResource("Camera")]
 
 [node name="FoundationPanel" parent="RootUI" instance=ExtResource("9")]
 
@@ -93,3 +97,13 @@ script = ExtResource("7")
 script = ExtResource("Wallet")
 
 [node name="BuildMenu" parent="RootUI" instance=ExtResource("BuildMenu")]
+
+[node name="RootPlayer" type="Node2D" parent="."]
+
+[node name="TargetRoster" type="Node" parent="RootEnemies"]
+script = ExtResource("TargetRoster")
+
+[node name="PlayerSpawn" type="Marker2D" parent="RootWorld"]
+
+[node name="Objectives" type="Node" parent="."]
+script = ExtResource("Objectives")

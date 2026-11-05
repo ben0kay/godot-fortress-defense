@@ -8,7 +8,7 @@
 
 The existing inherited Citadel and Wall001 keep shared health/placement/destruction. Enemy001 uses the existing runtime, queue and edge spawner, with level-local stats: 10px radius, 110px/s and **40px contact range** (the debug world's 24px range cannot reach a target from a 64px cell). Other defaults remain 30 HP, 8 damage / 1.2s, 0.8s spawn interval and 20 active maximum. No new enemy system or pressure modes.
 
-`PlayerSpawn` is a **Marker2D only** beside the CPU. Its ground cell is reserved against building/terrain placement but stays traversable. It has no player sprite/controller; inspect its position in the Remote scene tree or F1 details.
+`PlayerSpawn` is the spawn marker beside the CPU. Its cell stays reserved against construction and traversable as before. Player spawning defaults off for the benchmark; enable Config.SpawnPlayer to instantiate Config.PlayerScene there.
 
 ## Inspector settings
 
@@ -31,7 +31,7 @@ The spawner and path-budget nodes remain Inspector-editable on the inherited sce
 - **Regenerate Same Seed** or **R:** reload the original accepted layout for the current seed/settings, resetting all enemies, walls, CPU health, reservations, collision and path work.
 - **Wheel / middle-drag:** zoom / pan to inspect the finite world. Starts framed to show the whole map; zoom in to inspect individual units.
 - **Left-click/drag:** place walls; click existing structure to select. **Right-click/Delete:** remove wall. CPU is protected from accidental removal.
-- **P/C:** toggle spawning / clear enemies and pause spawning. **B:** optional cell/route overlay; S/G set its demonstration endpoints. H/K remain developer damage/kill controls.
+- **P:** toggle spawning. **F2 → Clear:** clear enemies/cancel queued spawns/pause automatic spawning. **C:** toggle free/follow camera; **Home:** frame full map. **B:** optional cell/route overlay; S/G set its demonstration endpoints. H/K remain developer damage/kill controls.
 
 Regeneration passes a single scene-scoped seed through a clean reload. It does **not** edit/save the authored `.tres`, keep old actors alive, regenerate per frame or reuse obsolete paths. Same seed **and same generation settings/code version** reproduce the initial terrain; placements and elapsed combat are reset, not restored. Accepted count is 1; rejected counts are per regeneration. Up to 6 random candidates plus one repaired candidate are validated, so the maximum displayed attempt count is 7.
 
@@ -47,7 +47,7 @@ The existing spawner filters edge candidates through initial CPU connectivity an
 
 Build and run F6; inspect 4032px extent, black formations, central clearing, marker reservation and enemies reaching/damaging the CPU. Try wall placement on dead terrain (rejected), beside the CPU (allowed), and on the reserved player cell (rejected). Enclose CPU and inspect wall breach/recovery. F1 → same seed should restore identical initial terrain; new world should change shapes and reset counts/HP/obstacles without ghosts. Check rectangular dimensions and visible physics shapes against the black regions. Run DEBUG/test.tscn separately to confirm the fixed sandbox remains usable.
 
-Only source/diff and scene/resource checks were possible here: Godot and dotnet are unavailable. No build, editor acceptance or FPS claim. Terrain is generated synchronously once at startup; there is no streaming. Appearance is intentionally grid-based black geometry. Existing ST1 limitations remain (overlapping enemies, pauses during queued replacements, heuristic breach selection). This is a level foundation, not a completed campaign: no player, victory/progression, advanced towers, four pressure modes, water/lava, deposits, biomes, fog or construction animation.
+Only source/diff and scene/resource checks were possible here: Godot and dotnet are unavailable. No build, editor acceptance or FPS claim. Terrain is generated synchronously once at startup; there is no streaming. Appearance is intentionally grid-based black geometry. Existing ST1 limitations remain (overlapping enemies, pauses during queued replacements, heuristic breach selection). This is a level foundation, not a completed campaign: no player weapons, victory/progression, advanced towers, four pressure modes, water/lava, deposits, biomes, fog or construction animation.
 
 ## Shared debug scene and root containers
 
@@ -66,3 +66,7 @@ Tower001 uses local copies of the original Battle Tower base/gun and approximate
 ## BM1 menu controls
 
 **Source Implemented / Awaiting Owner Validation.** Start idle; press Ctrl, then Defense, then a building. The bottom tray and separate details panel are inherited from shared LevelBase. Green/red actual-footprint previews include actor overlap and affordability. Left-click/drag repeats purchases; Esc/RMB cancels without removing. Ctrl browsing pauses/resumes selection. W/T quick selection remains; after cancelling, click existing structures to select, RMB/Delete to remove. F1/F2 stay intact. Config.FreeDebugPlacement enables labelled free benchmark construction. See [shared menu docs](../../UI/BuildMenu/README.md).
+
+## Revised PL0/CAM0 options
+
+Config.SpawnPlayer=false preserves the no-player benchmark; PlayerScene is preassigned to PLAYER/Player.tscn. Enable spawning for a movable/damageable chassis (arrows). PlayerRequiredForDefeat=false and CitadelRequiredForDefeat=true configure the future defeat-request event, without results/mission-stop UI. EnemyStats exposes TargetRule and PlayerDetectionRange. RootEnemies/TargetRoster exposes bounded decision cadence/budget. RootCamera/Camera2D exposes zoom/follow/pan/bounds settings; starts free/full-map and C only follows a living actor. Home frames everything. Shared RootPlayer is empty when disabled. See PLAYER/README and CAMERA/README for owner checks and limitations.
