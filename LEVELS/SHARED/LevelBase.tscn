@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelController.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -22,6 +22,8 @@
 [ext_resource type="PackedScene" path="res://UI/DebugPanels/Debug.tscn" id="Debug"]
 
 [ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001.tscn" id="Tower"]
+
+[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceWallet.cs" id="Wallet"]
 
 [node name="LevelBase" type="Node2D"]
 script = ExtResource("1")
@@ -91,3 +93,6 @@ DeadDefinition = ExtResource("16")
 [node name="FoundationPanel" parent="RootUI" instance=ExtResource("9")]
 
 [node name="Debug" parent="RootDebug" instance=ExtResource("Debug")]
+
+[node name="Resources" type="Node" parent="RootFortress"]
+script = ExtResource("Wallet")

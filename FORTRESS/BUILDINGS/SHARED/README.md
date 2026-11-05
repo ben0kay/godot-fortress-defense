@@ -18,3 +18,9 @@ Destroy/Remove releases every reserved cell and registry membership immediately;
 Manual acceptance: select every cell of the prototype; reject overlapping/out-of-map placements; damage four times at 25 HP; inspect collision matching the rectangle; confirm destruction/removal releases all six cells with one navigation revision. See [sandbox controls](../../../DEBUG/README.md).
 
 Tower001 adds its own BaseSprite, independent TurretPivot, muzzle and optional simple flash under Visuals. BuildingPlacement.Placed publishes after a successful claim so scene composition can bind IBuildingCombat without adding a weapon loop/dependency to passive Building. Tower001's base._Ready/base._ExitTree calls preserve canonical lifecycle and cleanup.
+
+## BM0 — catalogue and purchases
+
+**Source Implemented / Awaiting Owner Validation.** `BuildingCatalogue/DefaultBuildingCatalogue.tres` pairs Wall001 and Tower001 scenes with their shared definitions. Definitions expose stable ID, name, description, icon, category, footprint, Purchasable and typed Cost entries. Citadel defaults to non-purchasable and is excluded. Catalogue validation runs once at level setup, rejects duplicate IDs/non-purchasable entries and verifies that each inherited scene uses its paired definition; menu metadata never requires per-frame instantiation. Restart after authoring changes.
+
+`BuildingPlacement.Catalogue` exposes cached entries; `IsAvailable` checks the session allowlist. `SetAllowedBuildingIds` publishes CatalogueChanged; an empty allowlist permits nothing, and unknown IDs fail setup clearly. Shared purchase authority is documented in [Resources](../../SYSTEMS/Resources/README.md). No Ctrl build menu until BM1.

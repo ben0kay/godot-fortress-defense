@@ -9,6 +9,9 @@ public partial class LevelController : Node2D
     [Export] public PackedScene TowerScene { get; set; }
     private Node2D _projectiles;
     private bool _placingTower;
+    public ResourceWallet Resources { get; private set; }
+    public BuildingPlacement Placement => _placement;
+    private string _creditDiagnostic = "Free DEBUG placement";
     public EnemyRegistry DebugEnemies => _enemies;
     public EdgeEnemySpawner DebugSpawner => _spawner;
     private WorldGrid _grid;
@@ -66,9 +69,13 @@ public partial class LevelController : Node2D
         _navigation.Initialize(_grid); requests.Initialize(_grid, _navigation);
         _placement.Initialize(_grid, GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), GetNode<Node2D>("RootFortress/Buildings"));
         _placement.AdditionalValidation = area => _enemies.CanPlace(_grid, area);
+        Resources = GetNode<ResourceWallet>("RootFortress/Resources");
+        Resources.Initialize(Config?.StartingCredits ?? 0);
+        if (Config != null) _placement.ConfigurePurchases(Config.Catalogue, Resources, Config.AllowedBuildingIds);
+        Resources.BalanceChanged += OnBalanceChanged; OnBalanceChanged();
         _projectiles = GetNode<Node2D>("RootCombat/Projectiles"); _placement.Placed += OnBuildingPlaced;
         _wallFootprint = SceneFootprint(WallScene); _view.Initialize(_grid, _navigation, _wallFootprint);
-        if (!_placement.TryPlace(CitadelScene, cpuArea.Position, out _citadel))
+        if (!_placement.TryPlaceFree(CitadelScene, cpuArea.Position, out _citadel))
             throw new System.InvalidOperationException("Citadel does not fit the level clearing.");
         if (_generated != null)
         {
@@ -125,7 +132,7 @@ public partial class LevelController : Node2D
         bool alive = EnemyTargeting.Live(_citadel);
         string cpu = alive ? $"CPU {_citadel.Health:0}/{_citadel.MaxHealth:0}" : "CPU DESTROYED — R to restart";
         string selected = EnemyTargeting.Live(_selected) ? $" | Selected {_selected.BuildingId} {_selected.Health:0}/{_selected.MaxHealth:0} HP" : "";
-        _status.Text = $"{cpu} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
+        _status.Text = $"{cpu} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
         if (_generated != null)
         {
             _status.Text += $" | Seed {_generated.Seed} | Dead terrain {_generated.Coverage:P1} | F1: world details";
@@ -134,6 +141,13 @@ public partial class LevelController : Node2D
                 + $"Dead coverage {_generated.Coverage:P1}; merged terrain shapes {_grid.TerrainCollisionShapeCount}; player cell {_generated.PlayerCell}\n"
                 + "Regeneration reloads the entire encounter. Same seed + settings reproduces the initial terrain.";
         }
+    }
+    // Wallet notifications update the cached diagnostic; the existing HP timer never queries balances.
+    private void OnBalanceChanged()
+    {
+        _creditDiagnostic = $"Credits {Resources.GetBalance(ResourceCost.ResourceId.Credits)}"
+            + (Config == null || Config.FreeDebugPlacement ? " | FREE DEBUG placement" : "");
+        if (_citadel != null) RefreshDisplay();
     }
     private void UpdateWorldView() { _view.ShowNavigation = _overlay; _view.ShowState(_path, _start, _goal, _hover); }
     private void Select(Building building)
@@ -154,8 +168,13 @@ public partial class LevelController : Node2D
     private void PaintBuilding()
     {
         if (_lastPaint == _hover) return; _lastPaint = _hover;
-        if (_placement.TryPlace(_placingTower ? TowerScene : WallScene, _hover, out var wall)) { Select(wall); _notice = _placingTower ? "Tower001 placed" : "Wall placed"; }
-        else _notice = "Placement blocked by terrain, buildings, reserved spawn, enemies or map edge";
+        string id = _placingTower ? "tower001" : "wall001";
+        Building building; string failure = "Placement blocked (free debug)";
+        bool placed = Config == null || Config.FreeDebugPlacement
+            ? _placement.TryPlaceFree(_placingTower ? TowerScene : WallScene, _hover, out building)
+            : _placement.TryPurchaseAndPlace(id, _hover, out building, out failure);
+        if (placed) { Select(building); _notice = id + " placed"; }
+        else _notice = failure;
     }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.
     public override void _UnhandledInput(InputEvent input)
@@ -238,6 +257,7 @@ public partial class LevelController : Node2D
     public override void _ExitTree()
     {
         _closing = true; Select(null);
+        if (GodotObject.IsInstanceValid(Resources)) Resources.BalanceChanged -= OnBalanceChanged;
         if (GodotObject.IsInstanceValid(_placement)) _placement.Placed -= OnBuildingPlaced;
         if (GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
         if (GodotObject.IsInstanceValid(_statusTimer)) _statusTimer.Timeout -= RefreshDisplay;

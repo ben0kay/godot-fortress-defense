@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="LevelConfig" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="LevelConfig" load_steps=9 format=3]
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelConfig.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGridConfig.cs" id="2"]
 [ext_resource type="Script" path="res://WORLD/Generation/WorldGenerationConfig.cs" id="3"]
 [ext_resource type="Script" path="res://ENEMIES/DATA/EnemyDefinition.cs" id="4"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres" id="Catalogue"]
 [sub_resource type="Resource" id="Grid"]
 script = ExtResource("2")
 MapWidthCells = 63
@@ -43,3 +44,7 @@ LevelName = "Level001"
 Grid = SubResource("Grid")
 Generation = SubResource("Generation")
 EnemyStats = SubResource("Enemy")
+Catalogue = ExtResource("Catalogue")
+StartingCredits = 1000
+AllowedBuildingIds = PackedStringArray("wall001", "tower001")
+FreeDebugPlacement = false

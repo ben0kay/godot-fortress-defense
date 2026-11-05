@@ -18,3 +18,9 @@ Building category is independent of capabilities. A tower can consume power; a m
 **Visuals:** Each inherited building can add a non-rotating `BaseSprite`, optional independently rotating `RotatingParts` (with muzzle marker if needed) and optional baked `AnimatedParts`. `ConstructionVisuals` (staged sprites/drones) is reserved for later. Do not attach unused processing nodes to every building. Rectangular multi-cell footprints are authored in BuildingDefinition, not inferred from sprites.
 
 **Current pass:** BF0 foundation plus BF1 Citadel/Wall001 are source implemented; see `SHARED/README.md`. Root `DEBUG/test.tscn` now hosts an ST1 enemy encounter with dynamic wall placement. Tower001/projectiles are source implemented for the owner-authorized basic ST3 combat slice. See `../../NOTES/INITIAL_STRESS_NAVIGATION_PLAN.md`.
+
+## BM0 — catalogue and purchases
+
+**Source Implemented / Awaiting Owner Validation.** `SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres` pairs Wall001 and Tower001 scenes with their shared definitions. Definitions expose stable ID, name, description, icon, category, footprint, Purchasable and typed Cost entries. Citadel defaults to non-purchasable and is excluded. Catalogue validation runs once at level setup, rejects duplicate IDs/non-purchasable entries and verifies that each inherited scene uses its paired definition; menu metadata never requires per-frame instantiation. Restart after authoring changes.
+
+`BuildingPlacement.Catalogue` exposes cached entries; `IsAvailable` checks the session allowlist. `SetAllowedBuildingIds` publishes CatalogueChanged; an empty allowlist permits nothing, and unknown IDs fail setup clearly. Shared purchase authority is documented in [Resources](../SYSTEMS/Resources/README.md). No Ctrl build menu until BM1.

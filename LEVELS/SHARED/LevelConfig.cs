@@ -8,4 +8,9 @@ public partial class LevelConfig : Resource
     [Export] public WorldGridConfig Grid { get; set; }
     [Export] public WorldGenerationConfig Generation { get; set; }
     [Export] public EnemyDefinition EnemyStats { get; set; }
+    [ExportGroup("Construction / BM0")]
+    [Export] public BuildingCatalogue Catalogue { get; set; }
+    [Export(PropertyHint.Range, "0,2000000000,1")] public int StartingCredits { get; set; } = 1000;
+    [Export] public string[] AllowedBuildingIds { get; set; } = System.Array.Empty<string>();
+    [Export] public bool FreeDebugPlacement { get; set; }
 }

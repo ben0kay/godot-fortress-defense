@@ -128,3 +128,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## Tower001 — basic Battle Tower
 
 **Source Implemented / Awaiting Owner Validation.** In Level001 or DEBUG, **T** selects Tower001 placement and **W** restores walls. F2 spawns enemies. The inherited building uses local original Battle Tower SVG layers, a rotating gun, Inspector-editable Level1 stats and shared swept projectiles/spatial targeting. RootCombat/Projectiles owns fired shots. See [Tower001 settings/owner checks](FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/README.md). Heat, ammo, power, upgrades/ranks/XP, construction, research and shields remain excluded; no combat FPS result is claimed.
+
+## BM0 — construction catalogue and credits
+
+**Source Implemented / Awaiting Owner Validation.** Level001 uses a per-level wallet (1,000 starting credits), an allowed-building catalogue and Inspector-editable prices: walls 10, Tower001 100. Existing W/T placement now purchases once per valid placement; blocked, locked or unaffordable attempts charge nothing. Status shows credits. CPU setup and DEBUG placement are explicitly free; deletion gives no refund. Enable Config → FreeDebugPlacement to restore unlimited Level001 benchmark construction. [Settings and owner checks](FORTRESS/SYSTEMS/Resources/README.md). BM1's Ctrl menu and the later player/camera/fog passes remain planned.

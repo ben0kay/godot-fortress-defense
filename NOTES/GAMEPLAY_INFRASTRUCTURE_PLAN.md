@@ -1,6 +1,6 @@
 # Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0)
 
-**Status:** PLANNED — documentation/design only. No implementation authorized by this note alone.  
+**Status:** BM0 **Source Implemented / Awaiting Owner Validation**. BM1, PL0, CAM0 and FW0 remain **Planned**. No later-pass implementation authorized by this note alone.
 **Repository / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Sequence:** BM0 (catalogue/resources) → BM1 (category-based build menu) → PL0 (player) → CAM0 (camera) → FW0 (fog of war). Each pass requires explicit approval.  
 **First:** read `AGENTS.md`, `NOTES/CodePreferences.md`, root `README.md`, this plan, owning READMEs, and current source/scenes. Preserve `LEVELS/Level001` combat-stress baseline and debug tools.
@@ -20,11 +20,13 @@ Reference files worth inspecting before implementing:
 
 ## Existing baseline / scope boundary
 
-Source already has shared `Building.tscn` + `BuildingDefinition` with `Core/Defense/Energy/Extraction/Economy/Industry/Infrastructure` categories, grid-validated placement, level-owned Citadel, Wall001, Tower001 with basic firing, Enemy001, procedural Level001 and `F2` debug spawning. **Building definitions currently have no purchase-cost data.** Level controller currently handles direct wall/tower placement; these are test controls, not the finished menu/economy. Actual runtime status must be rechecked before each pass.
+Source already has shared `Building.tscn` + `BuildingDefinition` with `Core/Defense/Energy/Extraction/Economy/Industry/Infrastructure` categories, grid-validated placement, level-owned Citadel, Wall001, Tower001 with basic firing, Enemy001, procedural Level001 and `F2` debug spawning. **BM0 adds authored purchase prices and cached catalogue metadata to building definitions.** Level controller currently handles direct wall/tower placement; these are test controls, not the finished menu/economy. Actual runtime status must be rechecked before each pass.
 
 Do **not** implement power, ammo, heat, upgrades, research, production, logistics, mining, player weapons, full campaign progression, complex player AI interactions, or completed fog inside BM0/BM1. Future ore/material purchase costs are a data contract, not permission to make ores obtainable yet.
 
 ## BM0 — data-driven building catalogue + credits (first implementation pass)
+
+**Source Implemented / Awaiting Owner Validation.** See [resource/transaction settings and owner checks](../FORTRESS/SYSTEMS/Resources/README.md). Level001 starts with 1,000 credits and permits wall001 (10) / tower001 (100); CPU setup is free and non-purchasable. DEBUG explicitly bypasses purchases. No BM1 menu, earning, refunds or material acquisition implemented.
 
 **Responsibilities:** `FORTRESS/BUILDINGS/SHARED/` owns authored building identity/definition; a small catalogue of available placeable scenes/definitions (suggest `FORTRESS/BUILDINGS/SHARED/BuildingCatalogue` or similarly focused path) is reusable by menus and level configs. `FORTRESS/SYSTEMS/Resources/` owns mutable **per-level/session balances and purchases**. `FORTRESS/SYSTEMS/BuildingPlacement/` remains authoritative for placement. Avoid parallel wallets in UI/buildings and avoid one manager per resource.
 

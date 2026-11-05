@@ -1,5 +1,10 @@
-[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=5 format=3]
 [ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
+[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="CostScript"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/battle_base.svg" id="Icon"]
+[sub_resource type="Resource" id="Price"]
+script = ExtResource("CostScript")
+Quantity = 100
 [resource]
 script = ExtResource("1")
 BuildingId = "tower001"
@@ -7,3 +12,7 @@ DisplayName = "Battle Tower / Tower001"
 Category = 1
 Footprint = Vector2i(1, 1)
 MaxHealth = 1000.0
+Purchasable = true
+Description = "Rotating kinetic turret for basic ground defense."
+Cost = Array[ExtResource("CostScript")]([SubResource("Price")])
+Icon = ExtResource("Icon")
