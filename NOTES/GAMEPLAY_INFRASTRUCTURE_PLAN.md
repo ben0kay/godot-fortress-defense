@@ -1,6 +1,6 @@
 # Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0)
 
-**Status:** BM0 **Source Implemented / Awaiting Owner Validation**. BM1, PL0, CAM0 and FW0 remain **Planned**. No later-pass implementation authorized by this note alone.
+**Status:** BM0 and BM1 **Source Implemented / Awaiting Owner Validation**. PL0, CAM0 and FW0 remain **Planned**. No later-pass implementation authorized by this note alone.
 **Repository / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Sequence:** BM0 (catalogue/resources) → BM1 (category-based build menu) → PL0 (player) → CAM0 (camera) → FW0 (fog of war). Each pass requires explicit approval.  
 **First:** read `AGENTS.md`, `NOTES/CodePreferences.md`, root `README.md`, this plan, owning READMEs, and current source/scenes. Preserve `LEVELS/Level001` combat-stress baseline and debug tools.
@@ -26,7 +26,7 @@ Do **not** implement power, ammo, heat, upgrades, research, production, logistic
 
 ## BM0 — data-driven building catalogue + credits (first implementation pass)
 
-**Source Implemented / Awaiting Owner Validation.** See [resource/transaction settings and owner checks](../FORTRESS/SYSTEMS/Resources/README.md). Level001 starts with 1,000 credits and permits wall001 (10) / tower001 (100); CPU setup is free and non-purchasable. DEBUG explicitly bypasses purchases. No BM1 menu, earning, refunds or material acquisition implemented.
+**Source Implemented / Awaiting Owner Validation.** See [resource/transaction settings and owner checks](../FORTRESS/SYSTEMS/Resources/README.md). Level001 starts with 1,000 credits and permits wall001 (10) / tower001 (100); CPU setup is free and non-purchasable. DEBUG explicitly bypasses purchases. BM1 now supplies the shared menu; earning, refunds and material acquisition remain excluded.
 
 **Responsibilities:** `FORTRESS/BUILDINGS/SHARED/` owns authored building identity/definition; a small catalogue of available placeable scenes/definitions (suggest `FORTRESS/BUILDINGS/SHARED/BuildingCatalogue` or similarly focused path) is reusable by menus and level configs. `FORTRESS/SYSTEMS/Resources/` owns mutable **per-level/session balances and purchases**. `FORTRESS/SYSTEMS/BuildingPlacement/` remains authoritative for placement. Avoid parallel wallets in UI/buildings and avoid one manager per resource.
 
@@ -39,6 +39,8 @@ Do **not** implement power, ammo, heat, upgrades, research, production, logistic
 - Performance: static catalogue cached, no global scans or per-frame wallet updates.
 
 ## BM1 — Godot Tower Defense-inspired category → building menu
+
+**Source Implemented / Awaiting Owner Validation.** See [UI/BuildMenu](../UI/BuildMenu/README.md). Ctrl opens category-first browsing; choosing closes it and arms repeated placement. Ctrl close resumes selection, Esc/RMB cancels. Definition/allowlist/wallet events drive tiles and details; the full-footprint icon ghost checks terrain, occupancy, actors, locks and funds. No later passes implemented.
 
 **Location:** root `UI/BuildMenu/` and optionally small reusable controls under `UI/Shared/`. Integrate via `LEVELS/SHARED/`, not a `Level005`-only UI fork.
 

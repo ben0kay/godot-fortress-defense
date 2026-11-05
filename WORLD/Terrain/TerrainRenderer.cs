@@ -9,19 +9,18 @@ public partial class TerrainRenderer : Node2D
     private WorldGrid _grid;
     private GroundNavigation _navigation;
     private Vector2[] _path = System.Array.Empty<Vector2>();
-    private Vector2I _start, _goal, _hover, _previewSize;
+    private Vector2I _start, _goal;
 
     // One renderer works in production levels and the existing debug sandbox.
-    public void Initialize(WorldGrid grid, GroundNavigation navigation, Vector2I previewSize)
+    public void Initialize(WorldGrid grid, GroundNavigation navigation)
     {
-        _grid = grid; _navigation = navigation; _previewSize = previewSize;
+        _grid = grid; _navigation = navigation;
         if ((GroundDefinition != null && GroundDefinition.Type != TerrainType.Ground)
             || (DeadDefinition != null && DeadDefinition.Type != TerrainType.DeadCell))
             throw new System.InvalidOperationException("Terrain appearance definitions do not match their logical types.");
     }
-    public void SetPreviewFootprint(Vector2I size) { _previewSize = size; QueueRedraw(); }
-    public void ShowState(Vector2[] path, Vector2I start, Vector2I goal, Vector2I hover)
-    { _path = path; _start = start; _goal = goal; _hover = hover; QueueRedraw(); }
+    public void ShowState(Vector2[] path, Vector2I start, Vector2I goal)
+    { _path = path; _start = start; _goal = goal; QueueRedraw(); }
 
     // Merged rectangles share exact coverage with the passive physical shapes; no per-cell nodes.
     public override void _Draw()
@@ -50,7 +49,5 @@ public partial class TerrainRenderer : Node2D
             DrawCircle(ToLocal(_grid.CellCenter(_start)), size * .18f, Colors.LimeGreen);
             DrawCircle(ToLocal(_grid.CellCenter(_goal)), size * .18f, Colors.Orange);
         }
-        if (_grid.Contains(_hover)) DrawRect(new Rect2(origin + (Vector2)_hover * size, (Vector2)_previewSize * size),
-            _grid.CanOccupy(new Rect2I(_hover, _previewSize)) ? new Color(.2f, .75f, .9f, .55f) : new Color(.9f, .2f, .2f, .55f), false, 1);
     }
 }

@@ -1,0 +1,121 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://UI/BuildMenu/BuildMenu.cs" id="1"]
+[ext_resource type="Script" path="res://UI/BuildMenu/PlacementPreview.cs" id="2"]
+
+[node name="BuildMenu" type="Node"]
+script = ExtResource("1")
+
+[node name="Preview" type="Node2D" parent="."]
+visible = false
+z_index = 10
+script = ExtResource("2")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Screen" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="HUD/Screen"]
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -34.0
+offset_bottom = -8.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "CTRL  BUILD MENU"
+
+[node name="Menu" type="HBoxContainer" parent="HUD/Screen"]
+visible = false
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -310.0
+offset_right = -12.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Tray" type="PanelContainer" parent="HUD/Screen/Menu"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="Body" type="VBoxContainer" parent="HUD/Screen/Menu/Tray"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="HUD/Screen/Menu/Tray/Body"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/Screen/Menu/Tray/Body/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "BUILD FORTRESS   /   CTRL TO CLOSE"
+
+[node name="Credits" type="Label" parent="HUD/Screen/Menu/Tray/Body/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "CREDITS 0"
+
+[node name="CategoryScroll" type="ScrollContainer" parent="HUD/Screen/Menu/Tray/Body"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+vertical_scroll_mode = 0
+
+[node name="Categories" type="HBoxContainer" parent="HUD/Screen/Menu/Tray/Body/CategoryScroll"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Heading" type="Label" parent="HUD/Screen/Menu/Tray/Body"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "CHOOSE A CATEGORY"
+
+[node name="Buildings" type="ScrollContainer" parent="HUD/Screen/Menu/Tray/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+vertical_scroll_mode = 0
+follow_focus = true
+
+[node name="Buttons" type="HBoxContainer" parent="HUD/Screen/Menu/Tray/Body/Buildings"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Inspection" type="PanelContainer" parent="HUD/Screen/Menu"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+mouse_filter = 0
+
+[node name="Body" type="VBoxContainer" parent="HUD/Screen/Menu/Inspection"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="TextureRect" parent="HUD/Screen/Menu/Inspection/Body"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="Details" type="Label" parent="HUD/Screen/Menu/Inspection/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "BUILDING DETAILS"
+autowrap_mode = 3

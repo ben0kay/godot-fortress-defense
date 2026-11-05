@@ -8,7 +8,11 @@ public partial class LevelController : Node2D
     [Export] public PackedScene WallScene { get; set; }
     [Export] public PackedScene TowerScene { get; set; }
     private Node2D _projectiles;
-    private bool _placingTower;
+    public string SelectedBuildingId { get; private set; }
+    public bool FreeConstruction => Config == null || Config.FreeDebugPlacement;
+    public event System.Action PlacementSelectionChanged;
+    private BuildMenu _buildMenu;
+    private bool _buildMenuOpen, _placementAffordable;
     public ResourceWallet Resources { get; private set; }
     public BuildingPlacement Placement => _placement;
     private string _creditDiagnostic = "Free DEBUG placement";
@@ -26,7 +30,7 @@ public partial class LevelController : Node2D
     private Camera2D _camera;
     private Timer _statusTimer;
     private Building _citadel, _selected;
-    private Vector2I _start, _goal, _hover, _wallFootprint, _lastPaint = new(-1, -1);
+    private Vector2I _start, _goal, _hover, _lastPaint = new(-1, -1);
     private Vector2[] _path = System.Array.Empty<Vector2>();
     private bool _overlay, _painting, _panning, _closing, _reloading;
     private string _notice = "Defend the CPU — place walls to redirect attackers";
@@ -71,10 +75,12 @@ public partial class LevelController : Node2D
         _placement.AdditionalValidation = area => _enemies.CanPlace(_grid, area);
         Resources = GetNode<ResourceWallet>("RootFortress/Resources");
         Resources.Initialize(Config?.StartingCredits ?? 0);
-        if (Config != null) _placement.ConfigurePurchases(Config.Catalogue, Resources, Config.AllowedBuildingIds);
+        var catalogue = Config?.Catalogue ?? GD.Load<BuildingCatalogue>("res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres");
+        _placement.ConfigurePurchases(catalogue, Resources, Config?.AllowedBuildingIds ?? new[] { "wall001", "tower001" });
+        _placement.CatalogueChanged += OnPlacementAvailabilityChanged;
         Resources.BalanceChanged += OnBalanceChanged; OnBalanceChanged();
         _projectiles = GetNode<Node2D>("RootCombat/Projectiles"); _placement.Placed += OnBuildingPlaced;
-        _wallFootprint = SceneFootprint(WallScene); _view.Initialize(_grid, _navigation, _wallFootprint);
+        _view.Initialize(_grid, _navigation);
         if (!_placement.TryPlaceFree(CitadelScene, cpuArea.Position, out _citadel))
             throw new System.InvalidOperationException("Citadel does not fit the level clearing.");
         if (_generated != null)
@@ -90,6 +96,9 @@ public partial class LevelController : Node2D
         _goal = new(cpuArea.Position.X - _grid.ClearanceCells - 1, map.Y / 2);
         _grid.TopologyChanged += OnTopologyChanged;
         _statusTimer.Timeout += RefreshDisplay; GetViewport().SizeChanged += FitCamera;
+        _buildMenu = GetNode<BuildMenu>("RootUI/BuildMenu"); _buildMenu.Bind(this);
+        SetProcess(false);
+        if (Config == null) RequestPlacement("wall001");
         WireWorldPanel(); FitCamera(); UpdateWorldView(); RefreshDisplay();
     }
 
@@ -147,9 +156,10 @@ public partial class LevelController : Node2D
     {
         _creditDiagnostic = $"Credits {Resources.GetBalance(ResourceCost.ResourceId.Credits)}"
             + (Config == null || Config.FreeDebugPlacement ? " | FREE DEBUG placement" : "");
+        OnPlacementAvailabilityChanged();
         if (_citadel != null) RefreshDisplay();
     }
-    private void UpdateWorldView() { _view.ShowNavigation = _overlay; _view.ShowState(_path, _start, _goal, _hover); }
+    private void UpdateWorldView() { _view.ShowNavigation = _overlay; _view.ShowState(_path, _start, _goal); }
     private void Select(Building building)
     {
         if (_selected == building) return;
@@ -159,23 +169,6 @@ public partial class LevelController : Node2D
     // Optional combat capabilities are bound at composition, never through hard-coded paths in buildings.
     private void OnBuildingPlaced(Building building)
     { if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles); }
-    private void SetPlacementMode(bool tower)
-    {
-        _placingTower = tower; _painting = false;
-        _view.SetPreviewFootprint(SceneFootprint(tower ? TowerScene : WallScene));
-        _notice = tower ? "Tower001 placement — click empty ground (W: walls)" : "Wall placement — drag empty ground (T: towers)";
-    }
-    private void PaintBuilding()
-    {
-        if (_lastPaint == _hover) return; _lastPaint = _hover;
-        string id = _placingTower ? "tower001" : "wall001";
-        Building building; string failure = "Placement blocked (free debug)";
-        bool placed = Config == null || Config.FreeDebugPlacement
-            ? _placement.TryPlaceFree(_placingTower ? TowerScene : WallScene, _hover, out building)
-            : _placement.TryPurchaseAndPlace(id, _hover, out building, out failure);
-        if (placed) { Select(building); _notice = id + " placed"; }
-        else _notice = failure;
-    }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.
     public override void _UnhandledInput(InputEvent input)
     {
@@ -183,6 +176,7 @@ public partial class LevelController : Node2D
         _hover = _grid.WorldToCell(GetGlobalMousePosition());
         if (input is InputEventMouseButton mouse)
         {
+            if (_buildMenuOpen || GetViewport().GuiGetHoveredControl() != null) return;
             if (Config != null && mouse.Pressed && (mouse.ButtonIndex == MouseButton.WheelUp || mouse.ButtonIndex == MouseButton.WheelDown))
             {
                 float old = _camera.Zoom.X, zoom = Mathf.Clamp(old * (mouse.ButtonIndex == MouseButton.WheelUp ? 1.15f : 1 / 1.15f), .1f, 2);
@@ -196,7 +190,8 @@ public partial class LevelController : Node2D
                 if (mouse.Pressed)
                 {
                     _lastPaint = new(-1, -1); Building building = _grid.BuildingAt(_hover);
-                    if (building != null) { Select(building); _painting = false; } else PaintBuilding();
+                    if (SelectedBuildingId != null) PaintBuilding();
+                    else { Select(building); _painting = false; }
                 }
             }
             if (mouse.Pressed && mouse.ButtonIndex == MouseButton.Right)
@@ -210,13 +205,15 @@ public partial class LevelController : Node2D
         if (input is InputEventMouseMotion motion)
         {
             _painting &= Input.IsMouseButtonPressed(MouseButton.Left); _panning &= Input.IsMouseButtonPressed(MouseButton.Middle);
-            if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom; else if (_painting) PaintBuilding();
+            if (_buildMenuOpen || GetViewport().GuiGetHoveredControl() != null) { _painting = false; _panning = false; }
+            else if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom;
+            else if (_painting) PaintBuilding();
         }
         if (input is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.F1 && _worldPanel != null) _worldPanel.Visible = !_worldPanel.Visible;
-            if (key.Keycode == Key.T && TowerScene != null) SetPlacementMode(true);
-            if (key.Keycode == Key.W) SetPlacementMode(false);
+            if (!_buildMenuOpen && key.Keycode == Key.T) RequestPlacement("tower001");
+            if (!_buildMenuOpen && key.Keycode == Key.W) RequestPlacement("wall001");
             if (key.Keycode == Key.B) { _overlay = !_overlay; _path = _overlay ? _navigation.FindPath(_start, _goal) : System.Array.Empty<Vector2>(); }
             if (_overlay && key.Keycode == Key.S && _grid.Contains(_hover)) { _start = _hover; _path = _navigation.FindPath(_start, _goal); }
             if (_overlay && key.Keycode == Key.G && _grid.Contains(_hover)) { _goal = _hover; _path = _navigation.FindPath(_start, _goal); }
@@ -258,7 +255,8 @@ public partial class LevelController : Node2D
     {
         _closing = true; Select(null);
         if (GodotObject.IsInstanceValid(Resources)) Resources.BalanceChanged -= OnBalanceChanged;
-        if (GodotObject.IsInstanceValid(_placement)) _placement.Placed -= OnBuildingPlaced;
+        if (GodotObject.IsInstanceValid(_placement))
+        { _placement.Placed -= OnBuildingPlaced; _placement.CatalogueChanged -= OnPlacementAvailabilityChanged; }
         if (GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
         if (GodotObject.IsInstanceValid(_statusTimer)) _statusTimer.Timeout -= RefreshDisplay;
         if (GodotObject.IsInstanceValid(_newWorld)) _newWorld.Pressed -= RegenerateNew;
