@@ -3,5 +3,5 @@ using Godot;
 
 public interface IBuildingCombat
 {
-    void BindCombat(WorldGrid grid, EnemyRegistry enemies, Node2D projectiles);
+    void BindCombat(WorldGrid grid, EnemyRegistry enemies, Node2D projectiles, FogOfWar fog);
 }

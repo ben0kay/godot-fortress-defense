@@ -37,3 +37,7 @@ Acquisition uses nearby enemy buckets and the same staggered0.15s cadence. Cache
 5. Inspect larger mixed groups when convenient. Only source/resource checks were possible without Godot/.NET; build/gameplay/FPS acceptance remains with the owner.
 
 AIR2 stops here. AIR3 orbiting gunship, later aircraft, power, ammo and tower progression remain unimplemented.
+
+## FW1 building vision
+
+**Source Implemented / Awaiting Owner Validation.** This tower now reveals a static circle using its authored/snapshotted weapon range (default 323.4px). Building → VisionRadiusOverride defaults -1 (automatic); a nonnegative override supplies independent sight for future artillery/sensor designs. Shared acquisition and cached-target checks require current friendly sight from any source, even while F2 fog presentation is disabled. Loss of sight stops tracking/new shots at the next combat check; fired bullets continue. Layer masks and weapon values are unchanged. Registration/removal and overlapping sight use the existing fog queue/counts. See [FW1 checks](../../../../../WORLD/FOG/README.md#fw1-owner-acceptance).

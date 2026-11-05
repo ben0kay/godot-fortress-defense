@@ -4,18 +4,19 @@ using System.Collections.Generic;
 
 public static class CombatTargeting
 {
-    public static bool Valid(Enemy enemy, Vector2 origin, float range, EnemyTargetLayers layers = EnemyTargetLayers.Ground) => GodotObject.IsInstanceValid(enemy)
-        && !enemy.IsDead && CombatLayers.Allows(layers, enemy) && enemy.IsInsideTree() && !enemy.IsQueuedForDeletion() && origin.DistanceSquaredTo(enemy.GlobalPosition) <= range * range;
+    public static bool Valid(Enemy enemy, Vector2 origin, float range, FogOfWar fog, EnemyTargetLayers layers = EnemyTargetLayers.Ground) => GodotObject.IsInstanceValid(enemy)
+        && !enemy.IsDead && CombatLayers.Allows(layers, enemy) && enemy.IsInsideTree() && !enemy.IsQueuedForDeletion() && origin.DistanceSquaredTo(enemy.GlobalPosition) <= range * range
+        && GodotObject.IsInstanceValid(fog) && fog.IsInsideTree() && fog.IsVisible(enemy.GlobalPosition);
 
-    // Only nearby buckets are inspected, using a caller-owned scratch list and deterministic distance ties.
-    public static Enemy Closest(EnemyRegistry registry, WorldGrid grid, Building source, float range, List<Enemy> scratch, EnemyTargetLayers layers = EnemyTargetLayers.Ground)
+    // Logical sight is mandatory, independent of presentation. Only nearby buckets are inspected, using a caller-owned scratch list and deterministic distance ties.
+    public static Enemy Closest(EnemyRegistry registry, WorldGrid grid, Building source, float range, List<Enemy> scratch, FogOfWar fog, EnemyTargetLayers layers = EnemyTargetLayers.Ground)
     {
         Vector2 origin = source.GlobalPosition;
         registry.Query(new Rect2(origin - Vector2.One * range, Vector2.One * range * 2), scratch);
         Enemy best = null; float score = range * range;
         foreach (Enemy enemy in scratch)
         {
-            if (!Valid(enemy, origin, range, layers)) continue;
+            if (!Valid(enemy, origin, range, fog, layers)) continue;
             float distance = origin.DistanceSquaredTo(enemy.GlobalPosition);
             if (distance > score || (distance == score && best != null && enemy.GetInstanceId() >= best.GetInstanceId())) continue;
             if (!ClearShot(grid, origin, enemy.GlobalPosition, 0, source, CombatLayers.ShotProfile(enemy))) continue;

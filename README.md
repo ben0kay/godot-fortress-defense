@@ -156,3 +156,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## FW0 fog of war
 
 **Source Implemented / Awaiting Owner Validation.** Shared levels and DEBUG now start with CPU vision, optional player exploration, black unknown terrain and dim remembered terrain. Hidden enemy/combat visuals are masked while simulation continues. F2 → **Fog of War Enabled** reveals the full simulation for testing without resetting exploration. Master settings: `WORLD/FOG/FogMasterConfig.tres`; per-level Fog/FogEnabled overrides. [Architecture, limits and owner checks](WORLD/FOG/README.md). No minimap or fog-based AI culling.
+
+## FW1 building vision and tower visibility
+
+**Source Implemented / Awaiting Owner Validation.** Every friendly building now reveals terrain: CPU retains its dedicated radius, Tower001/Tower002 default to authored weapon range, and walls/ordinary structures use FogMasterConfig.DefaultBuildingVisionRadius (64px). Building.VisionRadiusOverride supports independent sight. Offensive towers only acquire/track/fire at currently visible eligible enemies, including with F2 presentation disabled; fired shots continue normally. [Provider/lifecycle/settings and owner checks](WORLD/FOG/README.md). Existing fog renderer and enemy simulation are preserved.

@@ -10,11 +10,31 @@ public partial class Building : Node2D, ICombatTarget
     public void SetCurrentVisionPresentation(bool visible)
     { if (HasCurrentVision != visible) { HasCurrentVision = visible; PresentationChanged?.Invoke(); } }
 
+    private float _visionRadiusOverride = -1;
+    [ExportGroup("Vision / FW1")]
+    [Export] public float VisionRadiusOverride
+    {
+        get => _visionRadiusOverride;
+        set
+        {
+            if (!float.IsFinite(value) || (value < 0 && value != -1))
+                throw new ArgumentException("Vision radius override must be -1 (automatic) or finite and nonnegative.");
+            if (_visionRadiusOverride == value) return;
+            _visionRadiusOverride = value; NotifyVisionChanged();
+        }
+    }
+    // Nullable range is a vision-provider override, independent of combat capabilities. Zero is explicit.
+    public virtual float? VisionRadius => _visionRadiusOverride >= 0 ? _visionRadiusOverride : null;
+    public event Action<Building> VisionChanged;
+    // Call after a custom provider's radius changes or a supported relocation is committed to the grid.
+    public void NotifyVisionChanged() => VisionChanged?.Invoke(this);
+
     public Rect2 WorldFootprint => new(GlobalPosition - FootprintPixels * .5f, FootprintPixels);
     public Node2D TargetNode => this;
     public bool TargetAlive => IsPlaced && !IsDestroyed && !IsQueuedForDeletion();
     public Rect2 TargetBounds(WorldGrid grid) => grid.FootprintRect(OccupiedArea);
     public event Action TargetLost { add => Detached += value; remove => Detached -= value; }
+    [ExportGroup("Building")]
     [Export] public BuildingDefinition Definition { get; set; }
     public string BuildingId { get; private set; }
     public Vector2I Footprint { get; private set; }

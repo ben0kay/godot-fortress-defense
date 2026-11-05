@@ -13,6 +13,7 @@ public partial class FogMasterConfig : Resource
     [Export] public float EdgeSoftnessPixels { get; set; } = 48;
     [ExportGroup("Vision / World Pixels")]
     [Export] public float CitadelVisionRadius { get; set; } = 450;
+    [Export] public float DefaultBuildingVisionRadius { get; set; } = 64;
     [Export] public float PlayerVisionRadius { get; set; } = 350;
     [Export] public bool VisionBlocksOnTerrain { get; set; }
     [ExportGroup("Scheduling")]
@@ -24,7 +25,7 @@ public partial class FogMasterConfig : Resource
     // Reject unsupported LOS and invalid settings rather than silently changing their meaning.
     public void Validate()
     {
-        foreach (float value in new[] { UnexploredOpacity, ExploredOpacity, EdgeSoftnessPixels, CitadelVisionRadius, PlayerVisionRadius, VisibilityUpdateInterval })
+        foreach (float value in new[] { UnexploredOpacity, ExploredOpacity, EdgeSoftnessPixels, CitadelVisionRadius, PlayerVisionRadius, DefaultBuildingVisionRadius, VisibilityUpdateInterval })
             if (!float.IsFinite(value) || value < 0) throw new ArgumentException("Fog settings must be finite and nonnegative.");
         if (!Enum.IsDefined(RendererUpdateMode)) throw new ArgumentException("Unknown fog renderer update mode.");
         if (UnexploredOpacity > 1 || ExploredOpacity > 1 || VisibilityUpdateInterval < .01f || MaximumVisionUpdatesPerFrame < 1)

@@ -164,7 +164,7 @@ public partial class LevelController : Node2D
     }
     // Optional combat capabilities are bound at composition, never through hard-coded paths in buildings.
     private void OnBuildingPlaced(Building building)
-    { if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles); }
+    { if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles, Fog); }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.
     public override void _UnhandledInput(InputEvent input)
     {

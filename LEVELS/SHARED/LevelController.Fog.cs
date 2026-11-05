@@ -11,7 +11,8 @@ public partial class LevelController
         Fog.Initialize(_grid, Config?.FogEnabled ?? true);
         Fog.GetNode<FogPresentation>("Presentation").Initialize(Fog, _enemies,
             GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), _projectiles, this);
-        Fog.RegisterSource(_citadel.GetInstanceId(), _citadel, Fog.Config.CitadelVisionRadius);
+        Fog.GetNode<BuildingVisionSources>("BuildingSources").Initialize(Fog,
+            GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), _citadel);
         if (PlayerAlive) Fog.RegisterSource(CurrentPlayer.GetInstanceId(), CurrentPlayer, Fog.Config.PlayerVisionRadius, true);
     }
 }

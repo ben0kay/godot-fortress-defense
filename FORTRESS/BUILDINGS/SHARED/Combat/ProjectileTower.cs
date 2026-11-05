@@ -6,6 +6,9 @@ public partial class ProjectileTower : Building, IBuildingCombat
 {
     [Export] public ProjectileTowerConfig CombatConfig { get; set; }
     private ProjectileTowerConfig _stats;
+    private FogOfWar _fog;
+    // Sight defaults to the placed weapon snapshot; the building override permits scouts/artillery later.
+    public override float? VisionRadius => base.VisionRadius ?? _stats?.RangePixels ?? CombatConfig?.RangePixels;
     private Sprite2D _baseSprite, _gun;
     private Node2D _visuals, _turret;
     private Marker2D _muzzle;
@@ -39,10 +42,12 @@ public partial class ProjectileTower : Building, IBuildingCombat
     }
 
     // Placement composition supplies world-scoped services; no scene-path assumptions inside tower logic.
-    public void BindCombat(WorldGrid grid, EnemyRegistry enemies, Node2D projectiles)
+    public void BindCombat(WorldGrid grid, EnemyRegistry enemies, Node2D projectiles, FogOfWar fog)
     {
         if (_enemies != null) throw new System.InvalidOperationException("Projectile tower combat is already bound.");
-        _grid = grid; _enemies = enemies; _projectiles = projectiles;
+        if (!GodotObject.IsInstanceValid(fog) || fog.Grid != grid)
+            throw new System.InvalidOperationException("Tower combat requires this world's initialized fog visibility.");
+        _fog = fog; _grid = grid; _enemies = enemies; _projectiles = projectiles;
         _enemies.Changed += OnEnemiesChanged; _searchTimer = Phase * Mathf.Max(.05f, _stats.SearchInterval);
         OnEnemiesChanged();
     }
@@ -64,7 +69,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     private void Unbind()
     {
         if (GodotObject.IsInstanceValid(_enemies)) _enemies.Changed -= OnEnemiesChanged;
-        _enemies = null; _grid = null; _projectiles = null; _target = null; _candidates.Clear();
+        _fog = null; _enemies = null; _grid = null; _projectiles = null; _target = null; _candidates.Clear();
         SetPhysicsProcess(false); if (GodotObject.IsInstanceValid(_flash)) _flash.Visible = false;
     }
     #endregion
@@ -77,10 +82,12 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _searchTimer -= (float)delta; _shotTimer = Mathf.Max(-.05f, _shotTimer - (float)delta);
         if (_searchTimer <= 0)
         {
-            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates, _stats.TargetLayers);
+            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates, _fog, _stats.TargetLayers);
             _searchTimer = Mathf.Max(.05f, _stats.SearchInterval);
         }
-        if (!CombatTargeting.Valid(_target, GlobalPosition, _stats.RangePixels, _stats.TargetLayers)) return;
+        // Check the cached reference before Track: hidden targets must not leak their current aim position.
+        if (!CombatTargeting.Valid(_target, GlobalPosition, _stats.RangePixels, _fog, _stats.TargetLayers))
+        { _target = null; return; }
         bool aligned = CombatTargeting.Track(_turret, _target.GlobalPosition, _stats.RotationSpeedDegrees, _stats.AimToleranceDegrees, delta);
         if (!aligned || _shotTimer > 0 || _stats.ShotsPerSecond == 0) return;
         ProjectileCollisionProfile collision = CombatLayers.ShotProfile(_target);

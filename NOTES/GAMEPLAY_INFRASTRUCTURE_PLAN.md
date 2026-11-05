@@ -1,6 +1,6 @@
-# Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0)
+# Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0–FW1)
 
-**Status:** BM0, BM1, revised PL0 and CAM0 **Source Implemented / Awaiting Owner Validation**. FW0 is also **Source Implemented / Awaiting Owner Validation**. No later-pass implementation authorized by this note alone.
+**Status:** BM0, BM1, revised PL0 and CAM0 **Source Implemented / Awaiting Owner Validation**. FW0 and FW1 are also **Source Implemented / Awaiting Owner Validation**. No later-pass implementation authorized by this note alone.
 **Repository / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Sequence:** BM0 (catalogue/resources) → BM1 (category-based build menu) → PL0 (player) → CAM0 (camera) → FW0 (fog of war). Each pass requires explicit approval.  
 **First:** read `AGENTS.md`, `NOTES/CodePreferences.md`, root `README.md`, this plan, owning READMEs, and current source/scenes. Preserve `LEVELS/Level001` combat-stress baseline and debug tools.
@@ -82,6 +82,15 @@ Do **not** implement power, ammo, heat, upgrades, research, production, logistic
 - LevelConfig references a master config and can start presentation disabled. F2's **Fog of War Enabled** bypasses presentation only; state keeps tracking and re-enabling restores it. Existing controls remain.
 - Source death/detach/removal cleans up contributions; scene regeneration resets exploration. Read-only states/queries/change notifications support a future minimap.
 - Pending owner checks: player on/off; moving/overlapping/source-loss vision; unexplored black and explored dim; camera independence; all enemy types remain active while hidden; no live visual leaks; F2 bypass/state preservation; regeneration; FPS on/off comparison. No runtime or performance acceptance claimed.
+
+## FW1 — building vision and tower sight rules
+
+**Source Implemented / Awaiting Owner Validation.** Existing fog/renderer extended; no second visibility grid.
+
+- BuildingVisionSources binds BuildingRegistry lifecycle, registers CPU exactly once using its dedicated radius, and all other placed buildings using the nullable Building.VisionRadius provider or master DefaultBuildingVisionRadius=64px. Tower001/Tower002 default to their authored weapon-range snapshots.
+- VisionRadiusOverride (-1 automatic, >=0 explicit) and VisionChanged/NotifyVisionChanged support independent sensor ranges without a combat interface. Updates coalesce in the existing bounded fog queue; static sources do not poll. With budget >1, reserve one decision for moving sources during construction bursts.
+- CombatTargeting/ProjectileTower require authoritative current sight for acquisition and cached eligibility before tracking/firing. All friendly sources contribute; F2 remains presentation-only. Ground/Air eligibility and in-flight projectile behavior are unchanged.
+- Awaiting owner checks: walls/towers outside CPU vision; overlap/removal/reset; independent sight/weapon ranges; cached sight loss; Ground/Air rules; F2 off still restricts targeting; player on/off; many overlapping placements. See [FW1 checks and limitations](../WORLD/FOG/README.md#fw1-owner-acceptance). No FPS claims or additional systems.
 
 ## Multi-level compatibility and later systems
 

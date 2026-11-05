@@ -8,6 +8,7 @@ ExploredOpacity = 0.7
 EdgeSoftnessPixels = 48.0
 CitadelVisionRadius = 450.0
 PlayerVisionRadius = 350.0
+DefaultBuildingVisionRadius = 64.0
 VisionBlocksOnTerrain = false
 VisibilityUpdateInterval = 0.15
 MaximumVisionUpdatesPerFrame = 4

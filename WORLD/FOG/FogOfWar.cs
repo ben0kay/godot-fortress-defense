@@ -108,7 +108,9 @@ public partial class FogOfWar : Node
         if (Grid == null || _closing) return;
         long started = Stopwatch.GetTimestamp();
         int budget = Config.MaximumVisionUpdatesPerFrame;
-        while (budget > 0 && _pending.First != null)
+        // Building bursts stay bounded without starving moving-player checks at the default budget.
+        int reserved = _moving.Count > 0 && budget > 1 ? 1 : 0;
+        while (budget > reserved && _pending.First != null)
         {
             Source source = _pending.First.Value; _pending.RemoveFirst(); source.Pending = null;
             UpdateSource(source); budget--;
