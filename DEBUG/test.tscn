@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://DEBUG/Foundation/FoundationSandbox.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -27,6 +27,8 @@
 [ext_resource type="PackedScene" path="res://CAMERA/BattlefieldCamera.tscn" id="Camera"]
 [ext_resource type="Script" path="res://ENEMIES/AI/EnemyTargetRoster.cs" id="TargetRoster"]
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelObjectiveSignals.cs" id="Objectives"]
+
+[ext_resource type="PackedScene" path="res://ENEMIES/TYPES/Ranged/Enemy002/Enemy002.tscn" id="Enemy002"]
 
 [node name="TestWorld" type="Node2D"]
 script = ExtResource("1")
@@ -78,6 +80,7 @@ script = ExtResource("12")
 [node name="EdgeEnemySpawner" type="Node" parent="RootEnemies"]
 script = ExtResource("13")
 EnemyScene = ExtResource("14")
+DebugEnemyScenes = Array[PackedScene]([ExtResource("14"), ExtResource("Enemy002")])
 
 [node name="StatusTimer" type="Timer" parent="RootUI"]
 wait_time = 0.25

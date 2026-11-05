@@ -4,6 +4,7 @@ using System;
 
 public partial class Building : Node2D, ICombatTarget
 {
+    public Rect2 WorldFootprint => new(GlobalPosition - FootprintPixels * .5f, FootprintPixels);
     public Node2D TargetNode => this;
     public bool TargetAlive => IsPlaced && !IsDestroyed && !IsQueuedForDeletion();
     public Rect2 TargetBounds(WorldGrid grid) => grid.FootprintRect(OccupiedArea);

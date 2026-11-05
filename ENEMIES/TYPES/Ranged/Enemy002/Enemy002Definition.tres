@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=6 format=3]
+[ext_resource type="Script" path="res://ENEMIES/DATA/EnemyDefinition.cs" id="1"]
+[ext_resource type="Script" path="res://ENEMIES/DATA/BuildingHunterConfig.cs" id="2"]
+[ext_resource type="Script" path="res://ENEMIES/DATA/EnemyRangedConfig.cs" id="3"]
+[sub_resource type="Resource" id="Hunter"]
+script = ExtResource("2")
+DetectionRadius = 400.0
+MinimumScanInterval = 0.75
+MaximumScanInterval = 1.5
+SwitchImprovement = 0.15
+MinimumSwitchInterval = 1.0
+[sub_resource type="Resource" id="Ranged"]
+script = ExtResource("3")
+ProjectileSpeed = 650.0
+ProjectileLifetime = 2.0
+ProjectileRadius = 2.0
+TracerLength = 14.0
+AimToleranceDegrees = 12.0
+[resource]
+script = ExtResource("1")
+EnemyId = "enemy002"
+MaxHealth = 35.0
+Radius = 12.0
+MovementSpeed = 90.0
+TurnSpeed = 12.0
+TargetRule = 3
+BuildingHunting = SubResource("Hunter")
+AttackDamage = 6.0
+AttackRange = 250.0
+AttackCooldown = 1.5
+RangedAttack = SubResource("Ranged")

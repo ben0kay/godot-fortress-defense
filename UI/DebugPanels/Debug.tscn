@@ -22,6 +22,15 @@ text = "Debug spawn controls (F2)"
 [node name="Controls" type="VBoxContainer" parent="Panel/Layout"]
 layout_mode = 2
 visible = false
+[node name="EnemyType" type="OptionButton" parent="Panel/Layout/Controls"]
+layout_mode = 2
+
+[node name="Targeting" type="Label" parent="Panel/Layout/Controls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = ""
+
 [node name="Presets" type="HBoxContainer" parent="Panel/Layout/Controls"]
 layout_mode = 2
 [node name="Add10" type="Button" parent="Panel/Layout/Controls/Presets"]

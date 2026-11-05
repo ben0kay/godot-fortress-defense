@@ -9,7 +9,7 @@ public partial class CombatProjectile : Node2D
     private Building _source;
     private Vector2 _direction;
     private float _damage, _speed, _remainingDistance, _radius, _length;
-    private bool _spent;
+    private bool _spent, _hostile;
     private readonly List<Enemy> _candidates = new();
 
     // No original target reference: missed rounds continue straight and may hit a different enemy.
@@ -21,14 +21,34 @@ public partial class CombatProjectile : Node2D
         Rotation = _direction.Angle();
     }
 
+    // Hostile straight shots keep no enemy/target references and reuse WORLD's first-solid impact geometry.
+    public void InitializeHostile(WorldGrid grid, Vector2 direction, float damage, float speed, float lifetime, float radius, float length)
+    {
+        _grid = grid; _hostile = true; _direction = direction.Normalized(); _damage = damage;
+        _speed = speed; _remainingDistance = speed * lifetime; _radius = radius; _length = length;
+        Rotation = _direction.Angle();
+    }
+
     // Swept entry prevents fast bullets tunnelling through enemies; nearer solids win over enemy contact.
     public override void _PhysicsProcess(double delta)
     {
-        if (_spent || !GodotObject.IsInstanceValid(_grid) || !GodotObject.IsInstanceValid(_enemies)) { QueueFree(); return; }
+        if (_spent || !GodotObject.IsInstanceValid(_grid) || (!_hostile && !GodotObject.IsInstanceValid(_enemies))) { QueueFree(); return; }
         Vector2 from = GlobalPosition; float travel = Mathf.Min(_speed * (float)delta, _remainingDistance);
         Vector2 end = from + _direction * travel;
         Building ignored = GodotObject.IsInstanceValid(_source) ? _source : null;
-        float obstruction = _grid.FirstObstacleFraction(from, end, _radius, ignored), first = obstruction;
+        float obstruction = _grid.FirstObstacleFraction(from, end, _radius, out Building buildingHit, ignored), first = obstruction;
+        if (_hostile)
+        {
+            if (float.IsFinite(obstruction))
+            {
+                _spent = true; GlobalPosition = from.Lerp(end, obstruction); QueueFree();
+                if (CombatTarget.IsAlive(buildingHit)) buildingHit.ApplyDamage(_damage);
+                return;
+            }
+            GlobalPosition = end; _remainingDistance -= travel;
+            if (_remainingDistance <= 0) { _spent = true; QueueFree(); }
+            return;
+        }
         Enemy hit = null;
         Rect2 bounds = new(new Vector2(Mathf.Min(from.X, end.X), Mathf.Min(from.Y, end.Y)),
             new Vector2(Mathf.Abs(end.X - from.X), Mathf.Abs(end.Y - from.Y)));
@@ -61,7 +81,7 @@ public partial class CombatProjectile : Node2D
     public override void _Draw()
     {
         DrawLine(new(-_length, 0), Vector2.Zero, new Color(1f, .55f, .1f, .4f), 4, true);
-        DrawLine(new(-_length, 0), Vector2.Zero, new Color(1f, .9f, .45f), 1.5f, true);
+        DrawLine(new(-_length, 0), Vector2.Zero, (_hostile ? new Color(1, .36f, .12f) : new Color(1f, .9f, .45f)), 1.5f, true);
     }
     public override void _ExitTree() { _spent = true; _source = null; _grid = null; _enemies = null; _candidates.Clear(); }
 }

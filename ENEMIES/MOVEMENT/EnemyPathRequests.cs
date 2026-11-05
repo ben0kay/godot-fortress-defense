@@ -70,7 +70,7 @@ public partial class EnemyPathRequests : Node
             if (_probe.TryVisit(out Vector2I cell))
             {
                 visited++;
-                if (EnemyTargeting.CanAttackFrom(_grid, _grid.CellCenter(cell), _active.NavigationTarget, _active.AttackRange))
+                if (EnemyTargeting.CanAttackFrom(_grid, _grid.CellCenter(cell), _active.NavigationTarget, _active.AttackRange, _active.FiringClearance))
                 { _chosen = _active.NavigationTarget; _goal = cell; _readyForPath = true; continue; }
                 Building candidate = _active.NavigationTarget != _active.StrategicTarget ? null : EnemyTargeting.BreachAt(_grid, cell, _active.StrategicTarget, _active.AttackRange);
                 if (candidate != null)

@@ -12,14 +12,18 @@ public partial class EnemyDefinition : Resource
     [ExportGroup("Movement")]
     [Export] public float MovementSpeed { get; set; } = 70;
     [Export] public float TurnSpeed { get; set; } = 12;
-    public enum TargetPriority { CitadelOnly, PreferNearbyPlayer, NearestWithinRange }
+    public enum TargetPriority { CitadelOnly, PreferNearbyPlayer, NearestWithinRange, BuildingHunter }
     [ExportGroup("Targeting")]
     [Export] public TargetPriority TargetRule { get; set; } = TargetPriority.PreferNearbyPlayer;
     [Export] public float PlayerDetectionRange { get; set; } = 500;
-    [ExportGroup("Contact Attack")]
+    [Export] public BuildingHunterConfig BuildingHunting { get; set; }
+    [ExportGroup("Attack")]
     [Export] public float AttackDamage { get; set; } = 8;
     [Export] public float AttackRange { get; set; } = 24;
     [Export] public float AttackCooldown { get; set; } = 1.2f;
+
+    [ExportGroup("Optional Ranged Attack")]
+    [Export] public EnemyRangedConfig RangedAttack { get; set; }
 
     // Radius must fit the one shared ground profile; larger size classes are future work.
     public void Validate(float cellSize)
@@ -27,6 +31,9 @@ public partial class EnemyDefinition : Resource
         if (string.IsNullOrWhiteSpace(EnemyId) || !Valid(MaxHealth) || !Valid(Radius) || Radius >= cellSize * .5f
             || !Enum.IsDefined(TargetRule) || !Valid(PlayerDetectionRange) || !Valid(MovementSpeed) || !Valid(TurnSpeed) || !Valid(AttackDamage) || !Valid(AttackRange) || !Valid(AttackCooldown))
             throw new InvalidOperationException("Enemy stats must be finite/positive and radius smaller than half a grid cell.");
+        if (TargetRule == TargetPriority.BuildingHunter)
+        { if (BuildingHunting == null) throw new InvalidOperationException("Building hunter settings required."); BuildingHunting.Validate(); }
+        RangedAttack?.Validate(AttackRange, Radius);
         static bool Valid(float value) => float.IsFinite(value) && value > 0;
     }
 }

@@ -4,7 +4,7 @@
 
 Inspector: EnemyScene, SpawningEnabled, SpawnInterval (0.8s), MaxActiveEnemies (20), MaxSpawnAttempts (32), MinCitadelDistance (160px), Seed (1). At most one enemy is created per interval/frame; a hitch never causes catch-up spawning. Each interval tests a bounded sequence around a seeded perimeter start, checks shared walkability/radius clearance, occupied cells, CPU separation and existing spawn bodies. Clearance moves the edge band inward. Failed attempts wait for the next interval; a fully blocked edge cannot hang the scene.
 
-Maximum active count is clamped to 0–200 as an input guard, not an ST2 stress preset or benchmark claim. Disabling spawning does not disable existing enemies. C clears and pauses; P toggles; CPU loss stops the spawner. R reloads the world. Waves, role mixtures and 10/50/100/200 presets remain planned.
+Maximum active count is clamped to 0–200 as an input guard, not an ST2 stress preset or benchmark claim. Disabling spawning does not disable existing enemies. F2 → Clear clears and pauses (C toggles camera); P toggles; CPU loss stops the spawner. R reloads the world. F2 manual10/50/100/200/custom batches are implemented; full waves and automatic mixed composition remain planned.
 
 ## Future level-driven enemy pressure — planned, not implemented
 
@@ -19,7 +19,7 @@ The game will have **multiple levels with independently configured difficulty**,
 
 **Performance:** All four pressure sources enqueue spawn intents into **one bounded, fair per-frame executor** shared with debug hotkey spawns. Track both pending count and active cap; spread formation members over frames, never bypass the cap for a large event, and define deferred/expired/overflow behavior rather than dropping events silently. Use deterministic seeds for reproducible level tests. Pause, victory, CPU loss, scene unload and reset must cancel or retain queued requests intentionally. Spawn budgets and gameplay scheduling should be separate from path-request budgets. A wave warning is UI/presentation, not a requirement to instantiate the whole wave at once.
 
-**Current scope:** `EdgeEnemySpawner.cs` only does gradual Enemy001 edge spawning. Do **not** implement level progression, four pressure modes, weighted enemy selection or milestone tracking during the initial navigation/tower combat stress pass; keep it extensible for this future level system.
+**Current scope:** `EdgeEnemySpawner.cs` defaults to gradual Enemy001 automatic spawning and supports typed manual batches. Do **not** implement level progression, four pressure modes, weighted enemy selection or milestone tracking during the initial navigation/tower combat stress pass; keep it extensible for this future level system.
 
 ## WG0 Level001 integration
 
@@ -28,3 +28,9 @@ The game will have **multiple levels with independently configured difficulty**,
 ## Reusable debug spawn controls
 
 `QueueDebugSpawns(count)` accepts bounded manual add requests; `PendingDebugSpawns`, `CancelDebugSpawns()` and `CanSpawn` expose the state to the reusable UI. Active+pending cannot exceed200, and accepted requests raise MaxActiveEnemies enough to fit. MaxDebugSpawnsPerFrame defaults2 (clamped1–8). One executor runs the same TrySpawnOne validity path for manual and automatic units; manual batches take precedence, while natural spawning keeps its existing interval/no-catch-up behavior afterward. Automatic spawning can be paused while manual requests continue. Invalid edge attempts remain pending, without bypassing collision or active caps; clear, CPU loss and scene exit cancel them. Full queues/caps sleep and registry changes wake the executor. The four future pressure modes above are still unimplemented.
+
+## EN2 typed debug batches
+
+DebugEnemyScenes (authored Enemy001/Enemy002) is inspected/cached at setup, with each scene's own definition. DefinitionOverride applies only to matching EnemyId, preserving Level001's64px Enemy001 attack range without changing Enemy002. QueueDebugSpawns(count,typeIndex) freezes a profile in each batch; changing the dropdown affects only later additions. Both types share one gradual executor, active+pending200 guard and default2 manual spawns/frame. No weighted automatic composition added: EnemyScene remains the sole automatic type. AutomaticEnemyType/DebugEnemyTypes/CanSpawnDebugType expose cached UI metadata/state.
+
+CPU loss cancels CPU-seeker pending batches and stops default automatic Enemy001 spawning as before; building-hunter batches/survivors remain valid independently and can wait if no buildings exist. Pending queues are still bounded by accepted count, and Clear/reset cancels all types. Projectile and targeting services are explicitly supplied through the shared TargetRoster, not searched by spawned instances.

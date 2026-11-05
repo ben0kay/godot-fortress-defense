@@ -1,6 +1,6 @@
 # ENEMIES/TYPES
 
-**Status:** ST1 `Basic/Enemy001/Enemy001.tscn` and its definition are Source Implemented / Awaiting Owner Validation. Other families remain planned.
+**Status:** ST1 `Basic/Enemy001/Enemy001.tscn` and its definition are Source Implemented / Awaiting Owner Validation. `Ranged/Enemy002/Enemy002.tscn` and its building-hunter/ranged definition are now also Source Implemented / Awaiting Owner Validation (EN2). Other families remain planned.
 
 ## Ownership
 

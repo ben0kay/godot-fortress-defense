@@ -29,6 +29,7 @@ public partial class LevelController
             }
             catch { player.Free(); throw; }
         }
+        _targetRoster.Initialize(GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), _projectiles);
         _targetRoster.SetMobileTarget(CurrentPlayer);
         _spawner.TargetRoster = _targetRoster;
         _spawner.AdditionalSpawnValidation = (position, radius) => !PlayerAlive

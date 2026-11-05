@@ -68,3 +68,5 @@ BM0: this fixed sandbox explicitly uses TryPlaceFree, including W/T placement. I
 BM1: shared Ctrl → category → building menu is available here, labelled FREE DEBUG. The sandbox initially keeps wall placement armed. W/T select, LMB/drag builds repeatedly, Esc/RMB cancels. After cancellation, clicking selects and RMB/Delete removes. F1/F2 remain unchanged. [Shared build menu](../UI/BuildMenu/README.md).
 
 Revised PL0/CAM0: this sandbox has no player by default and uses the shared free camera. C safely toggles follow only for a living player; Home frames the map, MMB pans and wheel zooms. B + MMB retains terrain editing. Clear enemies using F2 → Clear; C no longer clears. RootPlayer stays empty unless a configured level enables spawning.
+
+EN2: F2 type selector supports enemy001/enemy002 batches, mixed under the same200 combined guard. Enemy002 is amber with a visible forward barrel and straight hostile rounds, with building-only targeting whether a player is present or absent. Normal automatic spawning stays Enemy001. See the Enemy002 README for tuning and owner scenarios.

@@ -90,7 +90,12 @@ public partial class WorldGrid : Node2D
     // First obstacle entry for fast projectiles, using the same solids as movement/collision.
     // PositiveInfinity means no contact; source footprint may be ignored during barrel exit.
     public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, Building ignored = null)
+        => FirstObstacleFraction(from, to, radius, out _, ignored);
+
+    // Hostile and friendly shots share the same earliest solid hit; report a building only if it precedes terrain/bounds.
+    public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, out Building hitBuilding, Building ignored = null)
     {
+        hitBuilding = null;
         Vector2 a = ToLocal(from), b = ToLocal(to), delta = b - a;
         Vector2 lowWorld = Vector2.One * radius, highWorld = (Vector2)Dimensions * CellSize - Vector2.One * radius;
         if (a.X < lowWorld.X || a.Y < lowWorld.Y || a.X > highWorld.X || a.Y > highWorld.Y) return 0;
@@ -109,8 +114,9 @@ public partial class WorldGrid : Node2D
             Vector2 low = (Vector2)cell * CellSize - Vector2.One * radius;
             Vector2 high = ((Vector2)cell + Vector2.One) * CellSize + Vector2.One * radius;
             enter = 0; exit = 1;
-            if (Clip(a.X, delta.X, low.X, high.X, ref enter, ref exit) && Clip(a.Y, delta.Y, low.Y, high.Y, ref enter, ref exit))
-                best = Mathf.Min(best, enter);
+            if (Clip(a.X, delta.X, low.X, high.X, ref enter, ref exit) && Clip(a.Y, delta.Y, low.Y, high.Y, ref enter, ref exit)
+                && (enter < best || (enter == best && IsTerrain(cell))))
+            { best = enter; hitBuilding = IsTerrain(cell) ? null : BuildingAt(cell); }
         }
         return best;
     }

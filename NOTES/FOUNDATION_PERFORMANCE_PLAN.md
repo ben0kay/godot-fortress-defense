@@ -10,6 +10,8 @@
 
 > **Gameplay infrastructure after the initial combat benchmark:** Follow [GAMEPLAY_INFRASTRUCTURE_PLAN.md](GAMEPLAY_INFRASTRUCTURE_PLAN.md) for the separately authorized BM0 (catalogue/credits), BM1 (Ctrl category-first build menu), PL0 (player), CAM0 (follow/free camera) and FW0 (three-state fog with F2 debug bypass) passes. For now, preferentially match the local visual/UI patterns of `ben0kay/godot-tower-defense` while keeping Fortress Defense's own shared Building scene and gameplay ownership. BM0, BM1 and revised optional PL0/CAM0 are **Source Implemented / Awaiting Owner Validation**; FW0 remains **Planned**.
 
+> **EN2:** Enemy002 Building-Hunter Shooter is **Source Implemented / Awaiting Owner Validation**; see [behavior/settings/owner checks](../ENEMIES/TYPES/Ranged/Enemy002/README.md). This adds fair bounded acquisition/routine targeting, stationary building buckets, shared hostile rounds and typed F2 batches without implementing later enemy roles or claiming measured FPS.
+
 ## Intent and non-negotiables
 
 Build a **separate**, expandable 2D vector-style fortress-defense/action/base-management game. The player controls a mobile combat chassis and defends a central **CPU**, placing towers, walls and eventually resource/production buildings on a **seed-generated open battlefield**. Different geometric enemies can independently attack the CPU, structures or visible player, with role-specific movement and combat. No fixed-path Classic TD model or copied Classic TD enemy roster.

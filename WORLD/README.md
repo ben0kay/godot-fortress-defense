@@ -40,3 +40,5 @@ The Godot performance notes identify optional corridor refinement as expensive r
 API: [AStarGrid2D](https://docs.godotengine.org/en/stable/classes/class_astargrid2d.html). Build metadata uses Godot.NET.Sdk 4.7.2 / net8.0, matching the sister Godot project's SDK and this project's 4.7 feature tag. Neither Godot nor dotnet was available in the implementation environment; editor import, build and runtime remain owner checks.
 
 COMBAT projectiles use WorldGrid.FirstObstacleFraction for earliest solid/map-boundary contact, with the same cell data and radius-expanded rectangles used by movement. This does not change terrain generation, building reservations or ground A* rules. Building shots can ignore only their own source footprint during barrel exit.
+
+EN2: FirstObstacleFraction also has an out Building overload reporting the earliest struck footprint, using exactly the same swept solid-cell loop. Hostile shared projectiles damage that building; terrain/bounds win ties and never forward damage to a farther structure. Ranged approach search remains in the existing bounded ENEMIES queue. Terrain generation/grid ownership are unchanged.

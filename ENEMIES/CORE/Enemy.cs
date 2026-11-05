@@ -44,12 +44,15 @@ public partial class Enemy : Node2D
         MaxHealth = Health = Definition.MaxHealth; Radius = Definition.Radius;
         Speed = Definition.MovementSpeed; TurnSpeed = Definition.TurnSpeed;
         AttackRange = Definition.AttackRange; AttackDamage = Definition.AttackDamage; AttackCooldown = Definition.AttackCooldown;
+        InitializeCapabilities();
+        if (HuntsBuildings) { StrategicTarget = null; NavigationTarget = null; AcquisitionState = "Initial acquisition"; }
         _attached = true;
     }
     public override void _Ready()
     {
         if (!_attached) { GD.PushError("Enemy must be initialized by its spawner."); SetPhysicsProcess(false); return; }
-        _grid.TopologyChanged += OnTopologyChanged; _registry.Add(this); _targets?.Register(this); RequestRoute();
+        _grid.TopologyChanged += OnTopologyChanged; _registry.Add(this); _targets?.Register(this);
+        if (HuntsBuildings) SetPhysicsProcess(false); else RequestRoute();
     }
 
     #region Routing and topology
@@ -78,6 +81,7 @@ public partial class Enemy : Node2D
     private void OnTopologyChanged(Rect2I changed)
     {
         if (IsDead) return;
+        if (HuntsBuildings && !EnemyTargeting.Live(StrategicTarget)) { OnHuntedBuildingLost(); return; }
         if (!EnemyTargeting.Live(StrategicTarget))
         { _requests.Cancel(this); WaitingForPath = false; ActiveTarget = null; _movement.Stop(); SetPhysicsProcess(false); VisualChanged?.Invoke(); return; }
         Rect2 dirty = _grid.FootprintRect(changed).Grow(Radius + _grid.ClearanceCells * _grid.CellSize);
@@ -89,6 +93,7 @@ public partial class Enemy : Node2D
     public override void _PhysicsProcess(double delta)
     {
         if (!_attached || IsDead || !EnemyTargeting.Live(StrategicTarget)) return;
+        if (IsRanged) { ProcessRanged(delta); return; }
         _attack.Tick(delta);
         if (NavigationTarget != StrategicTarget && EnemyTargeting.CanAttackFrom(_grid, GlobalPosition, NavigationTarget, AttackRange))
         {
@@ -116,7 +121,7 @@ public partial class Enemy : Node2D
     // Mobile-target choice and moving-goal refresh are staggered outside physics/path execution.
     public void ConsiderMobileTarget(ICombatTarget mobile)
     {
-        if (IsDead || !EnemyTargeting.Live(StrategicTarget)) return;
+        if (HuntsBuildings || IsDead || !EnemyTargeting.Live(StrategicTarget)) return;
         ICombatTarget chosen = EnemyTargeting.ChooseObjective(this, mobile);
         if (chosen != StrategicTarget && _mobileBlocked && _blockedMobileRevision == _grid.Revision
             && _grid.WorldToCell(chosen.TargetNode.GlobalPosition) == _blockedMobileCell) chosen = StrategicTarget;
@@ -150,6 +155,8 @@ public partial class Enemy : Node2D
     {
         if (!_attached) return;
         _attached = false;
+        if (HuntsBuildings && GodotObject.IsInstanceValid(StrategicTarget)) StrategicTarget.TargetLost -= OnHuntedBuildingLost;
+        _projectiles = null;
         if (GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
         if (GodotObject.IsInstanceValid(_requests)) _requests.Cancel(this);
         if (GodotObject.IsInstanceValid(_targets)) _targets.Unregister(this);

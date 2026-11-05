@@ -2,7 +2,7 @@
 
 **Status: ST1 Source Implemented / Awaiting Owner Validation.**
 
-Enemy001 is the initial vector ground attacker, with health, continuous movement, a cached Citadel objective, contact attacks, temporary wall-breach targeting and gradual edge spawning. Tower001 now uses the shared health/death receiver and spatial registry. No weighted target selection, player targeting, advanced roles, steering, fog or ST2 stress presets are implemented.
+Enemy001 is the initial vector ground attacker, with health, continuous movement, a cached Citadel objective, contact attacks, temporary wall-breach targeting and gradual edge spawning. Tower001 now uses the shared health/death receiver and spatial registry. Optional-player targeting and basic F2 stress batches are source implemented; weighted targeting, advanced roles, steering, fog and advanced ST2 scheduling/profiling remain planned.
 
 | Owner | Implemented files / responsibility |
 | --- | --- |
@@ -16,6 +16,10 @@ Enemy001 is the initial vector ground attacker, with health, continuous movement
 | `VISUALS/` | `EnemyVectorVisual.cs`: red arrow, orange breacher, brief hit/attack highlight and damaged health arc |
 | `ABILITIES/`, `MODIFIERS/`, `PERFORMANCE/` | Reserved for future passes; no gameplay implementation |
 
-WORLD owns terrain/occupancy, the single AStarGrid2D and cooperative reachability workspace. No per-enemy A* grids, scene-wide target searches or per-frame pathfinding. Enemies retain one strategic CPU reference for their whole life. A breach target never replaces that identity. UI lives at root `UI/`; cosmetic destruction feedback lives in root `FEEDBACK/`. ST1 contact attacks reuse existing scalar Building damage; a broader COMBAT damage/resistance framework is deferred.
+WORLD owns terrain/occupancy, the single AStarGrid2D and cooperative reachability workspace. No per-enemy A* grids, scene-wide target searches or per-frame pathfinding. Enemy001 retains its strategic CPU; EN2 hunters may lock and replace building objectives. A breach target never replaces that identity. UI lives at root `UI/`; cosmetic destruction feedback lives in root `FEEDBACK/`. ST1 contact attacks reuse existing scalar Building damage; a broader COMBAT damage/resistance framework is deferred.
 
 Read [movement contracts](MOVEMENT/README.md) and [manual scene controls](../DEBUG/README.md). Target: eventually 100–200 active combatants at 60 FPS; this pass has a modest 20-active default and **no measured performance guarantee**. Enemy shapes can overlap each other; grid collision handles static obstacles, not crowd avoidance. Rendering visibility never disables gameplay damage/movement.
+
+## EN2 additions
+
+[Enemy002](TYPES/Ranged/Enemy002/README.md) is the authorized building-hunting shooter. EnemyDefinition exposes optional BuildingHunting and RangedAttack resources; Enemy.BuildingHunter.cs integrates these capabilities without a second AI/health controller. EnemyTargetRoster handles bounded priority acquisition/recovery and fair routine building/player decisions. BuildingHunterTargeting uses BuildingRegistry's stationary spatial queries. EnemyRangedAttack launches shared COMBAT projectiles; all navigation still uses EnemyPathRequests. F2 manual batches choose either type, while automatic composition remains unchanged. Source Implemented / Awaiting Owner Validation.

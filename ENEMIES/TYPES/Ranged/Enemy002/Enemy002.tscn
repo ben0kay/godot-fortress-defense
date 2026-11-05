@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="Script" path="res://ENEMIES/CORE/Enemy.cs" id="1"]
+[ext_resource type="Resource" path="res://ENEMIES/TYPES/Ranged/Enemy002/Enemy002Definition.tres" id="2"]
+[ext_resource type="Script" path="res://ENEMIES/VISUALS/EnemyVectorVisual.cs" id="3"]
+[node name="Enemy002" type="Node2D"]
+script = ExtResource("1")
+Definition = ExtResource("2")
+[node name="VectorVisual" type="Node2D" parent="."]
+script = ExtResource("3")
