@@ -8,6 +8,8 @@
 
 > **Initial stress sandbox:** For the concrete early implementation slices (grid/footprints, CPU enclosure fallback, staggered AI and path budgets, edge spawning, tower, fog-of-war and 10–200 enemy scenarios), follow [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). These ST0–ST5 phases refine this roadmap; they are not automatically authorized gameplay work.
 
+> **Gameplay infrastructure after the initial combat benchmark:** Follow [GAMEPLAY_INFRASTRUCTURE_PLAN.md](GAMEPLAY_INFRASTRUCTURE_PLAN.md) for the separately authorized BM0 (catalogue/credits), BM1 (Ctrl category-first build menu), PL0 (player), CAM0 (follow/free camera) and FW0 (three-state fog with F2 debug bypass) passes. For now, preferentially match the local visual/UI patterns of `ben0kay/godot-tower-defense` while keeping Fortress Defense's own shared Building scene and gameplay ownership. These passes remain **Planned**, not already implemented.
+
 ## Intent and non-negotiables
 
 Build a **separate**, expandable 2D vector-style fortress-defense/action/base-management game. The player controls a mobile combat chassis and defends a central **CPU**, placing towers, walls and eventually resource/production buildings on a **seed-generated open battlefield**. Different geometric enemies can independently attack the CPU, structures or visible player, with role-specific movement and combat. No fixed-path Classic TD model or copied Classic TD enemy roster.
