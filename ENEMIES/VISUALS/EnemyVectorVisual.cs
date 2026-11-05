@@ -16,7 +16,16 @@ public partial class EnemyVectorVisual : Node2D
         float r = _enemy.Radius;
         Color color = _flash > 0 ? Colors.White : _enemy.IsBreaching ? Colors.Orange : new Color(1, .25f, .32f);
         Vector2[] arrow = { new(r * 1.5f, 0), new(-r, -r), new(-r * .45f, 0), new(-r, r) };
-        if (_enemy.IsRanged)
+        if (_enemy.IsFlying)
+        {
+            Color air = _flash > 0 ? Colors.White : new Color(.3f, .85f, 1);
+            DrawCircle(new(4, 7), r * .8f, new Color(0, 0, 0, .25f));
+            Vector2[] wings = { new(r * 1.45f, 0), new(-r * .75f, -r * 1.3f), new(-r * .35f, 0), new(-r * .75f, r * 1.3f) };
+            DrawColoredPolygon(wings, air);
+            DrawLine(new(-r * .35f, 0), new(r * .8f, 0), Colors.White, 2, true);
+            DrawCircle(new(-r * .45f, 0), r * .25f, new Color(.06f, .2f, .3f));
+        }
+        else if (_enemy.IsRanged)
         {
             color = _flash > 0 ? Colors.White : new Color(1, .6f, .12f);
             DrawColoredPolygon(new Vector2[] { new(r, 0), new(-r, -r * 1.15f), new(-r * .65f, 0), new(-r, r * 1.15f) }, color);

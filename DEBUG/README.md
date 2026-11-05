@@ -70,3 +70,5 @@ BM1: shared Ctrl → category → building menu is available here, labelled FREE
 Revised PL0/CAM0: this sandbox has no player by default and uses the shared free camera. C safely toggles follow only for a living player; Home frames the map, MMB pans and wheel zooms. B + MMB retains terrain editing. Clear enemies using F2 → Clear; C no longer clears. RootPlayer stays empty unless a configured level enables spawning.
 
 EN2: F2 type selector supports enemy001/enemy002 batches, mixed under the same200 combined guard. Enemy002 is amber with a visible forward barrel and straight hostile rounds, with building-only targeting whether a player is present or absent. Normal automatic spawning stays Enemy001. See the Enemy002 README for tuning and owner scenarios.
+
+AIR1: F2 → enemy003 spawns cyan winged impact flyers, independent of blocked/dead ground cells. They only damage the CPU; Tower001 remains Ground-only. Ground placement ignores airborne overlap, and B/MMB terrain edits beneath flyers do not trigger repaths. Mixed types share existing spawn limits. AIR2/AIR3 remain planned.

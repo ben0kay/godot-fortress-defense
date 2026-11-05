@@ -87,6 +87,21 @@ public partial class WorldGrid : Node2D
         return true;
     }
 
+    // Airborne shots still respect finite world bounds, without inspecting any terrain/building cell.
+    public float FirstWorldBoundaryFraction(Vector2 from, Vector2 to, float radius)
+        => BoundaryFractionLocal(ToLocal(from), ToLocal(to), radius);
+    private float BoundaryFractionLocal(Vector2 a, Vector2 b, float radius)
+    {
+        Vector2 delta = b - a;
+        Vector2 low = Vector2.One * radius, high = (Vector2)Dimensions * CellSize - Vector2.One * radius;
+        if (a.X < low.X || a.Y < low.Y || a.X > high.X || a.Y > high.Y) return 0;
+        if (b.X >= low.X && b.Y >= low.Y && b.X <= high.X && b.Y <= high.Y) return float.PositiveInfinity;
+        float enter = 0, exit = 1;
+        Clip(a.X, delta.X, low.X, high.X, ref enter, ref exit);
+        Clip(a.Y, delta.Y, low.Y, high.Y, ref enter, ref exit);
+        return exit;
+    }
+
     // First obstacle entry for fast projectiles, using the same solids as movement/collision.
     // PositiveInfinity means no contact; source footprint may be ignored during barrel exit.
     public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, Building ignored = null)
@@ -97,12 +112,9 @@ public partial class WorldGrid : Node2D
     {
         hitBuilding = null;
         Vector2 a = ToLocal(from), b = ToLocal(to), delta = b - a;
-        Vector2 lowWorld = Vector2.One * radius, highWorld = (Vector2)Dimensions * CellSize - Vector2.One * radius;
-        if (a.X < lowWorld.X || a.Y < lowWorld.Y || a.X > highWorld.X || a.Y > highWorld.Y) return 0;
-        float enter = 0, exit = 1;
-        Clip(a.X, delta.X, lowWorld.X, highWorld.X, ref enter, ref exit);
-        Clip(a.Y, delta.Y, lowWorld.Y, highWorld.Y, ref enter, ref exit);
-        float best = b.X < lowWorld.X || b.Y < lowWorld.Y || b.X > highWorld.X || b.Y > highWorld.Y ? exit : float.PositiveInfinity;
+        float best = BoundaryFractionLocal(a, b, radius);
+        if (best == 0) return 0;
+        float enter, exit;
         int left = Mathf.Clamp(Mathf.FloorToInt((Mathf.Min(a.X, b.X) - radius) / CellSize), 0, Dimensions.X - 1);
         int right = Mathf.Clamp(Mathf.FloorToInt((Mathf.Max(a.X, b.X) + radius) / CellSize), 0, Dimensions.X - 1);
         int top = Mathf.Clamp(Mathf.FloorToInt((Mathf.Min(a.Y, b.Y) - radius) / CellSize), 0, Dimensions.Y - 1);

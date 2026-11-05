@@ -21,7 +21,7 @@ public partial class EnemyRegistry : Node
     {
         Rect2 rect = grid.FootprintRect(area);
         foreach (Enemy enemy in _enemies)
-            if (!enemy.IsDead && (rect.Grow(enemy.Radius + .05f).HasPoint(enemy.GlobalPosition)
+            if (!enemy.IsDead && enemy.MovementLayer == EnemyMovementLayer.Ground && (rect.Grow(enemy.Radius + .05f).HasPoint(enemy.GlobalPosition)
                 || area.Grow(grid.ClearanceCells).HasPoint(grid.WorldToCell(enemy.GlobalPosition)))) return false;
         return true;
     }

@@ -7,6 +7,9 @@ public partial class CombatProjectile : Node2D
     private WorldGrid _grid;
     private EnemyRegistry _enemies;
     private Building _source;
+    private ICombatTarget _intended;
+    private EnemyTargetLayers _targetLayers;
+    private ProjectileCollisionProfile _collision;
     private Vector2 _direction;
     private float _damage, _speed, _remainingDistance, _radius, _length;
     private bool _spent, _hostile;
@@ -14,16 +17,27 @@ public partial class CombatProjectile : Node2D
 
     // No original target reference: missed rounds continue straight and may hit a different enemy.
     public void Initialize(WorldGrid grid, EnemyRegistry enemies, Building source, Vector2 direction,
-        float damage, float speed, float distance, float radius, float length)
+        float damage, float speed, float distance, float radius, float length,
+        EnemyTargetLayers targetLayers = EnemyTargetLayers.Ground, ProjectileCollisionProfile collision = ProjectileCollisionProfile.GroundObstructed)
     {
+        if (!CombatLayers.Valid(targetLayers) || !System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.IntendedGroundTarget)
+            throw new System.ArgumentException("Invalid enemy-target projectile profile.");
+        _targetLayers = targetLayers; _collision = collision;
         _grid = grid; _enemies = enemies; _source = source; _direction = direction.Normalized();
         _damage = damage; _speed = speed; _remainingDistance = distance; _radius = radius; _length = length;
         Rotation = _direction.Angle();
     }
 
-    // Hostile straight shots keep no enemy/target references and reuse WORLD's first-solid impact geometry.
-    public void InitializeHostile(WorldGrid grid, Vector2 direction, float damage, float speed, float lifetime, float radius, float length)
+    // Ground hostile shots use first-solid hits; explicit overflight shots retain only their intended ground target.
+    public void InitializeHostile(WorldGrid grid, Vector2 direction, float damage, float speed, float lifetime, float radius, float length,
+        ProjectileCollisionProfile collision = ProjectileCollisionProfile.GroundObstructed, ICombatTarget intended = null)
     {
+        if (!System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.Airborne
+            || (collision == ProjectileCollisionProfile.IntendedGroundTarget && !CombatTarget.IsAlive(intended)))
+            throw new System.ArgumentException("Invalid building-target projectile profile.");
+        _collision = collision;
+        if (collision == ProjectileCollisionProfile.IntendedGroundTarget)
+        { _intended = intended; _intended.TargetLost += OnIntendedLost; }
         _grid = grid; _hostile = true; _direction = direction.Normalized(); _damage = damage;
         _speed = speed; _remainingDistance = speed * lifetime; _radius = radius; _length = length;
         Rotation = _direction.Angle();
@@ -36,9 +50,22 @@ public partial class CombatProjectile : Node2D
         Vector2 from = GlobalPosition; float travel = Mathf.Min(_speed * (float)delta, _remainingDistance);
         Vector2 end = from + _direction * travel;
         Building ignored = GodotObject.IsInstanceValid(_source) ? _source : null;
-        float obstruction = _grid.FirstObstacleFraction(from, end, _radius, out Building buildingHit, ignored), first = obstruction;
+        Building buildingHit = null;
+        float obstruction = _collision == ProjectileCollisionProfile.GroundObstructed
+            ? _grid.FirstObstacleFraction(from, end, _radius, out buildingHit, ignored)
+            : _grid.FirstWorldBoundaryFraction(from, end, _radius);
+        float first = obstruction;
         if (_hostile)
         {
+            if (_collision == ProjectileCollisionProfile.IntendedGroundTarget && CombatTarget.IsAlive(_intended))
+            {
+                float entry = CombatGeometry.SegmentRectEntry(from, end, _intended.TargetBounds(_grid).Grow(_radius));
+                if (float.IsFinite(entry) && entry < obstruction)
+                {
+                    ICombatTarget hitTarget = _intended; _spent = true; OnIntendedLost();
+                    GlobalPosition = from.Lerp(end, entry); QueueFree(); hitTarget.ApplyDamage(_damage); return;
+                }
+            }
             if (float.IsFinite(obstruction))
             {
                 _spent = true; GlobalPosition = from.Lerp(end, obstruction); QueueFree();
@@ -55,7 +82,7 @@ public partial class CombatProjectile : Node2D
         _enemies.Query(bounds.Grow(_enemies.MaxEnemyRadius + _radius), _candidates);
         foreach (Enemy enemy in _candidates)
         {
-            if (!GodotObject.IsInstanceValid(enemy) || enemy.IsDead) continue;
+            if (!GodotObject.IsInstanceValid(enemy) || enemy.IsDead || !CombatLayers.Allows(_targetLayers, enemy)) continue;
             float entry = CircleEntry(from, end, enemy.GlobalPosition, enemy.Radius + _radius);
             if (entry < first) { first = entry; hit = enemy; }
         }
@@ -83,5 +110,11 @@ public partial class CombatProjectile : Node2D
         DrawLine(new(-_length, 0), Vector2.Zero, new Color(1f, .55f, .1f, .4f), 4, true);
         DrawLine(new(-_length, 0), Vector2.Zero, (_hostile ? new Color(1, .36f, .12f) : new Color(1f, .9f, .45f)), 1.5f, true);
     }
-    public override void _ExitTree() { _spent = true; _source = null; _grid = null; _enemies = null; _candidates.Clear(); }
+    // Target-only shots never acquire replacements; a lost target becomes a harmless miss until expiry.
+    private void OnIntendedLost()
+    {
+        if (_intended != null && GodotObject.IsInstanceValid(_intended.TargetNode)) _intended.TargetLost -= OnIntendedLost;
+        _intended = null;
+    }
+    public override void _ExitTree() { OnIntendedLost(); _spent = true; _source = null; _grid = null; _enemies = null; _candidates.Clear(); }
 }

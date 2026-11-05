@@ -1,4 +1,4 @@
-// Ground enemy runtime/lifecycle; movement, contact attacks and route selection have separate owners.
+// Shared enemy runtime/lifecycle; movement, contact attacks and route selection have separate owners.
 using Godot;
 
 public partial class Enemy : Node2D
@@ -40,6 +40,10 @@ public partial class Enemy : Node2D
         if (Definition == null) throw new System.InvalidOperationException("Enemy definition is required.");
         Definition.Validate(grid.CellSize);
         _grid = grid; _registry = registry; _requests = requests; StrategicTarget = citadel; NavigationTarget = citadel; _targets = targets;
+        MovementLayer = Definition.MovementLayer; IsImpact = Definition.AttackBehavior == EnemyAttackBehavior.Impact;
+        if (RadiusDoesNotFitWorld(Definition.Radius, grid)) throw new System.InvalidOperationException("Enemy radius does not fit world bounds.");
+        if (IsFlying) _flight = new EnemyFlyingMovement();
+        if (IsImpact) _impact = new EnemyImpactAttack();
         TargetRule = Definition.TargetRule; PlayerDetectionRange = Definition.PlayerDetectionRange;
         MaxHealth = Health = Definition.MaxHealth; Radius = Definition.Radius;
         Speed = Definition.MovementSpeed; TurnSpeed = Definition.TurnSpeed;
@@ -51,7 +55,8 @@ public partial class Enemy : Node2D
     public override void _Ready()
     {
         if (!_attached) { GD.PushError("Enemy must be initialized by its spawner."); SetPhysicsProcess(false); return; }
-        _grid.TopologyChanged += OnTopologyChanged; _registry.Add(this); _targets?.Register(this);
+        if (!IsFlying) _grid.TopologyChanged += OnTopologyChanged;
+        WatchFlightObjective(); _registry.Add(this); _targets?.Register(this);
         if (HuntsBuildings) SetPhysicsProcess(false); else RequestRoute();
     }
 
@@ -59,6 +64,7 @@ public partial class Enemy : Node2D
     private void RequestRoute()
     {
         if (IsDead || !EnemyTargeting.Live(StrategicTarget)) { SetPhysicsProcess(false); return; }
+        if (IsFlying) { BeginFlight(); return; }
         if (!EnemyTargeting.Live(NavigationTarget)) NavigationTarget = StrategicTarget;
         if (NavigationTarget != StrategicTarget) _routedMobileCell = _grid.WorldToCell(NavigationTarget.TargetNode.GlobalPosition);
         _movement.Stop(); WaitingForPath = true; _noRoute = false;
@@ -67,7 +73,7 @@ public partial class Enemy : Node2D
     // Result delivery never redirects the strategic objective; a breach target is only temporary.
     public void AcceptRoute(ICombatTarget target, Vector2[] path)
     {
-        if (IsDead) return;
+        if (IsDead || IsFlying) return;
         if (path.Length == 0 && NavigationTarget != StrategicTarget)
         {
             _mobileBlocked = true; _blockedMobileCell = _routedMobileCell; _blockedMobileRevision = _grid.Revision;
@@ -93,6 +99,8 @@ public partial class Enemy : Node2D
     public override void _PhysicsProcess(double delta)
     {
         if (!_attached || IsDead || !EnemyTargeting.Live(StrategicTarget)) return;
+        if (IsFlying) { ProcessFlying(delta); return; }
+        if (IsImpact) { ProcessGroundImpact(delta); return; }
         if (IsRanged) { ProcessRanged(delta); return; }
         _attack.Tick(delta);
         if (NavigationTarget != StrategicTarget && EnemyTargeting.CanAttackFrom(_grid, GlobalPosition, NavigationTarget, AttackRange))
@@ -127,12 +135,14 @@ public partial class Enemy : Node2D
             && _grid.WorldToCell(chosen.TargetNode.GlobalPosition) == _blockedMobileCell) chosen = StrategicTarget;
         if (NavigationTarget != chosen)
         {
-            _requests.Cancel(this); NavigationTarget = chosen; ActiveTarget = null; RequestRoute(); return;
+            if (!IsFlying) _requests.Cancel(this); NavigationTarget = chosen; ActiveTarget = null; RequestRoute(); return;
         }
-        if (chosen == StrategicTarget || WaitingForPath || EnemyTargeting.CanAttackFrom(_grid, GlobalPosition, chosen, AttackRange)) return;
+        if (IsFlying || chosen == StrategicTarget || WaitingForPath || EnemyTargeting.CanAttackFrom(_grid, GlobalPosition, chosen, AttackRange)) return;
         bool movedCell = _grid.WorldToCell(chosen.TargetNode.GlobalPosition) != _routedMobileCell;
         if (movedCell || (!_noRoute && !_movement.HasRoute && !EnemyTargeting.CanAttackFrom(_grid, GlobalPosition, chosen, AttackRange))) RequestRoute();
     }
+
+    private static bool RadiusDoesNotFitWorld(float radius, WorldGrid grid) => radius * 2 >= Mathf.Min(grid.Dimensions.X, grid.Dimensions.Y) * grid.CellSize;
 
     // All authoritative movement/teleports update the shared combat index at the same boundary.
     public void SetMovementPosition(Vector2 position)
@@ -157,8 +167,9 @@ public partial class Enemy : Node2D
         _attached = false;
         if (HuntsBuildings && GodotObject.IsInstanceValid(StrategicTarget)) StrategicTarget.TargetLost -= OnHuntedBuildingLost;
         _projectiles = null;
-        if (GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
-        if (GodotObject.IsInstanceValid(_requests)) _requests.Cancel(this);
+        UnwatchFlightObjective();
+        if (!IsFlying && GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
+        if (!IsFlying && GodotObject.IsInstanceValid(_requests)) _requests.Cancel(this);
         if (GodotObject.IsInstanceValid(_targets)) _targets.Unregister(this);
         if (GodotObject.IsInstanceValid(_registry)) _registry.Remove(this);
     }

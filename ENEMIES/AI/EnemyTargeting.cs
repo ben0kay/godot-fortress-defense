@@ -6,13 +6,13 @@ public static class EnemyTargeting
     public static bool Live(ICombatTarget target) => CombatTarget.IsAlive(target);
 
     // Attack range is center-to-footprint distance; another wall/terrain blocks contact line of sight.
-    public static bool CanAttackFrom(WorldGrid grid, Vector2 position, ICombatTarget target, float range, float projectileRadius = 0)
+    public static bool CanAttackFrom(WorldGrid grid, Vector2 position, ICombatTarget target, float range, float projectileRadius = 0, bool ignoreGround = false)
     {
         if (!Live(target)) return false;
         Rect2 rect = target.TargetBounds(grid);
         Vector2 closest = position.Clamp(rect.Position, rect.End);
         return position.DistanceSquaredTo(closest) <= range * range
-            && grid.SegmentClear(position, closest, projectileRadius, target as Building);
+            && (ignoreGround || grid.SegmentClear(position, closest, projectileRadius, target as Building));
     }
 
     // Only explicit cached candidates are considered; target choice never owns movement or attack execution.

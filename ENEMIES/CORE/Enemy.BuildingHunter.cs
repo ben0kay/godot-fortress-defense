@@ -42,7 +42,7 @@ public partial class Enemy
         if (!HuntsBuildings || IsDead || StrategicTarget == target) return;
         if (GodotObject.IsInstanceValid(StrategicTarget)) StrategicTarget.TargetLost -= OnHuntedBuildingLost;
         StrategicTarget = target; NavigationTarget = target; ActiveTarget = null;
-        _requests.Cancel(this); _movement.Stop(); WaitingForPath = false; _noRoute = false;
+        if (!IsFlying) _requests.Cancel(this); _movement.Stop(); WaitingForPath = false; _noRoute = false;
         if (EnemyTargeting.Live(target))
         {
             target.TargetLost += OnHuntedBuildingLost; AcquisitionState = "Locked: " + target.BuildingId; RequestRoute();

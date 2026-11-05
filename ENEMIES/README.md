@@ -23,3 +23,7 @@ Read [movement contracts](MOVEMENT/README.md) and [manual scene controls](../DEB
 ## EN2 additions
 
 [Enemy002](TYPES/Ranged/Enemy002/README.md) is the authorized building-hunting shooter. EnemyDefinition exposes optional BuildingHunting and RangedAttack resources; Enemy.BuildingHunter.cs integrates these capabilities without a second AI/health controller. EnemyTargetRoster handles bounded priority acquisition/recovery and fair routine building/player decisions. BuildingHunterTargeting uses BuildingRegistry's stationary spatial queries. EnemyRangedAttack launches shared COMBAT projectiles; all navigation still uses EnemyPathRequests. F2 manual batches choose either type, while automatic composition remains unchanged. Source Implemented / Awaiting Owner Validation.
+
+## AIR0 + AIR1
+
+[Enemy003](TYPES/Flying/Enemy003/README.md) adds a configured Flying/CitadelOnly/Impact combination to the same Enemy root. MovementLayer defaults Ground for existing definitions and is independent of target policy/attack capability. Enemy.Flying.cs composes direct EnemyFlyingMovement and once-only EnemyImpactAttack. Shared registry/index/health remain unchanged; ground placement safety now excludes airborne bodies. Enemy003 has no ground topology subscription or path requests; CPU target loss clears references and sleeps. F2 now offers all three types. AIR2/AIR3 remain planned; no new aircraft types/towers or FPS guarantee.

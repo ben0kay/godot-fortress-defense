@@ -28,7 +28,7 @@ public partial class EnemyPathRequests : Node
     // Coalescing and FIFO avoid duplicate work/starvation without an ST2 priority framework.
     public void Request(Enemy enemy)
     {
-        if (_active == enemy || _queued.ContainsKey(enemy)) return;
+        if (enemy.IsFlying || _active == enemy || _queued.ContainsKey(enemy)) return;
         _queued.Add(enemy, _queue.AddLast(enemy)); SetPhysicsProcess(true);
     }
     public void Cancel(Enemy enemy)

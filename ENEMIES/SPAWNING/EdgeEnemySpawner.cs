@@ -71,7 +71,9 @@ public partial class EdgeEnemySpawner : Node
             if (prototype is not Enemy enemy || enemy.Definition == null) throw new System.InvalidOperationException("Spawner requires an Enemy scene/definition.");
             EnemyDefinition definition = DefinitionOverride?.EnemyId == enemy.Definition.EnemyId ? DefinitionOverride : enemy.Definition;
             definition.Validate(_grid.CellSize);
-            if (definition.AttackRange < (_grid.ClearanceCells + .5f) * _grid.CellSize)
+            if (definition.Radius * 2 >= Mathf.Min(_grid.Dimensions.X, _grid.Dimensions.Y) * _grid.CellSize)
+                throw new System.InvalidOperationException("Enemy radius does not fit map bounds.");
+            if (definition.MovementLayer == EnemyMovementLayer.Ground && definition.AttackRange < (_grid.ClearanceCells + .5f) * _grid.CellSize)
                 throw new System.InvalidOperationException("Enemy attack range cannot reach a legal approach on this grid.");
             return new SpawnProfile(scene, definition);
         }
@@ -117,7 +119,9 @@ public partial class EdgeEnemySpawner : Node
     private bool TrySpawnOne(SpawnProfile profile)
     {
         EnemyDefinition definition = profile.Definition;
-        int inset = _grid.ClearanceCells;
+        bool flying = definition.MovementLayer == EnemyMovementLayer.Flying;
+        int inset = flying ? Mathf.Max(0, Mathf.CeilToInt(definition.Radius / _grid.CellSize - .5f)) : _grid.ClearanceCells;
+        Rect2 airBounds = _grid.FootprintRect(_grid.Bounds).Grow(-definition.Radius);
         int width = _grid.Dimensions.X - inset * 2, height = _grid.Dimensions.Y - inset * 2;
         if (width < 1 || height < 1) return false;
         int perimeter = width * 2 + height * 2;
@@ -130,7 +134,9 @@ public partial class EdgeEnemySpawner : Node
                 : edge < width * 2 + height ? new(inset + edge - width - height, inset + height - 1)
                 : new(inset, inset + edge - width * 2 - height);
             Vector2 position = _grid.CellCenter(cell);
-            if ((SpawnCellFilter != null && !SpawnCellFilter(cell)) || !_navigation.IsWalkable(cell) || !_grid.SegmentClear(position, position, definition.Radius)
+            bool movementValid = flying ? airBounds.HasPoint(position)
+                : (SpawnCellFilter?.Invoke(cell) ?? true) && _navigation.IsWalkable(cell) && _grid.SegmentClear(position, position, definition.Radius);
+            if (!movementValid
                 || (GodotObject.IsInstanceValid(_citadel) && position.DistanceSquaredTo(_citadel.GlobalPosition) < Mathf.Pow(Mathf.Max(0, MinCitadelDistance), 2))
                 || !_registry.SpawnSpaceFree(position, definition.Radius)
                 || !(AdditionalSpawnValidation?.Invoke(position, definition.Radius) ?? true)) continue;

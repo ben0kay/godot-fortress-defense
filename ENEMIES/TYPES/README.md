@@ -12,3 +12,5 @@ Enemy-specific assets, presets and small exception handlers. Organize future con
 - Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
 - Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
 - Update this README with concrete files, data flow, settings and status when implementation begins.
+
+AIR1: `Flying/Enemy003/Enemy003.tscn` + Enemy003Definition.tres is Source Implemented / Awaiting Owner Validation. Shared root with Flying/CitadelOnly/Impact configuration, cyan winged visuals and no duplicated registry, health or ground pathfinding. Other air variants remain planned.

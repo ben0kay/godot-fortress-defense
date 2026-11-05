@@ -12,6 +12,8 @@
 
 > **EN2:** Enemy002 Building-Hunter Shooter is **Source Implemented / Awaiting Owner Validation**; see [behavior/settings/owner checks](../ENEMIES/TYPES/Ranged/Enemy002/README.md). This adds fair bounded acquisition/routine targeting, stationary building buckets, shared hostile rounds and typed F2 batches without implementing later enemy roles or claiming measured FPS.
 
+> **AIR0 + AIR1:** Shared movement/target/projectile layer capabilities and Enemy003 Basic Flyer are **Source Implemented / Awaiting Owner Validation**. See [contracts/settings/owner checks](../ENEMIES/TYPES/Flying/Enemy003/README.md). Flyers add no ground A* or terrain sweeps. The prior owner-observed200-ground-enemy60FPS scenario is a benchmark reference only; mixed-layer FPS remains unmeasured. **AIR2 Tower002 and AIR3 gunship remain Planned**, with no assets/scripts/scenes created for them.
+
 ## Intent and non-negotiables
 
 Build a **separate**, expandable 2D vector-style fortress-defense/action/base-management game. The player controls a mobile combat chassis and defends a central **CPU**, placing towers, walls and eventually resource/production buildings on a **seed-generated open battlefield**. Different geometric enemies can independently attack the CPU, structures or visible player, with role-specific movement and combat. No fixed-path Classic TD model or copied Classic TD enemy roster.

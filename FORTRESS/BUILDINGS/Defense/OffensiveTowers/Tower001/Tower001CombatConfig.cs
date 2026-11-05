@@ -11,6 +11,7 @@ public partial class Tower001CombatConfig : Resource
     [Export] public float RangePixels { get; set; } = 323.4f;
     [Export] public float ProjectileSpeed { get; set; } = 2300;
     [ExportGroup("Aiming and Acquisition")]
+    [Export(PropertyHint.Flags, "Ground,Air")] public EnemyTargetLayers TargetLayers { get; set; } = EnemyTargetLayers.Ground;
     [Export] public float RotationSpeedDegrees { get; set; } = 216;
     [Export] public float AimToleranceDegrees { get; set; } = 12;
     [Export] public float SearchInterval { get; set; } = .15f;
@@ -22,7 +23,7 @@ public partial class Tower001CombatConfig : Resource
     // Bound acquisition extent and invalid floats before they enter combat/spatial loops.
     public void Validate()
     {
-        if (!Positive(Damage) || !float.IsFinite(ShotsPerSecond) || ShotsPerSecond < 0 || ShotsPerSecond > 60
+        if (!CombatLayers.Valid(TargetLayers) || !Positive(Damage) || !float.IsFinite(ShotsPerSecond) || ShotsPerSecond < 0 || ShotsPerSecond > 60
             || !Positive(RangePixels) || RangePixels > 4096 || !Positive(ProjectileSpeed)
             || !Positive(RotationSpeedDegrees) || !float.IsFinite(AimToleranceDegrees) || AimToleranceDegrees < 0 || AimToleranceDegrees > 180
             || !Positive(SearchInterval) || !float.IsFinite(SpreadDegrees) || SpreadDegrees < 0 || SpreadDegrees > 45

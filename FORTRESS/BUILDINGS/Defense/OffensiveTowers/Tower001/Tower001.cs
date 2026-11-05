@@ -47,7 +47,7 @@ public partial class Tower001 : Building, IBuildingCombat
     }
     private void OnEnemiesChanged()
     {
-        bool awake = IsPlaced && !IsDestroyed && GodotObject.IsInstanceValid(_enemies) && _enemies.Count > 0;
+        bool awake = _stats.TargetLayers != EnemyTargetLayers.None && IsPlaced && !IsDestroyed && GodotObject.IsInstanceValid(_enemies) && _enemies.Count > 0;
         if (!awake) { _target = null; _candidates.Clear(); _shotTimer = _flashTimer = 0; _flash.Visible = false; }
         SetPhysicsProcess(awake);
     }
@@ -76,19 +76,20 @@ public partial class Tower001 : Building, IBuildingCombat
         _searchTimer -= (float)delta; _shotTimer = Mathf.Max(-.05f, _shotTimer - (float)delta);
         if (_searchTimer <= 0)
         {
-            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates);
+            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates, _stats.TargetLayers);
             _searchTimer = Mathf.Max(.05f, _stats.SearchInterval);
         }
-        if (!CombatTargeting.Valid(_target, GlobalPosition, _stats.RangePixels)) return;
+        if (!CombatTargeting.Valid(_target, GlobalPosition, _stats.RangePixels, _stats.TargetLayers)) return;
         bool aligned = CombatTargeting.Track(_turret, _target.GlobalPosition, _stats.RotationSpeedDegrees, _stats.AimToleranceDegrees, delta);
         if (!aligned || _shotTimer > 0 || _stats.ShotsPerSecond == 0) return;
-        if (!_grid.SegmentClear(_muzzle.GlobalPosition, _target.GlobalPosition, _stats.ProjectileRadius, this))
+        ProjectileCollisionProfile collision = CombatLayers.ShotProfile(_target);
+        if (!CombatTargeting.ClearShot(_grid, _muzzle.GlobalPosition, _target.GlobalPosition, _stats.ProjectileRadius, this, collision))
         { _target = null; return; }
         float spread = Mathf.DegToRad(_random.RandfRange(-_stats.SpreadDegrees, _stats.SpreadDegrees));
         Vector2 direction = Vector2.Up.Rotated(_turret.GlobalRotation + spread);
         var bullet = new CombatProjectile();
         bullet.Initialize(_grid, _enemies, this, direction, _stats.Damage, _stats.ProjectileSpeed,
-            _stats.RangePixels + _grid.CellSize, _stats.ProjectileRadius, _stats.TracerLength);
+            _stats.RangePixels + _grid.CellSize, _stats.ProjectileRadius, _stats.TracerLength, CombatLayers.Of(_target), collision);
         _projectiles.AddChild(bullet); bullet.GlobalPosition = _muzzle.GlobalPosition;
         _shotTimer = Mathf.Max(0, 1 / _stats.ShotsPerSecond + _shotTimer);
         _flashTimer = .045f; _flash.Visible = true;
