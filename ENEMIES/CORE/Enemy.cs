@@ -90,7 +90,11 @@ public partial class Enemy : Node2D
         if (!_movement.Advance(this, _grid, delta)) RequestRoute();
     }
 
-    // Health receiver is ready for later projectiles; no projectile or tower implementation in ST1.
+    // All authoritative movement/teleports update the shared combat index at the same boundary.
+    public void SetMovementPosition(Vector2 position)
+    { GlobalPosition = position; if (_attached && GodotObject.IsInstanceValid(_registry)) _registry.UpdatePosition(this); }
+
+    // Shared receiver used by real projectiles and developer damage controls.
     public void ApplyDamage(float amount)
     {
         if (IsDead || !float.IsFinite(amount) || amount <= 0) return;

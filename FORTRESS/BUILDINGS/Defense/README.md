@@ -1,6 +1,6 @@
 # Defense
 
-**Status:** BF1 Wall001 is Source Implemented / Awaiting Owner Validation. Towers and other defenses remain planned.
+**Status:** BF1 Wall001 is Source Implemented / Awaiting Owner Validation. Basic Tower001 is also Source Implemented / Awaiting Owner Validation; other defenses remain planned.
 
 Offensive and repair towers, static shields, walls and other static defenses; all inherit SHARED/Building.tscn.
 

@@ -6,7 +6,7 @@
 
 A 40×26-cell battlefield (32-pixel cells) has fixed natural cover and a centered **4×4 Citadel** with 4000 HP. Red arrow enemies enter from all four edges gradually (one per 0.8 seconds, maximum 20 active). They follow shared A* routes to legal contact positions, damage the CPU at 8 damage / 1.2 seconds, and flash on attacks. CPU/wall health bars and brief destruction rings provide feedback. CPU loss stops spawning and leaves survivors idle; R restarts the encounter.
 
-Walls are inherited `Wall001.tscn` buildings: 1×1 cells, 120 HP by default. Enemies can route around them or attack an accessible temporary breach target when the CPU is unreachable. Orange arrows identify breachers. There are no towers or player weapons yet. Enemies deliberately overlap one another; crowd separation is deferred.
+Walls are inherited `Wall001.tscn` buildings: 1×1 cells, 120 HP by default. Enemies can route around them or attack an accessible temporary breach target when the CPU is unreachable. Orange arrows identify breachers. Tower001 basic shooting is now available via T; player weapons remain planned. Enemies deliberately overlap one another; crowd separation is deferred.
 
 ## Controls
 
@@ -45,7 +45,7 @@ The small status UI is under root `UI/DebugPanels/`. It refreshes HP/counts at 4
 4. Destroy/remove a wall while an enemy approaches it: occupancy/collision recover, obsolete requests disappear and enemies reconsider the CPU. No ghost blockers or endless failed searches when only unbreakable terrain isolates a region.
 5. Try H on selected wall and K on an enemy; inspect brief rings and count/selection cleanup. C/P/R should not leave enemy callbacks, reservations or pending work behind.
 
-Source/diff and scene/resource reference review only in this environment: Godot/dotnet unavailable. No build, editor acceptance or FPS result claimed. BF1/ST1 is source implemented; ST2 priorities/metrics/10–200 presets and ST3 tower/projectiles remain planned. The earlier `Foundation/TestBuilding.tscn` BF0 fixture remains available as an inherited-scene reference, but is no longer the default placed object.
+Source/diff and scene/resource reference review only in this environment: Godot/dotnet unavailable. No build, editor acceptance or FPS result claimed. BF1/ST1 is source implemented; Basic F2 stats/spawn controls and Tower001/projectiles are now source implemented; advanced ST2 priorities/profiling remain planned. The earlier `Foundation/TestBuilding.tscn` BF0 fixture remains available as an inherited-scene reference, but is no longer the default placed object.
 
 ## WG0 shared services
 
@@ -56,3 +56,9 @@ The sandbox remains the fixed 40×26 stress encounter and the F5 launch target. 
 `UI/DebugPanels/Debug.tscn` is instanced at `RootDebug/Debug` in the fixed sandbox and shared LevelBase, so Level001 inherits it. Top-right FPS/live-enemy/pending counts are always visible; **F2** expands Add10/50/100/200/custom, automatic-spawn toggle and clear controls. Requests are gradual (2/frame by default), share existing spawn validity checks, and cap active+pending at200. Clear or C cancels queued work and pauses automatic spawning. See `../UI/DebugPanels/README.md` for reuse/binding and cap semantics.
 
 Scene organization is now RootWorld, RootFortress, RootEnemies, RootCamera, RootUI and RootDebug. These plain containers do not process. LevelController uses the corresponding grouped paths; gameplay owners remain unchanged. F1 is still Level001's world-generation panel, not this reusable F2 panel. Advanced ST2 priorities/profiling remain planned.
+
+## Tower001 basic combat
+
+Press **T** to place/paint Tower001, **W** to return to walls. Click an existing structure to select it; towers show range/HP and their base stays fixed while the gun rotates. F2-spawn enemies to inspect straight amber projectile hits through Enemy001's existing health/death handling. Right-click/Delete removes towers as well as walls. RootCombat/Projectiles owns fired rounds; clearing enemies leaves any already-fired rounds to expire, while reload/regeneration resets all combat nodes.
+
+Tower001 uses local copies of the original Battle Tower base/gun and approximate Level1 values (30 damage,1.68/s,323.4px range,2300px/s,216°/s turn). Inspector config is under `FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/`. Art scales to the existing cell footprint, while combat ranges remain in pixels. Acquisition is closest-visible, staggered and spatially bounded; no heat/ammo/power/upgrades/ranks/XP/construction/research/shields were added. See the Tower001 README for values and owner checks. Source Implemented / Awaiting Owner Validation; no runtime/FPS result claimed.

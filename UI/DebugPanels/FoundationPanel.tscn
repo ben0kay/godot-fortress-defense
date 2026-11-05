@@ -4,7 +4,7 @@
 offset_left = 16.0
 offset_top = 8.0
 mouse_filter = 2
-text = "FORTRESS DEFENSE — defend the central CPU\nLMB / drag: walls or select | RMB / Delete: remove wall | P: spawn toggle | C: clear enemies | R: restart | B: grid overlay"
+text = "FORTRESS DEFENSE — defend the central CPU\nT: Tower001 | W: Walls | LMB / drag: walls or select | RMB / Delete: remove wall | P: spawn toggle | C: clear enemies | R: restart | B: grid overlay"
 [node name="Status" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 58.0

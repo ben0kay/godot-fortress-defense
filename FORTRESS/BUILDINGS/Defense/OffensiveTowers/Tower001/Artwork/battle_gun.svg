@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#728c99"/>
+      <stop offset=".5" stop-color="#344957"/>
+      <stop offset="1" stop-color="#182b38"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#223846"/>
+      <stop offset=".42" stop-color="#9eb3bd"/>
+      <stop offset=".68" stop-color="#4a6b7c"/>
+      <stop offset="1" stop-color="#1b2d3a"/>
+    </linearGradient>
+  </defs>
+  <!-- Independently rotating/recoiling gun; original 64x64 registration retained. -->
+  <!-- One barrel facing upward; separate base/head/muzzle later. -->
+  <path d="M26 28V7L29 4H35L38 7V28Z" fill="url(#metal)" stroke="#101f2a" stroke-width="1.5"/>
+  <rect x="28.5" y="3.5" width="7" height="5" rx="1" fill="#172833" stroke="#8edbe3" stroke-width="1.1"/>
+  <path d="M32 10V25" stroke="#abdfe8" stroke-opacity=".72" stroke-width="1.4"/>
+  <circle cx="32" cy="34" r="10.5" fill="#253e4d" stroke="#b5d8dd" stroke-width="1.5"/>
+  <path d="M24 34L28 26H36L40 34L36 42H28Z" fill="#476776" stroke="#152936" stroke-width="1.2"/>
+  <circle cx="32" cy="34" r="4.2" fill="#65c6d5" stroke="#d0faff" stroke-width="1.1"/>
+  <circle cx="32" cy="34" r="1.5" fill="#e0ffff"/>
+</svg>

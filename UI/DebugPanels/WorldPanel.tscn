@@ -4,7 +4,7 @@
 offset_left = 16.0
 offset_top = 8.0
 mouse_filter = 2
-text = "LEVEL001 — PROCEDURAL FORTRESS DEFENSE\nLMB / drag: wall | RMB / Delete: remove wall | Wheel: zoom | MMB drag: pan | P: spawning | C: clear enemies | R: restart same seed"
+text = "LEVEL001 — PROCEDURAL FORTRESS DEFENSE\nT: Tower001 | W: Walls | LMB / drag: wall | RMB / Delete: remove wall | Wheel: zoom | MMB drag: pan | P: spawning | C: clear enemies | R: restart same seed"
 [node name="Status" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 58.0

@@ -35,15 +35,15 @@ public sealed class EnemyMovement
             if (distance < .01f)
             {
                 if (!grid.SegmentClear(enemy.GlobalPosition, _path[_index], enemy.Radius)) return false;
-                enemy.GlobalPosition = _path[_index++]; continue;
+                enemy.SetMovementPosition(_path[_index++]); continue;
             }
             Vector2 next = enemy.GlobalPosition + offset / distance * Mathf.Min(remaining, distance);
             if (!grid.SegmentClear(enemy.GlobalPosition, next, enemy.Radius)) return false;
-            enemy.GlobalPosition = next;
+            enemy.SetMovementPosition(next);
             enemy.Rotation = Mathf.LerpAngle(enemy.Rotation, offset.Angle(), Mathf.Min(1, enemy.TurnSpeed * (float)delta));
             remaining -= Mathf.Min(remaining, distance);
             if (next.DistanceSquaredTo(_path[_index]) < .0001f)
-            { enemy.GlobalPosition = _path[_index]; _index++; }
+            { enemy.SetMovementPosition(_path[_index]); _index++; }
             if (remaining <= 0) break;
         }
         return true;

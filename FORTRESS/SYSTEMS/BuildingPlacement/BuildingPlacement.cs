@@ -4,6 +4,7 @@ using Godot;
 public partial class BuildingPlacement : Node
 {
     public System.Func<Rect2I, bool> AdditionalValidation { get; set; }
+    public event System.Action<Building> Placed;
     private WorldGrid _grid;
     private BuildingRegistry _registry;
     private Node2D _container;
@@ -28,7 +29,7 @@ public partial class BuildingPlacement : Node
             if (!CanPlace(new Rect2I(anchor, candidate.Footprint))) { candidate.Free(); return false; }
             _container.AddChild(candidate);
             if (!candidate.TryPlace(_grid, _registry, anchor)) { candidate.Free(); return false; }
-            building = candidate; return true;
+            building = candidate; Placed?.Invoke(candidate); return true;
         }
         catch (System.Exception error)
         { candidate.Free(); GD.PushError("Building placement failed: " + error.Message); return false; }

@@ -4,7 +4,7 @@ A top-down, sci-fi **fortress-defense, action, and base-management** game built 
 
 The goal is to recreate and then expand the gameplay of my earlier **VECTOR TD 2026** GameMaker project, while using the cleaner, modular, documented architecture established in **godot-tower-defense**.
 
-> **Project status:** BF0/ST0 and BF1/ST1 are **Source Implemented / Awaiting Owner Validation**: shared inherited buildings, centered Citadel, placeable Wall001, gradual Enemy001 edge spawning, safe continuous movement, contact damage and reachable wall-breach fallback in `DEBUG/test.tscn`. See [controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). ST2 advanced priorities/profiling/stress presets, ST3 tower shooting, player combat, power and logistics remain planned. **WG0** now adds [Level001 procedural world](LEVELS/Level001/README.md): 4032×4032px, seeded black terrain clusters, central clearing, marker reservation and regeneration. Run that scene with F6; F5 keeps the fixed DEBUG sandbox. All new WG0 work is Source Implemented / Awaiting Owner Validation.
+> **Project status:** BF0/ST0 and BF1/ST1 are **Source Implemented / Awaiting Owner Validation**: shared inherited buildings, centered Citadel, placeable Wall001, gradual Enemy001 edge spawning, safe continuous movement, contact damage and reachable wall-breach fallback in `DEBUG/test.tscn`. See [controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). ST2 advanced priorities/profiling/stress presets, advanced tower systems, player combat, power and logistics remain planned. **WG0** now adds [Level001 procedural world](LEVELS/Level001/README.md): 4032×4032px, seeded black terrain clusters, central clearing, marker reservation and regeneration. Run that scene with F6; F5 keeps the fixed DEBUG sandbox. All new WG0 work is Source Implemented / Awaiting Owner Validation.
 
 ## Reference repositories
 
@@ -124,3 +124,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## Reusable development overlay
 
 `UI/DebugPanels/Debug.tscn` is linked under RootDebug in LevelBase/Level001 and DEBUG/test. It shows FPS/live enemies and has **F2** manual spawn controls. Edit the packed scene once to update all instances. See [debug reuse and settings](UI/DebugPanels/README.md). RootWorld, RootFortress, RootEnemies, RootCamera and RootUI keep the rest of the tree readable. Only this basic ST2 debug slice is source implemented; advanced scheduling/profiling remains planned, and editor validation remains with the owner.
+
+## Tower001 — basic Battle Tower
+
+**Source Implemented / Awaiting Owner Validation.** In Level001 or DEBUG, **T** selects Tower001 placement and **W** restores walls. F2 spawns enemies. The inherited building uses local original Battle Tower SVG layers, a rotating gun, Inspector-editable Level1 stats and shared swept projectiles/spatial targeting. RootCombat/Projectiles owns fired shots. See [Tower001 settings/owner checks](FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/README.md). Heat, ammo, power, upgrades/ranks/XP, construction, research and shields remain excluded; no combat FPS result is claimed.

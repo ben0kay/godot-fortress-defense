@@ -229,7 +229,10 @@ Owner-authorized basic debug slice: linked `UI/DebugPanels/Debug.tscn` under Roo
 - **Owner acceptance:** counter updates match actual entities and staggered workload is observable; 100/200 enemy scenes can be created for manual measurement. No benchmark success claimed by Codex.
 
 ### ST3 — Placeholder tower and combat load
-**Status: Planned** · Depends ST2
+**Status: Basic Tower001 Source Implemented / Awaiting Owner Validation** · Advanced ST2 scheduling remains incomplete
+
+Owner-authorized basic Level1 Battle-style tower is now available with T placement/W walls in both scenes. Tower001 inherits Building, uses local base/gun SVGs,1000HP and row1 reference combat values (30 damage,1.68/s,323.4px,2300px/s,216°/s,12° aim,.15s search,±2.5° spread). Shared COMBAT closest targeting/aiming and straight swept projectiles use EnemyRegistry spatial buckets and Enemy001 health/death. Terrain/buildings block fire. RootCombat holds projectiles; no heat/ammo/power/upgrades/XP/research/construction/shields. Source/scene/asset review only; Godot/.NET unavailable, no rendered combat/FPS acceptance or stress profiling claimed. See Tower001/README.md.
+
 - Implement Tower001 as an **inherited scene of `Building.tscn`**, with footprint, range, optional weapon node, simple fire/projectile/damage, shared COMBAT behavior and destruction cleanup.
 - One or a few walls/buildings and active combat; same dynamic grid edit path as ST0. Basic Citadel default plus wall-breach fallback is enough; defer sophisticated/weighted target priorities.
 - Stress conditions include tower shots, enemy attacks, AI switching and wall destruction, not merely silhouettes.

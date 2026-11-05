@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelController.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -21,16 +21,24 @@
 
 [ext_resource type="PackedScene" path="res://UI/DebugPanels/Debug.tscn" id="Debug"]
 
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001.tscn" id="Tower"]
+
 [node name="LevelBase" type="Node2D"]
 script = ExtResource("1")
 CitadelScene = ExtResource("8")
 WallScene = ExtResource("10")
+TowerScene = ExtResource("Tower")
 
 [node name="RootWorld" type="Node2D" parent="."]
 
 [node name="RootFortress" type="Node2D" parent="."]
 
 [node name="RootEnemies" type="Node2D" parent="."]
+
+[node name="RootCombat" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="RootCombat"]
+z_index = 2
 
 [node name="RootCamera" type="Node2D" parent="."]
 

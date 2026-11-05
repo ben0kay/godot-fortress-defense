@@ -2,7 +2,7 @@
 
 **Status: ST1 Source Implemented / Awaiting Owner Validation.**
 
-Enemy001 is the initial vector ground attacker, with health, continuous movement, a cached Citadel objective, contact attacks, temporary wall-breach targeting and gradual edge spawning. No towers, weighted target selection, player targeting, advanced roles, steering, fog or ST2 stress presets are implemented.
+Enemy001 is the initial vector ground attacker, with health, continuous movement, a cached Citadel objective, contact attacks, temporary wall-breach targeting and gradual edge spawning. Tower001 now uses the shared health/death receiver and spatial registry. No weighted target selection, player targeting, advanced roles, steering, fog or ST2 stress presets are implemented.
 
 | Owner | Implemented files / responsibility |
 | --- | --- |

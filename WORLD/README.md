@@ -38,3 +38,5 @@ ST1 `GroundReachability` provides one reusable stamped-array flood workspace, vi
 The Godot performance notes identify optional corridor refinement as expensive route-assignment work; ST0 does not port it, weighted profiles, shared-route caches or per-entity A* grids. The GML atomic footprint reservations, separate terrain/building occupancy, cached target/approach design and staggered scheduling informed the boundaries here. Their benchmarks do not establish performance for this project.
 
 API: [AStarGrid2D](https://docs.godotengine.org/en/stable/classes/class_astargrid2d.html). Build metadata uses Godot.NET.Sdk 4.7.2 / net8.0, matching the sister Godot project's SDK and this project's 4.7 feature tag. Neither Godot nor dotnet was available in the implementation environment; editor import, build and runtime remain owner checks.
+
+COMBAT projectiles use WorldGrid.FirstObstacleFraction for earliest solid/map-boundary contact, with the same cell data and radius-expanded rectangles used by movement. This does not change terrain generation, building reservations or ground A* rules. Building shots can ignore only their own source footprint during barrel exit.

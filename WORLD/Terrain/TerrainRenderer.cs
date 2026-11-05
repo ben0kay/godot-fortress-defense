@@ -19,6 +19,7 @@ public partial class TerrainRenderer : Node2D
             || (DeadDefinition != null && DeadDefinition.Type != TerrainType.DeadCell))
             throw new System.InvalidOperationException("Terrain appearance definitions do not match their logical types.");
     }
+    public void SetPreviewFootprint(Vector2I size) { _previewSize = size; QueueRedraw(); }
     public void ShowState(Vector2[] path, Vector2I start, Vector2I goal, Vector2I hover)
     { _path = path; _start = start; _goal = goal; _hover = hover; QueueRedraw(); }
 

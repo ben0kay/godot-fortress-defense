@@ -136,7 +136,7 @@ Every major *implemented* feature folder should have a short `README.md` describ
 
 ## Shared Building scene and artwork contract (BF0/BF1)
 
-**BF0 Source Implemented / Awaiting Owner Validation:** shared Building scene/runtime, definition, registry and atomic placement exist, demonstrated by an inherited DEBUG test fixture. BF1 inherited Citadel/Wall001 are now source implemented; Tower001 remains ST3. Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
+**BF0 Source Implemented / Awaiting Owner Validation:** shared Building scene/runtime, definition, registry and atomic placement exist, demonstrated by an inherited DEBUG test fixture. BF1 inherited Citadel/Wall001 are now source implemented; Basic Level1 Tower001/projectiles are now source implemented. Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
 
 ```text
 FORTRESS/BUILDINGS/
@@ -205,7 +205,7 @@ See `../LEVELS/Level001/README.md`, `../WORLD/Generation/README.md` and `../WORL
 
 ## Current focused-track implementation
 
-BF1/ST1 has a real CPU-defense sandbox, inherited Citadel and Wall001, one arrow ground seeker, contact damage, accessible-boundary breach fallback and a minimal cooperative path queue. Root `DEBUG/README.md` lists exact defaults, controls, config paths and owner checks. ST2 advanced priorities, instrumentation and stress presets and ST3 tower/projectiles remain planned. No build/runtime/FPS claim: Godot/dotnet unavailable; source/diff review only. The broader FD phases below are not marked accepted by implementing this focused slice.
+BF1/ST1 has a real CPU-defense sandbox, inherited Citadel and Wall001, one arrow ground seeker, contact damage, accessible-boundary breach fallback and a minimal cooperative path queue. Root `DEBUG/README.md` lists exact defaults, controls, config paths and owner checks. Basic F2 stats/manual spawns and Level1 Tower001/projectiles are now source implemented; advanced ST2 priorities/profiling and benchmark acceptance remain planned. No build/runtime/FPS claim: Godot/dotnet unavailable; source/diff review only. The broader FD phases below are not marked accepted by implementing this focused slice.
 
 ## Phased implementation contract
 
@@ -313,3 +313,7 @@ For each pass: inspect `README.md`, `NOTES/CodePreferences.md`, any `AGENTS.md`,
 4. Document new folders in their feature READMEs; update status of only completed work. Distinguish **Source Implemented** from **Awaiting Owner Validation** and **Accepted**.
 5. Keep validation short per owner preference. For docs-only edits, diff review is sufficient. No extended stress tests unless expressly requested.
 6. Commit and push authorized edits by default; list files/commit and what must be checked manually in Godot.
+
+## Basic Tower001 combat slice — Source Implemented / Awaiting Owner Validation
+
+The explicitly authorized Level1 Battle-style tower is now implemented on the shared Building scene, with local original base/gun SVG copies, an independent turret/muzzle, Inspector config, T/W placement and shared straight projectile/closest spatial targeting. Existing enemy health and cleanup are reused; the registry now indexes movement once per bucket transition. RootCombat/Projectiles is shared in LevelBase and DEBUG. This does not implement the excluded tower economy/heat/ammo/power/progression features, advanced ST2 scheduling or a measured 100–200-enemy benchmark. See Tower001 and COMBAT READMEs for source scope/owner checks; build/runtime unavailable here.

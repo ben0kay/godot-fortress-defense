@@ -6,6 +6,9 @@ public partial class LevelController : Node2D
     [Export] public LevelConfig Config { get; set; }
     [Export] public PackedScene CitadelScene { get; set; }
     [Export] public PackedScene WallScene { get; set; }
+    [Export] public PackedScene TowerScene { get; set; }
+    private Node2D _projectiles;
+    private bool _placingTower;
     public EnemyRegistry DebugEnemies => _enemies;
     public EdgeEnemySpawner DebugSpawner => _spawner;
     private WorldGrid _grid;
@@ -63,6 +66,7 @@ public partial class LevelController : Node2D
         _navigation.Initialize(_grid); requests.Initialize(_grid, _navigation);
         _placement.Initialize(_grid, GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), GetNode<Node2D>("RootFortress/Buildings"));
         _placement.AdditionalValidation = area => _enemies.CanPlace(_grid, area);
+        _projectiles = GetNode<Node2D>("RootCombat/Projectiles"); _placement.Placed += OnBuildingPlaced;
         _wallFootprint = SceneFootprint(WallScene); _view.Initialize(_grid, _navigation, _wallFootprint);
         if (!_placement.TryPlace(CitadelScene, cpuArea.Position, out _citadel))
             throw new System.InvalidOperationException("Citadel does not fit the level clearing.");
@@ -138,10 +142,19 @@ public partial class LevelController : Node2D
         if (GodotObject.IsInstanceValid(_selected)) _selected.SetSelected(false);
         _selected = building; _selected?.SetSelected(true);
     }
-    private void PaintWall()
+    // Optional combat capabilities are bound at composition, never through hard-coded paths in buildings.
+    private void OnBuildingPlaced(Building building)
+    { if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles); }
+    private void SetPlacementMode(bool tower)
+    {
+        _placingTower = tower; _painting = false;
+        _view.SetPreviewFootprint(SceneFootprint(tower ? TowerScene : WallScene));
+        _notice = tower ? "Tower001 placement — click empty ground (W: walls)" : "Wall placement — drag empty ground (T: towers)";
+    }
+    private void PaintBuilding()
     {
         if (_lastPaint == _hover) return; _lastPaint = _hover;
-        if (_placement.TryPlace(WallScene, _hover, out var wall)) { Select(wall); _notice = "Wall placed"; }
+        if (_placement.TryPlace(_placingTower ? TowerScene : WallScene, _hover, out var wall)) { Select(wall); _notice = _placingTower ? "Tower001 placed" : "Wall placed"; }
         else _notice = "Placement blocked by terrain, buildings, reserved spawn, enemies or map edge";
     }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.
@@ -164,7 +177,7 @@ public partial class LevelController : Node2D
                 if (mouse.Pressed)
                 {
                     _lastPaint = new(-1, -1); Building building = _grid.BuildingAt(_hover);
-                    if (building != null) { Select(building); _painting = false; } else PaintWall();
+                    if (building != null) { Select(building); _painting = false; } else PaintBuilding();
                 }
             }
             if (mouse.Pressed && mouse.ButtonIndex == MouseButton.Right)
@@ -178,11 +191,13 @@ public partial class LevelController : Node2D
         if (input is InputEventMouseMotion motion)
         {
             _painting &= Input.IsMouseButtonPressed(MouseButton.Left); _panning &= Input.IsMouseButtonPressed(MouseButton.Middle);
-            if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom; else if (_painting) PaintWall();
+            if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom; else if (_painting) PaintBuilding();
         }
         if (input is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.F1 && _worldPanel != null) _worldPanel.Visible = !_worldPanel.Visible;
+            if (key.Keycode == Key.T && TowerScene != null) SetPlacementMode(true);
+            if (key.Keycode == Key.W) SetPlacementMode(false);
             if (key.Keycode == Key.B) { _overlay = !_overlay; _path = _overlay ? _navigation.FindPath(_start, _goal) : System.Array.Empty<Vector2>(); }
             if (_overlay && key.Keycode == Key.S && _grid.Contains(_hover)) { _start = _hover; _path = _navigation.FindPath(_start, _goal); }
             if (_overlay && key.Keycode == Key.G && _grid.Contains(_hover)) { _goal = _hover; _path = _navigation.FindPath(_start, _goal); }
@@ -223,6 +238,7 @@ public partial class LevelController : Node2D
     public override void _ExitTree()
     {
         _closing = true; Select(null);
+        if (GodotObject.IsInstanceValid(_placement)) _placement.Placed -= OnBuildingPlaced;
         if (GodotObject.IsInstanceValid(_grid)) _grid.TopologyChanged -= OnTopologyChanged;
         if (GodotObject.IsInstanceValid(_statusTimer)) _statusTimer.Timeout -= RefreshDisplay;
         if (GodotObject.IsInstanceValid(_newWorld)) _newWorld.Pressed -= RegenerateNew;
