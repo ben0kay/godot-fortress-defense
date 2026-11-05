@@ -1,38 +1,48 @@
-# DEBUG — BF0 + ST0 sandbox
+# DEBUG — BF1 + ST1 battlefield
 
-**Status: Source Implemented / Awaiting Owner Validation.** `test.tscn` is now the default launch scene and manual foundation sandbox, separate from future production/campaign levels. Open using Godot .NET, build C#, then run F6 (scene) or F5 (project).
+**Status: Source Implemented / Awaiting Owner Validation.** Open `test.tscn` in Godot .NET, build C#, and run F6/F5. The default scene is now a small encounter, not a grid demo.
 
-## Implemented
+## On Play
 
-Finite configurable grid, deterministic optional natural barriers, one initial inherited 2×3 prototype building, atomic placement/selection/health/removal, physical footprint rectangles, shared ground A*, immediate dirty-rectangle navigation updates, and one route preview. No enemy or combat stress test yet.
+A 40×26-cell battlefield (32-pixel cells) has fixed natural cover and a centered **4×4 Citadel** with 4000 HP. Red arrow enemies enter from all four edges gradually (one per 0.8 seconds, maximum 20 active). They follow shared A* routes to legal contact positions, damage the CPU at 8 damage / 1.2 seconds, and flash on attacks. CPU/wall health bars and brief destruction rings provide feedback. CPU loss stops spawning and leaves survivors idle; R restarts the encounter.
+
+Walls are inherited `Wall001.tscn` buildings: 1×1 cells, 120 HP by default. Enemies can route around them or attack an accessible temporary breach target when the CPU is unreachable. Orange arrows identify breachers. There are no towers or player weapons yet. Enemies deliberately overlap one another; crowd separation is deferred.
+
+## Controls
 
 | Control | Action |
 | --- | --- |
-| Left-click empty cell | Place a 2×3 test building with top-left anchor at cursor |
-| Left-click occupied cell | Select the building occupying that cell |
-| Right-click building | Remove it and release its complete footprint |
-| Middle-click cell | Toggle terrain; rejected under a building |
-| H | Deal 25 structural damage to selected building (100 HP default) |
-| Delete | Remove selected building |
-| S / G | Set route start / goal at mouse cell |
+| Left-click / drag empty cells | Place / paint Wall001 |
+| Left-click building | Select and show its HP |
+| Right-click / Delete | Remove hovered / selected wall (CPU protected from accidental removal) |
+| P | Toggle gradual spawning |
+| C | Clear enemies **and pause spawning**; P resumes |
+| R | Reload/reset entire encounter, including CPU |
+| B | Optional grid + demonstration route overlay (off on startup) |
+| S / G with overlay on | Move demonstration start / goal to cursor |
+| Middle-click with overlay on | Toggle natural solid; reject changes under buildings/enemies |
+| H | Developer-only: 25 damage to selected building |
+| K | Developer-only: kill an enemy under the cursor to inspect death/cleanup |
 
-Green line/circle = route/start; orange circle = goal; gray = solid terrain; dark red = clearance-only blocked cell; cyan/red rectangle = valid/invalid 2×3 placement. A blocked/isolated endpoint explicitly displays UNREACHABLE. The small UI reports topology revision and actual registry count; it is **not** an FPS or AI profiler.
+Walls cannot be placed over enemy bodies or within their configured clearance-cell reservation. Sealing the CPU is allowed; connectivity is **not** a placement restriction. The cursor outlines the proposed footprint; click-time actor checks may reject an apparently terrain-valid preview.
 
-## Inspector knobs
+## Inspector settings
 
-- `WorldGrid.Config` → `WORLD/Grid/DefaultWorldGridConfig.tres`: width, height, cell size, corner-safe diagonals, whole-cell ground clearance. Restart to apply edits.
-- Root `InitialObstacles`: deterministic barriers, no procedural random generator.
-- Root `TestBuildingScene` → inherited `Foundation/TestBuilding.tscn` → Definition: ID, category, footprint and maximum health. The preview currently intentionally demonstrates 2×3; if changing that fixture's footprint, update the debug preview size too.
+- `WorldGrid.Config` → `WORLD/Grid/DefaultWorldGridConfig.tres`: dimensions, cell size, diagonals and clearance; restart after edits.
+- Root `InitialObstacles`, `CitadelScene`, `WallScene`: encounter composition. Fixed cover is a simple deterministic layout, not procedural generation. Enlarging CPU footprints far beyond defaults can overlap cover; disable InitialObstacles or adjust the layout.
+- `Citadel/CitadelDefinition.tres`: footprint and HP; `Wall001/Wall001Definition.tres`: footprint and HP. Preview/visuals/collision derive from definitions, not hard-coded sprite sizes.
+- `Enemy001/Enemy001Definition.tres`: HP, radius, speed, turning, attack damage, center-to-footprint range and cooldown. Radius must be below half a cell. Attack range must reach a legal approach cell (at least `(ClearanceCells + 0.5) × CellSize` for cardinal approaches).
+- `EdgeEnemySpawner`: enable, interval, maximum active count, attempt cap, CPU minimum separation and local seed. Failed/blocked edge attempts wait until the next interval; no creation burst or infinite retry loop.
+- `EnemyPathRequests`: max visited cells/frame (512), native A* paths/frame (1), soft time budget (1.5 ms). Jobs coalesce and run FIFO. Native A* itself is indivisible; these are workload limits, not guaranteed frame time.
 
-`FoundationSandbox.cs` only composes services, handles manual inputs and refreshes one demonstration path on edits. `GridDebugView.cs` redraws on input/events, not every frame. Prototype artwork is separate from the universal building root. Root `UI/DebugPanels/FoundationPanel.tscn` owns all panel content.
+The small status UI is under root `UI/DebugPanels/`. It refreshes HP/counts at 4 Hz and is **not** ST2 profiling. Background/grid drawing updates only on input/topology changes. Optional demonstration routes are explicit debug queries outside the enemy request budget; keep B off when judging normal gameplay.
 
-## Owner checks
+## Brief owner checks
 
-1. Build/open scene; verify all blocked cells and the route detour around the initial building/barrier.
-2. Place a 2×3 across the route; inspect rerouting and one revision increase. Try overlapping it and placing over map edges/terrain: no cells or revision should change.
-3. Click each occupied cell to select the same building. Right-click or Delete; all six cells become available with one revision increase.
-4. Place/select and press H four times. Confirm health decreases then building disappears, registry count drops and footprint/path recover. Re-place in the same cells.
-5. Middle-click obstacles to isolate an endpoint and restore it. UNREACHABLE must clear when the route opens.
-6. Restart with diagonals disabled and with clearance 1. Verify no corner squeezing, boundary margin and wider gaps required. Inspect visible physics collision shapes against terrain/building rectangles.
+1. Run: CPU visible in center, edge enemies visibly move, turn, avoid natural cover and chip CPU health. Wait for CPU loss and R-restart.
+2. Paint a wall across an approaching route. Affected enemies pause briefly for queued replacement; others continue. Nobody crosses the new wall or diagonal blocked corners. Placement directly on enemies must be rejected.
+3. Press C, surround the CPU with a complete wall ring, then P. Enemies should turn orange, approach an **accessible** wall and destroy it, then return to CPU pursuit through the opening. Repeat with a second wall layer. Existing enemies inside an enclosure can still attack the CPU.
+4. Destroy/remove a wall while an enemy approaches it: occupancy/collision recover, obsolete requests disappear and enemies reconsider the CPU. No ghost blockers or endless failed searches when only unbreakable terrain isolates a region.
+5. Try H on selected wall and K on an enemy; inspect brief rings and count/selection cleanup. C/P/R should not leave enemy callbacks, reservations or pending work behind.
 
-Only source/diff review was possible here: Godot and dotnet are unavailable. No runtime acceptance or FPS claim. Later BF1/ST1 brings Citadel/wall/enemy; ST2 brings F1 metrics, path scheduling and 10/50/100/200 spawns; ST3 brings the tower/projectiles. These remain planned.
+Source/diff and scene/resource reference review only in this environment: Godot/dotnet unavailable. No build, editor acceptance or FPS result claimed. BF1/ST1 is source implemented; ST2 priorities/metrics/10–200 presets and ST3 tower/projectiles remain planned. The earlier `Foundation/TestBuilding.tscn` BF0 fixture remains available as an inherited-scene reference, but is no longer the default placed object.

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
+[resource]
+script = ExtResource("1")
+BuildingId = "citadel"
+DisplayName = "Citadel / CPU"
+Category = 0
+Footprint = Vector2i(4, 4)
+MaxHealth = 4000.0

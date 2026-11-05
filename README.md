@@ -4,7 +4,7 @@ A top-down, sci-fi **fortress-defense, action, and base-management** game built 
 
 The goal is to recreate and then expand the gameplay of my earlier **VECTOR TD 2026** GameMaker project, while using the cleaner, modular, documented architecture established in **godot-tower-defense**.
 
-> **Project status:** New Godot project / foundation stage. The mechanics below describe the intended game and architecture, **not features already implemented** here.
+> **Project status:** BF0/ST0 and BF1/ST1 are **Source Implemented / Awaiting Owner Validation**: shared inherited buildings, centered Citadel, placeable Wall001, gradual Enemy001 edge spawning, safe continuous movement, contact damage and reachable wall-breach fallback in `DEBUG/test.tscn`. See [controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). ST2 advanced priorities/profiling/stress presets, ST3 tower shooting, player combat, procedural generation, power and logistics remain planned.
 
 ## Reference repositories
 

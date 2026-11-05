@@ -1,14 +1,19 @@
-# ENEMIES/MOVEMENT
+# ENEMIES/MOVEMENT — ST1 safe cached movement
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status: Source Implemented / Awaiting Owner Validation.**
 
-## Ownership
+`EnemyMovement.cs` follows world-space A* waypoints continuously, smoothly turns the arrow, and checks every actual movement segment against **current** WORLD occupancy. The swept test conservatively expands solid rectangles by the enemy radius, so a new wall cannot be crossed while queued work catches up. Work is capped at eight waypoints per physics tick; there is no per-frame search, steering or crowd collision.
 
-Enemy movement modes and steering, pursuit, orbit, standoff, grounding/flying/phased traversal. Consume WORLD navigation services; don't create a competing terrain grid or repath all enemies each frame.
+`EnemyPathRequests.cs` is the minimal ST1 shared mechanism, not ST2's advanced scheduler:
 
-## Implementation guidance
+- A linked FIFO plus per-enemy index coalesces duplicates and removes cancelled requests in O(1). Affected enemies pause while waiting; unaffected cached paths continue.
+- One reusable `WORLD/Navigation/GroundReachability` workspace incrementally floods the origin's walkable component (512 visits/frame by default), testing legal CPU attack positions. Cardinal connectivity matches the corner-safe diagonal graph.
+- Reachable CPU positions win. Only if the component is exhausted does it select an accessible building found at that component's boundary. The fallback score favors buildings closer to the original CPU with a small travel-distance preference; it is a heuristic, not an optimal demolition planner.
+- A single shared `GroundNavigation.FindPath` finalizes the chosen approach. Default: one native A* per physics frame plus a 1.5-ms soft budget. Each job keeps its frozen origin/revision. Topology edits restart stale jobs at the FIFO tail; no result from an obsolete revision is accepted.
+- No reachable target: enemy sleeps until a real topology change. There is no fixed-frequency failed-path retry. Destroying the strategic CPU cancels jobs and stops survivors.
 
-- Read `ENEMIES/README.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `NOTES/CodePreferences.md` and relevant root docs before editing.
-- Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
-- Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
-- Update this README with concrete files, data flow, settings and status when implementation begins.
+`Enemy.OnTopologyChanged` compares edits with remaining segment bounds (including clearance halo); cells already passed are ignored. Breachers, missing targets and dormant failed routes reconsider after any topology edit. Openings do not force all valid CPU-bound enemies to seek shorter routes. Immediate segment safety is independent of invalidation accuracy. Pausing for replacements can create a short stop or small cell-center backtrack; safe-prefix/reconnection polish, proximity priorities, timing counters and fair priority refinements belong to ST2.
+
+Breach candidates come from direct cell-to-building lookups beside visited cells; no full building registry scan per enemy. Terrain can never be a damageable breach target. The current cardinal boundary search is intentionally simple and can choose a merely useful reachable structure when complex terrain separates the CPU. Further opening decisions are made after each destruction/topology change.
+
+Stats snapshot at spawn; radius must fit within half a grid cell. Placement rejects overlap with bodies and clearance cells, avoiding enemies trapped inside freshly claimed solids. No per-enemy physics-body avoidance is enabled: the grid sweep is authoritative for movement; enemies overlap each other. Future size classes/phasing must derive consistent views from WORLD rather than introducing competing terrain data.

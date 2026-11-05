@@ -1,14 +1,5 @@
-# ENEMIES/VISUALS
+# ENEMIES/VISUALS — ST1 arrow
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status: Source Implemented / Awaiting Owner Validation.** `EnemyVectorVisual.cs` draws one lightweight arrow from the snapshotted enemy radius. Red = CPU seeker; orange = breach target; a brief white highlight accompanies hit/attack/state notifications. A damaged health arc and root FEEDBACK destruction ring provide basic lifecycle feedback.
 
-## Ownership
-
-Efficient vector geometry, silhouettes, rotation/orbit decorations, enemy animations and lightweight effects. Separate rendering/culling from authoritative AI and combat; never stop offscreen enemy attacks solely because not drawn.
-
-## Implementation guidance
-
-- Read `ENEMIES/README.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `NOTES/CodePreferences.md` and relevant root docs before editing.
-- Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
-- Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
-- Update this README with concrete files, data flow, settings and status when implementation begins.
+Facing follows movement/attack direction. Drawing is event-driven; only the brief highlight enables visual processing. No visibility-based simulation suppression, crowds, fancy materials or unused visual child nodes. Artwork can slightly exceed the logical radius but never defines navigation/collision.

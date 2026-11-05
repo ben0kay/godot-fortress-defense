@@ -1,12 +1,12 @@
-# WORLD — BF0 / ST0 foundation
+# WORLD — BF0/ST0 + ST1 navigation
 
 **Status: Source Implemented / Awaiting Owner Validation.**
 
-`Grid/WorldGrid.cs` is the single authority for finite terrain and cell-to-building occupancy. `Navigation/GroundNavigation.cs` derives one shared ground A* view. DEBUG provides the demonstration, not gameplay ownership. No procedural generation, deposits, fog, enemies or path scheduler yet.
+`Grid/WorldGrid.cs` is the single authority for finite terrain and cell-to-building occupancy. `Navigation/GroundNavigation.cs` derives one shared ground A* view. DEBUG provides the demonstration, not gameplay ownership. ST1 adds `GroundReachability.cs` and swept segment checks consumed by the bounded enemy request queue. No procedural generation, deposits or fog yet.
 
 ## Configuration and coordinates
 
-`Grid/DefaultWorldGridConfig.tres` is assigned to `DEBUG/test.tscn`'s WorldGrid. Edit map width/height (4–512 cells), cell size (4–256 pixels), diagonal movement and ground clearance (0–8 cells) before starting. Defaults: 32×20, 32-pixel cells. This fits the initial viewport and gives the 2×3 prototype a 64×96-pixel footprint; tune alongside future enemy radius/camera scale. Runtime config mutation does not resize a live world. Create a new scene/world to apply changes.
+`Grid/DefaultWorldGridConfig.tres` is assigned to `DEBUG/test.tscn`'s WorldGrid. Edit map width/height (4–512 cells), cell size (4–256 pixels), diagonal movement and ground clearance (0–8 cells) before starting. Defaults: 40×26, 32-pixel cells. The 4×4 CPU is 128×128 pixels and the 1×1 wall is 32×32; Enemy001 radius is 7 pixels. Runtime config mutation does not resize a live world. Create a new scene/world to apply changes.
 
 Anchor = top-left occupied cell; building origin = footprint rectangle center. Rotation/quarter-turn placement is deferred: roots/containers must remain unrotated, unscaled, and placed buildings must not be manually moved. Translate the grid if needed; use `WorldToCell`, `CellCenter`, and `FootprintCenter` rather than assuming a zero world origin.
 
@@ -14,17 +14,17 @@ Anchor = top-left occupied cell; building origin = footprint rectangle center. R
 
 Terrain and building references are separate arrays. Out-of-map is blocked. Placement checks every cell before claiming any; removal releases the stored rectangle, even if authored definition data was subsequently changed. A footprint mutation increments `Revision` once and publishes one `TopologyChanged(Rect2I)` after the complete edit. Terrain rectangles also publish one event only if something changed. Rejected edits publish nothing.
 
-Terrain has layer-1 static cell collision; placed buildings have one layer-1 static rectangle matching their exact footprint. Collision changes requested at removal are deferred safely; navigation changes immediately. No deposits, actor-overlap placement checks, costs or other restrictions exist yet. Future moving entities will need placement-overlap policy and immediate movement safety.
+Terrain has layer-1 static cell collision; placed buildings have one layer-1 static rectangle matching their exact footprint. Collision changes requested at removal are deferred safely; navigation changes immediately. The placement service additionally rejects live enemy body/clearance-cell overlap through EnemyRegistry. DEBUG applies the same check to solid terrain additions. Deposits and costs remain future restrictions.
 
 ## Ground navigation
 
 AStar is initialized once, with unit costs and matching Manhattan/cardinal or octile/diagonal heuristics. Diagonals require **both** side cells clear. `SetPointSolid` refreshes only changed cells plus the configured clearance halo; ordinary edits never call `Update()` or rebuild the full map. All calls stay on the main thread.
 
-Clearance is deliberately conservative: `GroundClearanceCells=N` requires the square N-cell neighborhood to be empty, including boundaries. Zero means a cell-center path for an actor fitting within one cell (radius at most half the cell size); positive values reserve extra whole-cell clearance. It is not continuous swept-disc movement validation. Future movers must validate their next swept segment against current occupancy and retain corner rules while a queued replacement is pending.
+Clearance is deliberately conservative: `GroundClearanceCells=N` requires the square N-cell neighborhood to be empty, including boundaries. Zero means a cell-center path for an actor fitting within one cell (radius at most half the cell size); positive values reserve extra whole-cell clearance. `WorldGrid.SegmentClear` separately checks actual movement against conservative radius-expanded solid rectangles and map bounds, including new walls. ST1 movers stop before unsafe steps.
 
 `FindPath` returns world-space cell centers or an empty array for blocked/out-of-bounds/unreachable endpoints; it never returns a partial route. `GetApproachCells` returns walkable cardinal perimeter candidates outside a solid footprint with clearance separation, **not a guarantee of reachability**. Callers choose/search reachable candidates under future budgets. Do not query the blocked center of a building.
 
-ST0 paths are explicit synchronous queries; DEBUG runs one route preview after edits. There is no automatic enemy repath or queue. Selective route dependencies, fair prioritized budgets, safe-prefix following and wall-breach decisions remain ST1/ST2 work. Additional flying/phasing views should derive from these same occupancy arrays when authorized.
+ST1 `GroundReachability` provides one reusable stamped-array flood workspace, visited cooperatively under `ENEMIES/MOVEMENT/EnemyPathRequests` budgets. It proves reachable CPU contact cells or finds accessible breach-building boundaries before one shared A* query. No per-enemy grids or full-scene target searches. Remaining-route bounds selectively queue edits; affected units pause and every movement step checks current solids. Advanced priorities, safe-prefix handoffs and instrumentation remain ST2. See `../ENEMIES/MOVEMENT/README.md`. Additional flying/phasing views should derive from these same occupancy arrays when authorized.
 
 ## References reviewed
 

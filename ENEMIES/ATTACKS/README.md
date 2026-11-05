@@ -1,14 +1,5 @@
-# ENEMIES/ATTACKS
+# ENEMIES/ATTACKS — ST1 contact damage
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status: Source Implemented / Awaiting Owner Validation.** `EnemyMeleeAttack.cs` owns a cooldown independent of path search. An arrived enemy attacks only a live building within center-to-footprint range and with a clear contact line; it calls the existing shared `Building.ApplyDamage` scalar receiver. Attack intervals stay at physics cadence even offscreen. No catch-up hit bursts after long frames.
 
-## Ownership
-
-Enemy-specific triggers/aiming for contact, projectile, sustained beam, missiles, ramming and siege; shared hit/damage/projectile collision remains in root COMBAT. Keep movement strategy distinct from attack type.
-
-## Implementation guidance
-
-- Read `ENEMIES/README.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `NOTES/CodePreferences.md` and relevant root docs before editing.
-- Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
-- Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
-- Update this README with concrete files, data flow, settings and status when implementation begins.
+Damage/range/cooldown are authored in EnemyDefinition and snapshotted at spawn. Defaults: 8 damage, 24-pixel range, 1.2 seconds. Larger configured clearance requires a correspondingly larger range. Shields, generic resistance pipelines, ranged attacks and projectiles remain future work.

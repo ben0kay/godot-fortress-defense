@@ -1,7 +1,7 @@
 # Fortress Defense — Foundation & Performance Roadmap (FD0–FD5)
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** BF0 + ST0 **Source Implemented / Awaiting Owner Validation** in the focused stress track; FD0–FD5 remain a broader roadmap, not completed milestones. See `../DEBUG/README.md` for the current sandbox and owner checks.
+**Status:** BF0/ST0 + BF1/ST1 **Source Implemented / Awaiting Owner Validation** in the focused stress track; FD0–FD5 remain a broader roadmap, not completed milestones. See `../DEBUG/README.md` for the current sandbox and owner checks.
 **Gameplay reference:** `ben0kay/VECTOR_TD_2026` (GameMaker/GML).  
 **Architecture/style reference:** `ben0kay/godot-tower-defense` (Godot 4 C#).  
 **Authoritative local guidance:** root `README.md`, `NOTES/CodePreferences.md`, `AGENTS.md` if present, and the actual owning source files.
@@ -136,7 +136,7 @@ Every major *implemented* feature folder should have a short `README.md` describ
 
 ## Shared Building scene and artwork contract (BF0/BF1)
 
-**BF0 Source Implemented / Awaiting Owner Validation:** shared Building scene/runtime, definition, registry and atomic placement exist, demonstrated by an inherited DEBUG test fixture. Concrete Citadel/wall/tower remain planned. Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
+**BF0 Source Implemented / Awaiting Owner Validation:** shared Building scene/runtime, definition, registry and atomic placement exist, demonstrated by an inherited DEBUG test fixture. BF1 inherited Citadel/Wall001 are now source implemented; Tower001 remains ST3. Every structure, including Citadel, walls, offensive/repair towers, generators, miners, credit earners, factories and storage, inherits the same **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** with the lightweight `Building.cs` foundation. This is the user's preferred naming, replacing earlier proposed `BuildingBase.tscn`/`BuildingBase.cs`. Individual placeable inherited scenes (e.g., Tower001.tscn) are instantiated into the world; they must preserve this shared lifecycle.
 
 ```text
 FORTRESS/BUILDINGS/
@@ -156,9 +156,9 @@ FORTRESS/BUILDINGS/
 
 No automatic per-building processing; passive static visuals incur minimal overhead. Different capabilities (tower weapons, power, storage, mining, repair, construction) should be opt-in without an enormous universal building controller. Follow the detailed acceptance and BF0/BF1 prerequisites in [INITIAL_STRESS_NAVIGATION_PLAN.md](INITIAL_STRESS_NAVIGATION_PLAN.md). Avoid separate tower-only scene roots.
 
-## Enemy architecture — modular expansion (folder foundation only)
+## Enemy architecture — ST1 basic runtime, later modular expansion
 
-**Status:** Only `ENEMIES/` README scaffolding is currently created. Gameplay systems remain planned for FD4/FD5. Read `ENEMIES/README.md` and individual ownership READMEs before implementing.
+**Status:** ST1 basic Enemy001, cached CPU/breach targeting, contact combat, continuous safe movement, bounded FIFO path requests and gradual edge spawner are Source Implemented / Awaiting Owner Validation. Advanced families and the broader FD4/FD5 scope remain planned. Read `ENEMIES/README.md` and individual ownership READMEs before implementing.
 
 - **CORE:** Small enemy entity/runtime, identity, state, spawn and cleanup. Avoid a huge all-in-one Enemy controller and avoid a script/timer for every decoration.
 - **DATA + TYPES:** `EnemyDefinition` (future C# Resource and .tres presets) expresses an enemy's base identity, visuals, vitals, targeting profile, movement, attack, rewards, modifiers and abilities. `TYPES/` contains concrete presets/scenes grouped by actual future family, *not* one duplicated behavior engine per class.
@@ -196,6 +196,10 @@ No automatic per-building processing; passive static visuals incur minimal overh
 A reproducible **stress scenario** should include at least 200 active enemies with a mix of flying/ground and targeting behaviors, movement around meaningful obstacles, CPU/building/player target selection, tower fire, projectiles and some effects. Record map seed, enemy composition, tower/building counts, viewport/resolution, hardware, mean/low FPS or frame-time percentiles and spikes, build type, and profiler observations. Do **not** call 200 idle sprites a successful stress test. If target is missed, identify the measured bottleneck and make a small targeted improvement; do not prematurely rewrite the simulation.
 
 **Minimal testing policy still applies:** Codex should implement the instrumentation and simple *manual* stress controls, but the owner runs prolonged FPS benchmarks and editor acceptance checks unless specifically requested otherwise.
+
+## Current focused-track implementation
+
+BF1/ST1 has a real CPU-defense sandbox, inherited Citadel and Wall001, one arrow ground seeker, contact damage, accessible-boundary breach fallback and a minimal cooperative path queue. Root `DEBUG/README.md` lists exact defaults, controls, config paths and owner checks. ST2 advanced priorities, instrumentation and stress presets and ST3 tower/projectiles remain planned. No build/runtime/FPS claim: Godot/dotnet unavailable; source/diff review only. The broader FD phases below are not marked accepted by implementing this focused slice.
 
 ## Phased implementation contract
 

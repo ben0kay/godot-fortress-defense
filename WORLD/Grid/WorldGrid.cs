@@ -53,6 +53,48 @@ public partial class WorldGrid : Node2D
                 if (IsBlocked(new(x, y))) return false;
         return true;
     }
+
+    // World-space bounds used by attacks, placement and visuals, independent of sprite dimensions.
+    public Rect2 FootprintRect(Rect2I area) => new(ToGlobal((Vector2)area.Position * CellSize), (Vector2)area.Size * CellSize);
+
+    // Conservative swept square around a circle: no tunnelling through new obstacles or corner gaps.
+    // Only nearby segment cells are inspected. Ignore the attacked target, never another blocker.
+    public bool SegmentClear(Vector2 from, Vector2 to, float radius, Building ignored = null)
+    {
+        Vector2 a = ToLocal(from), b = ToLocal(to);
+        Vector2 min = new Vector2(Mathf.Min(a.X, b.X), Mathf.Min(a.Y, b.Y)) - Vector2.One * radius;
+        Vector2 max = new Vector2(Mathf.Max(a.X, b.X), Mathf.Max(a.Y, b.Y)) + Vector2.One * radius;
+        if (min.X < 0 || min.Y < 0 || max.X >= Dimensions.X * CellSize || max.Y >= Dimensions.Y * CellSize) return false;
+        int left = Mathf.Max(0, Mathf.FloorToInt(min.X / CellSize));
+        int top = Mathf.Max(0, Mathf.FloorToInt(min.Y / CellSize));
+        int right = Mathf.Min(Dimensions.X - 1, Mathf.FloorToInt(max.X / CellSize));
+        int bottom = Mathf.Min(Dimensions.Y - 1, Mathf.FloorToInt(max.Y / CellSize));
+        for (int y = top; y <= bottom; y++)
+            for (int x = left; x <= right; x++)
+            {
+                Vector2I cell = new(x, y);
+                if (!IsTerrain(cell) && (BuildingAt(cell) == null || BuildingAt(cell) == ignored)) continue;
+                Vector2 low = (Vector2)cell * CellSize - Vector2.One * radius;
+                Vector2 high = ((Vector2)cell + Vector2.One) * CellSize + Vector2.One * radius;
+                if (IntersectsBox(a, b, low, high)) return false;
+            }
+        return true;
+    }
+
+    // Slab segment/AABB intersection; a tangent is conservatively blocked.
+    private static bool IntersectsBox(Vector2 a, Vector2 b, Vector2 low, Vector2 high)
+    {
+        float enter = 0, exit = 1; Vector2 delta = b - a;
+        return Clip(a.X, delta.X, low.X, high.X, ref enter, ref exit)
+            && Clip(a.Y, delta.Y, low.Y, high.Y, ref enter, ref exit);
+    }
+    private static bool Clip(float origin, float delta, float low, float high, ref float enter, ref float exit)
+    {
+        if (Mathf.Abs(delta) < .00001f) return origin >= low && origin <= high;
+        float a = (low - origin) / delta, b = (high - origin) / delta;
+        enter = Mathf.Max(enter, Mathf.Min(a, b)); exit = Mathf.Min(exit, Mathf.Max(a, b));
+        return enter <= exit;
+    }
     #endregion
 
     #region Mutations

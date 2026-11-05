@@ -1,14 +1,5 @@
-# ENEMIES/CORE
+# ENEMIES/CORE — ST1 lifecycle
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status: Source Implemented / Awaiting Owner Validation.** `Enemy.cs` snapshots an EnemyDefinition and receives explicit grid, registry, request service and strategic Citadel references before AddChild. It owns health, active/strategic target state, lifecycle and topology reactions; focused helpers own movement and attack timing.
 
-## Ownership
-
-Shared enemy runtime identity, lifecycle, spawn/death/despawn, state transitions and registration. Own minimal enemy data/state; do not implement combat, movement or every ability in a giant Enemy.cs.
-
-## Implementation guidance
-
-- Read `ENEMIES/README.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `NOTES/CodePreferences.md` and relevant root docs before editing.
-- Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
-- Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
-- Update this README with concrete files, data flow, settings and status when implementation begins.
+`EnemyRegistry.cs` is per-world, never static. It tracks actual live instances, provides click-time actor/clearance overlap checks and manual snapshot-based clearing. Death/despawn/ExitTree remove registry membership, topology subscriptions and queued/active requests. Unreachable enemies disable physics until an occupancy change; CPU loss stops all survivors. `ApplyDamage` is ready for later combat, with a debug K control in the sandbox; no player weapon or projectile exists yet.

@@ -1,6 +1,6 @@
 # Fortress Defense — Initial Navigation & 200-Enemy Stress-Test Plan (ST0–ST5)
 
-**Status:** BF0 + ST0 **Source Implemented / Awaiting Owner Validation**; BF1/ST1–ST5 remain Planned. See `../DEBUG/README.md` for controls and checks.
+**Status:** BF0/ST0 + BF1/ST1 **Source Implemented / Awaiting Owner Validation**; ST2–ST5 remain Planned. See `../DEBUG/README.md` for controls and checks.
 **Owner repo / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Read first:** `AGENTS.md`, root `README.md`, `NOTES/CodePreferences.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `ENEMIES/README.md`.  
 **References:** `ben0kay/VECTOR_TD_2026` `scripts/scr_navigation/scr_navigation.gml`, `scr_enemy_data`, `scr_enemy_behavior`, `scr_enemy_spawner` and world/grid scripts; Godot 4 `AStarGrid2D` documentation. Do **not** modify reference repositories.  
@@ -126,7 +126,7 @@ Plan a root `WORLD/Visibility/` or `WORLD/FogOfWar/` owner only **when fog imple
 
 ## Mandatory shared building scene foundation — BF0/BF1
 
-**Status: BF0 shared scene/runtime, definitions, health, selection, registry and rectangular placement/collision are Source Implemented / Awaiting Owner Validation. DEBUG contains an inherited 2×3 test building. BF1 gameplay scenes remain planned. This foundation is a prerequisite for Citadel, Wall001 and Tower001 in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
+**Status: BF0 shared scene/runtime, definitions, health, selection, registry and rectangular placement/collision are Source Implemented / Awaiting Owner Validation. DEBUG contains an inherited 2×3 test building. BF1 Citadel and Wall001 are Source Implemented / Awaiting Owner Validation; Tower001 is deferred to ST3. This foundation is a prerequisite for Citadel, Wall001 and Tower001 in ST1/ST3.** Implement one reusable **`FORTRESS/BUILDINGS/SHARED/Building.tscn`** as the Godot base scene that **all buildings inherit from** (Godot inherited scenes), regardless of category. Do **not** create independent unrelated roots for towers, generators, miners, storage, walls or Citadel.
 
 ```text
 FORTRESS/BUILDINGS/
@@ -205,7 +205,12 @@ Implemented: finite grid/config resource, atomic multi-cell occupancy, distinct 
 - **Owner acceptance:** can view/debug blocked vs walkable cells, verify a route around a fixed obstacle, place a 2×3 (or larger) footprint without overlap, and remove/destroy it to restore **all** occupied cells.
 
 ### ST1 — Citadel, wall and pathing enemy
-**Status: Planned** · Depends ST0
+**Status: Source Implemented / Awaiting Owner Validation** · Depends ST0
+
+BF1/ST1 now includes inherited Citadel/Wall001, Enemy001 definition/runtime/vector visual, world-scoped registry, fixed-objective contact combat, cooperative reachability + coalesced FIFO path work, per-step swept solid checks, gradual seeded edge spawning and a quiet battlefield presentation. Defaults: 40×26 ×32px; CPU 4×4/4000HP; wall 1×1/120HP; 20 enemies max at 0.8s intervals. Queue defaults: 512 flood visits/frame, 1 native A*/frame, 1.5ms soft cap. No-route enemies sleep until topology changes. CPU loss cancels routes/stops spawning. Bodies/clearance cells reject overlapping placement; CPU enclosure remains allowed.
+
+Minimal ST1 queue is intentional groundwork for ST2, not its priority/profiler/preset implementation. Affected units currently pause for replacement; remaining-route bounding rectangles provide conservative invalidation, and grid sweeps independently prevent unsafe steps. Breach choice is a reachable-boundary heuristic, not an optimal demolition plan. No steering/crowd separation. See `../DEBUG/README.md` and `../ENEMIES/MOVEMENT/README.md` for controls, config, limitations and owner checks. Source/diff review only: no Godot/dotnet available, no runtime acceptance or FPS claim.
+
 - Create BF0's shared `Building.tscn` foundation if it doesn't exist; the placeholder Citadel and wall **must inherit it**. Implement CPU footprint/health, basic vector ground enemy, edge-of-map spawn and waypoint movement.
 - Central enemy registry with safe spawn/despawn, **Enemy001** with cached default Citadel target and a separate temporary wall/building breach target. No weighted target-choice implementation.
 - Path when reachable; when enclosed, fallback to reachable wall/building target and attack it; release footprint on destruction and recover route.

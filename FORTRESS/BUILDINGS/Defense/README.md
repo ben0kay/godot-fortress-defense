@@ -1,6 +1,6 @@
 # Defense
 
-**Status:** Organizational folder only; no building gameplay implemented.
+**Status:** BF1 Wall001 is Source Implemented / Awaiting Owner Validation. Towers and other defenses remain planned.
 
 Offensive and repair towers, static shields, walls and other static defenses; all inherit SHARED/Building.tscn.
 

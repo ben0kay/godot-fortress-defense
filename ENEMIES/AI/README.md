@@ -1,14 +1,5 @@
-# ENEMIES/AI
+# ENEMIES/AI — ST1 objective and breach targeting
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status: Source Implemented / Awaiting Owner Validation.** `EnemyTargeting.cs` contains shared target validity, center-to-footprint attack range/solid line checks and direct cardinal cell-to-building boundary queries. `Enemy` caches the Citadel at spawn; `ActiveTarget` is either that Citadel or a temporary accessible breach building. No weighted retargeting, player aggro or scene-tree searches.
 
-## Ownership
-
-Target acquisition and prioritization (CPU/player/buildings), tactical orders, behaviors (pursuit, orbit, standoff, support) and decisions. Query bounded candidate sets; stagger strategic thinking and react to destroyed targets.
-
-## Implementation guidance
-
-- Read `ENEMIES/README.md`, `NOTES/FOUNDATION_PERFORMANCE_PLAN.md`, `NOTES/CodePreferences.md` and relevant root docs before editing.
-- Add files only for an authorized feature pass; use focused C#, Inspector-editable definitions when appropriate, and avoid unused scaffolding.
-- Preserve the performance goal of 100–200 active combatants; document measured costs or limitations honestly.
-- Update this README with concrete files, data flow, settings and status when implementation begins.
+Reachability/selection runs inside the cooperative request queue described in `../MOVEMENT/README.md`, never in ordinary movement/attack ticks. Every chosen attack position is walkable, reachable from the job origin and outside the target footprint. Another wall/terrain blocks the contact line. After an opening, breachers reconsider the CPU. If no reachable damageable building exists, stop until topology changes instead of requesting endlessly.

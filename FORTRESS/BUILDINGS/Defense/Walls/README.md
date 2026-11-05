@@ -1,6 +1,6 @@
 # Walls
 
-**Status:** Organizational folder only; no building gameplay implemented.
+**Status:** BF1 Wall001 is Source Implemented / Awaiting Owner Validation. Towers and other defenses remain planned.
 
 Placeable solid walls that update WORLD grid occupancy and invalidate relevant enemy routes. Wall001 is the first prototype.
 

@@ -1,6 +1,6 @@
 # ENEMIES/TYPES
 
-**Status:** Structure only — no gameplay implementation in this folder yet.
+**Status:** ST1 `Basic/Enemy001/Enemy001.tscn` and its definition are Source Implemented / Awaiting Owner Validation. Other families remain planned.
 
 ## Ownership
 

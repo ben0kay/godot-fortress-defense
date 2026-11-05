@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/SHARED/Building.tscn" id="1"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Core/Citadel/CitadelDefinition.tres" id="2"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingVectorVisual.cs" id="3"]
+
+[node name="Citadel" instance=ExtResource("1")]
+Definition = ExtResource("2")
+
+[node name="BaseVector" type="Node2D" parent="Visuals" index="0"]
+script = ExtResource("3")
+CitadelStyle = true

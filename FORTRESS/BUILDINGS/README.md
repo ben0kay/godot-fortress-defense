@@ -1,6 +1,6 @@
 # BUILDINGS
 
-**Status:** BF0 shared scene/runtime, definitions, health, selection, rectangular footprints, collision, placement and registry are Source Implemented / Awaiting Owner Validation. Construction, concrete gameplay buildings and weapons remain planned.
+**Status:** BF0 shared scene/runtime, definitions, health, selection, rectangular footprints, collision, placement and registry are Source Implemented / Awaiting Owner Validation. BF1 Citadel/Wall001 scenes are also Source Implemented / Awaiting Owner Validation. Construction and weapons remain planned.
 
 All actual structures inherit `SHARED/Building.tscn` (Godot inherited scenes). Concrete scenes are organized by **purpose**, not by shared gameplay system:
 
@@ -17,4 +17,4 @@ Building category is independent of capabilities. A tower can consume power; a m
 
 **Visuals:** Each inherited building can add a non-rotating `BaseSprite`, optional independently rotating `RotatingParts` (with muzzle marker if needed) and optional baked `AnimatedParts`. `ConstructionVisuals` (staged sprites/drones) is reserved for later. Do not attach unused processing nodes to every building. Rectangular multi-cell footprints are authored in BuildingDefinition, not inferred from sprites.
 
-**Current pass:** BF0 is source implemented; see `SHARED/README.md`. Root `DEBUG/test.tscn` hosts an inherited 2×3 foundation test fixture. **Next:** BF1/ST1 creates Citadel and Wall001; Tower001/combat belongs to ST3. See `../../NOTES/INITIAL_STRESS_NAVIGATION_PLAN.md`.
+**Current pass:** BF0 foundation plus BF1 Citadel/Wall001 are source implemented; see `SHARED/README.md`. Root `DEBUG/test.tscn` now hosts an ST1 enemy encounter with dynamic wall placement. Tower001/projectiles belong to ST3. See `../../NOTES/INITIAL_STRESS_NAVIGATION_PLAN.md`.

@@ -44,7 +44,7 @@ public partial class GroundNavigation : Node
             { Vector2I cell = new(x, y); _astar.SetPointSolid(cell, !IsWalkable(cell)); }
     }
 
-    // Explicit synchronous query for ST0; gameplay request scheduling belongs to ST2.
+    // Shared synchronous primitive; ST1 gameplay calls this through the bounded enemy request queue.
     public Vector2[] FindPath(Vector2I start, Vector2I goal)
     {
         if (_astar == null || !IsWalkable(start) || !IsWalkable(goal)) return System.Array.Empty<Vector2>();

@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1")
-MapWidthCells = 32
-MapHeightCells = 20
+MapWidthCells = 40
+MapHeightCells = 26
 CellSize = 32.0
 AllowDiagonalMovement = true
 GroundClearanceCells = 0

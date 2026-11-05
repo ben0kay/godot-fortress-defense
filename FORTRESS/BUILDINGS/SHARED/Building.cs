@@ -16,6 +16,9 @@ public partial class Building : Node2D
     public event Action HealthChanged;
     public event Action SelectionChanged;
     public event Action Destroyed;
+    public event Action Placed;
+    public event Action Detached;
+    public Vector2 FootprintPixels { get; private set; }
     private WorldGrid _grid;
     private BuildingRegistry _registry;
     private CollisionShape2D _collision;
@@ -45,10 +48,11 @@ public partial class Building : Node2D
         if (!grid.CanOccupy(OccupiedArea)) return false;
         _grid = grid; _registry = registry;
         GlobalPosition = grid.FootprintCenter(OccupiedArea);
-        _collision.Shape = new RectangleShape2D { Size = (Vector2)Footprint * grid.CellSize };
+        FootprintPixels = (Vector2)Footprint * grid.CellSize;
+        _collision.Shape = new RectangleShape2D { Size = FootprintPixels };
         _collision.Disabled = false; IsPlaced = true;
         if (!grid.TryOccupy(this, OccupiedArea)) { Detach(); return false; }
-        registry.Register(this); return true;
+        registry.Register(this); Placed?.Invoke(); return true;
     }
 
     // Consumers subscribe; selection creates no idle ticks or mandatory UI nodes.
@@ -88,6 +92,6 @@ public partial class Building : Node2D
         if (GodotObject.IsInstanceValid(_registry)) _registry.Unregister(this);
         if (GodotObject.IsInstanceValid(_grid)) _grid.Release(this, OccupiedArea);
         _grid = null; _registry = null;
-        SetSelected(false);
+        SetSelected(false); Detached?.Invoke();
     }
 }

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
+[resource]
+script = ExtResource("1")
+BuildingId = "wall001"
+DisplayName = "Wall001"
+Category = 1
+Footprint = Vector2i(1, 1)
+MaxHealth = 120.0
