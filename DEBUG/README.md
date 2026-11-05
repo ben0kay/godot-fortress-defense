@@ -74,3 +74,7 @@ EN2: F2 type selector supports enemy001/enemy002 batches, mixed under the same20
 AIR1: F2 → enemy003 spawns cyan winged impact flyers, independent of blocked/dead ground cells. They only damage the CPU; Tower001 remains Ground-only. Ground placement ignores airborne overlap, and B/MMB terrain edits beneath flyers do not trigger repaths. Mixed types share existing spawn limits. AIR2 now supplies Tower002; AIR3 remains planned.
 
 AIR2: Ctrl → Defense → Anti-Air Tower / Tower002 is freely placeable using the shared menu, with Air-only combat. W/T retain their original wall/Tower001 quick selections.
+
+## FW0 visibility
+
+**Source Implemented / Awaiting Owner Validation.** See [fog ownership, config and limits](../WORLD/FOG/README.md). Shared LevelBase/DEBUG bind CPU and optional player sources through the existing WorldGrid. F2's **Fog of War Enabled** bypasses presentation only; exploration keeps tracking. Enemy visuals, shots and destruction effects are clipped without changing simulation. Friendly bases remain known/dim; unseen HP/selection/turret feedback is suppressed. LevelConfig → Fog/FogEnabled selects settings/initial presentation; camera controls never reveal terrain. Debug diagnostics refresh at 4 Hz, and standalone Debug instances can receive an explicit Fog node reference. Runtime and FPS comparisons remain owner checks.

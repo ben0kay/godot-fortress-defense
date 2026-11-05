@@ -1,0 +1,12 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://WORLD/FOG/FogOfWar.cs" id="1"]
+[ext_resource type="Script" path="res://WORLD/FOG/FogRenderer.cs" id="2"]
+[ext_resource type="Script" path="res://WORLD/FOG/FogPresentation.cs" id="3"]
+[ext_resource type="Resource" path="res://WORLD/FOG/FogMasterConfig.tres" id="4"]
+[node name="FogOfWar" type="Node"]
+script = ExtResource("1")
+Config = ExtResource("4")
+[node name="Renderer" type="Node2D" parent="."]
+script = ExtResource("2")
+[node name="Presentation" type="Node" parent="."]
+script = ExtResource("3")

@@ -13,6 +13,7 @@ public partial class BuildingVectorVisual : Node2D
     public override void _Ready()
     {
         _building = GetParent().GetParent<Building>(); _lastHealth = _building.Health;
+        _building.PresentationChanged += QueueRedraw;
         _building.Placed += QueueRedraw; _building.SelectionChanged += QueueRedraw;
         _building.HealthChanged += OnHealthChanged; _building.Detached += OnDetached;
         SetProcess(false);
@@ -41,7 +42,7 @@ public partial class BuildingVectorVisual : Node2D
         if (_building == null || !_building.IsPlaced) return;
         Vector2 size = _building.FootprintPixels;
         Rect2 body = new(-size * .5f + Vector2.One * 2, size - Vector2.One * 4);
-        Color edge = _flash > 0 ? Colors.White : Accent;
+        Color edge = _flash > 0 && _building.HasCurrentVision ? Colors.White : Accent;
         DrawRect(body, new Color(.06f, .12f, .18f)); DrawRect(body, edge, false, 2);
         if (CitadelStyle)
         {
@@ -58,6 +59,7 @@ public partial class BuildingVectorVisual : Node2D
             DrawLine(body.Position + new Vector2(4, 4), body.End - new Vector2(4, 4), edge.Darkened(.3f), 2);
             DrawLine(new(body.End.X - 4, body.Position.Y + 4), new(body.Position.X + 4, body.End.Y - 4), edge.Darkened(.3f), 2);
         }
+        if (!_building.HasCurrentVision) return;
         if (_building.IsSelected) DrawRect(body.Grow(4), Colors.Yellow, false, 2);
         Rect2 bar = new(new(-size.X * .5f, -size.Y * .5f - 7), new(size.X, 4));
         DrawRect(bar, new Color(.12f, .15f, .2f));
@@ -66,6 +68,7 @@ public partial class BuildingVectorVisual : Node2D
     public override void _ExitTree()
     {
         if (!GodotObject.IsInstanceValid(_building)) return;
+        _building.PresentationChanged -= QueueRedraw;
         _building.Placed -= QueueRedraw; _building.SelectionChanged -= QueueRedraw;
         _building.HealthChanged -= OnHealthChanged; _building.Detached -= OnDetached;
     }

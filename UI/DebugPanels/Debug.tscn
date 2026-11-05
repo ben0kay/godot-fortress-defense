@@ -22,6 +22,13 @@ text = "Debug spawn controls (F2)"
 [node name="Controls" type="VBoxContainer" parent="Panel/Layout"]
 layout_mode = 2
 visible = false
+[node name="FogEnabled" type="CheckBox" parent="Panel/Layout/Controls"]
+layout_mode = 2
+text = "Fog of War Enabled"
+[node name="FogStats" type="Label" parent="Panel/Layout/Controls"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+mouse_filter = 2
 [node name="EnemyType" type="OptionButton" parent="Panel/Layout/Controls"]
 layout_mode = 2
 

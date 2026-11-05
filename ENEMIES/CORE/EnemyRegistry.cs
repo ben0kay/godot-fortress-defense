@@ -13,7 +13,8 @@ public partial class EnemyRegistry : Node
     public IEnumerable<Enemy> Enemies => _enemies;
     public int Count => _enemies.Count;
     public event Action Changed;
-    internal void Add(Enemy enemy) { if (_enemies.Add(enemy)) { _spatial.Update(enemy); Changed?.Invoke(); } }
+    public event Action<Enemy> Added;
+    internal void Add(Enemy enemy) { if (_enemies.Add(enemy)) { _spatial.Update(enemy); Added?.Invoke(enemy); Changed?.Invoke(); } }
     internal void Remove(Enemy enemy) { if (_enemies.Remove(enemy)) { _spatial.Remove(enemy); if (_enemies.Count == 0) _spatial.Clear(); Changed?.Invoke(); } }
 
     // Only run on a placement click, not per enemy per frame. Prevent an enemy being sealed inside a new solid.

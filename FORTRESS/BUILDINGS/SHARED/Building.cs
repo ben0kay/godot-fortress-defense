@@ -4,6 +4,12 @@ using System;
 
 public partial class Building : Node2D, ICombatTarget
 {
+    public bool HasCurrentVision { get; private set; } = true;
+    public event System.Action PresentationChanged;
+    // Optional presentation binding: health, occupancy and combat never depend on this flag.
+    public void SetCurrentVisionPresentation(bool visible)
+    { if (HasCurrentVision != visible) { HasCurrentVision = visible; PresentationChanged?.Invoke(); } }
+
     public Rect2 WorldFootprint => new(GlobalPosition - FootprintPixels * .5f, FootprintPixels);
     public Node2D TargetNode => this;
     public bool TargetAlive => IsPlaced && !IsDestroyed && !IsQueuedForDeletion();

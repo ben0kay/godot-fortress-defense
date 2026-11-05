@@ -29,6 +29,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _muzzle = GetNode<Marker2D>("Visuals/TurretPivot/Muzzle"); _flash = GetNode<Polygon2D>("Visuals/TurretPivot/Muzzle/Flash");
         CombatConfig ??= new ProjectileTowerConfig(); CombatConfig.Validate();
         _stats = (ProjectileTowerConfig)CombatConfig.Duplicate(); _random.Seed = GetInstanceId();
+        PresentationChanged += OnPresentation;
         Placed += OnPlaced; Detached += OnDetached; SelectionChanged += OnSelection; HealthChanged += QueueRedraw;
     }
     private void OnPlaced()
@@ -72,7 +73,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     public override void _PhysicsProcess(double delta)
     {
         if (!IsPlaced || IsDestroyed || !GodotObject.IsInstanceValid(_projectiles)) return;
-        _flashTimer = Mathf.Max(0, _flashTimer - (float)delta); _flash.Visible = _flashTimer > 0;
+        _flashTimer = Mathf.Max(0, _flashTimer - (float)delta); _flash.Visible = HasCurrentVision && _flashTimer > 0;
         _searchTimer -= (float)delta; _shotTimer = Mathf.Max(-.05f, _shotTimer - (float)delta);
         if (_searchTimer <= 0)
         {
@@ -92,18 +93,23 @@ public partial class ProjectileTower : Building, IBuildingCombat
             _stats.RangePixels + _grid.CellSize, _stats.ProjectileRadius, _stats.TracerLength, CombatLayers.Of(_target), collision);
         _projectiles.AddChild(bullet); bullet.GlobalPosition = _muzzle.GlobalPosition;
         _shotTimer = Mathf.Max(0, 1 / _stats.ShotsPerSecond + _shotTimer);
-        _flashTimer = .045f; _flash.Visible = true;
+        _flashTimer = .045f; _flash.Visible = HasCurrentVision;
     }
 
     // Selection and health redraw on changes only; base platform never rotates with the turret.
+    private void OnPresentation()
+    {
+        _gun.Visible = HasCurrentVision; _flash.Visible = HasCurrentVision && _flashTimer > 0;
+        OnSelection();
+    }
     private void OnSelection()
     {
-        Color tint = IsSelected ? new Color(1, .9f, .68f) : Colors.White;
+        Color tint = IsSelected && HasCurrentVision ? new Color(1, .9f, .68f) : Colors.White;
         _baseSprite.Modulate = tint; _gun.Modulate = tint; QueueRedraw();
     }
     public override void _Draw()
     {
-        if (!IsPlaced || _stats == null) return;
+        if (!IsPlaced || _stats == null || !HasCurrentVision) return;
         if (IsSelected)
         {
             DrawArc(Vector2.Zero, _stats.RangePixels, 0, Mathf.Tau, 96, new Color(.3f, .8f, 1, .4f), 1, true);
@@ -114,7 +120,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     }
     public override void _ExitTree()
     {
-        Unbind(); Placed -= OnPlaced; Detached -= OnDetached; SelectionChanged -= OnSelection; HealthChanged -= QueueRedraw;
+        Unbind(); PresentationChanged -= OnPresentation; Placed -= OnPlaced; Detached -= OnDetached; SelectionChanged -= OnSelection; HealthChanged -= QueueRedraw;
         base._ExitTree(); _stats?.Dispose(); _random.Dispose();
     }
 }

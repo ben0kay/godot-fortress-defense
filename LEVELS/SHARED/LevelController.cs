@@ -93,6 +93,7 @@ public partial class LevelController : Node2D
         }
         InitializeOptionalActors();
         _spawner.Initialize(_grid, _navigation, _enemies, requests, GetNode<Node2D>("RootEnemies/Enemies"), _citadel);
+        InitializeFog();
         _start = new(_grid.ClearanceCells, map.Y / 2);
         _goal = new(cpuArea.Position.X - _grid.ClearanceCells - 1, map.Y / 2);
         _grid.TopologyChanged += OnTopologyChanged;
@@ -134,7 +135,7 @@ public partial class LevelController : Node2D
         if (_closing) return;
         bool alive = EnemyTargeting.Live(_citadel);
         string cpu = alive ? $"CPU {_citadel.Health:0}/{_citadel.MaxHealth:0}" : "CPU DESTROYED — R to restart";
-        string selected = EnemyTargeting.Live(_selected) ? $" | Selected {_selected.BuildingId} {_selected.Health:0}/{_selected.MaxHealth:0} HP" : "";
+        string selected = EnemyTargeting.Live(_selected) && _selected.HasCurrentVision ? $" | Selected {_selected.BuildingId} {_selected.Health:0}/{_selected.MaxHealth:0} HP" : "";
         string player = PlayerAlive ? $"Player {CurrentPlayer.Health:0}/{CurrentPlayer.MaxHealth:0}" : "Player absent";
         _status.Text = $"{cpu} | {player} | Camera {(_camera.IsFollowing ? "FOLLOW" : "FREE")} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
         if (_generated != null)

@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="LevelConfig" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="LevelConfig" load_steps=11 format=3]
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelConfig.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGridConfig.cs" id="2"]
 [ext_resource type="Script" path="res://WORLD/Generation/WorldGenerationConfig.cs" id="3"]
 [ext_resource type="Script" path="res://ENEMIES/DATA/EnemyDefinition.cs" id="4"]
 [ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres" id="Catalogue"]
 [ext_resource type="PackedScene" path="res://PLAYER/Player.tscn" id="Player"]
+[ext_resource type="Resource" path="res://WORLD/FOG/FogMasterConfig.tres" id="Fog"]
 [sub_resource type="Resource" id="Grid"]
 script = ExtResource("2")
 MapWidthCells = 63
@@ -49,6 +50,8 @@ Catalogue = ExtResource("Catalogue")
 StartingCredits = 1000
 AllowedBuildingIds = PackedStringArray("wall001", "tower001", "tower002")
 FreeDebugPlacement = false
+Fog = ExtResource("Fog")
+FogEnabled = true
 SpawnPlayer = false
 PlayerScene = ExtResource("Player")
 PlayerRequiredForDefeat = false

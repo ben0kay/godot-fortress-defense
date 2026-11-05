@@ -13,6 +13,9 @@ public partial class LevelConfig : Resource
     [Export(PropertyHint.Range, "0,2000000000,1")] public int StartingCredits { get; set; } = 1000;
     [Export] public string[] AllowedBuildingIds { get; set; } = System.Array.Empty<string>();
     [Export] public bool FreeDebugPlacement { get; set; }
+    [ExportGroup("Fog of War / FW0")]
+    [Export] public FogMasterConfig Fog { get; set; }
+    [Export] public bool FogEnabled { get; set; } = true;
     [ExportGroup("Optional Player / PL0")]
     [Export] public bool SpawnPlayer { get; set; }
     [Export] public PackedScene PlayerScene { get; set; }

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="FogMasterConfig" load_steps=2 format=3]
+[ext_resource type="Script" path="res://WORLD/FOG/FogMasterConfig.cs" id="1"]
+[resource]
+script = ExtResource("1")
+EnabledByDefault = true
+UnexploredOpacity = 1.0
+ExploredOpacity = 0.7
+EdgeSoftnessPixels = 48.0
+CitadelVisionRadius = 450.0
+PlayerVisionRadius = 350.0
+VisionBlocksOnTerrain = false
+VisibilityUpdateInterval = 0.15
+MaximumVisionUpdatesPerFrame = 4
+UpdateOnSourceCellChange = true
+RendererUpdateMode = 0

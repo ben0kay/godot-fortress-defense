@@ -131,7 +131,7 @@ Before making substantial changes, inspect the current repository state, the app
 
 ## BM0 — construction catalogue and credits
 
-**Source Implemented / Awaiting Owner Validation.** Level001 uses a per-level wallet (1,000 starting credits), an allowed-building catalogue and Inspector-editable prices: walls 10, Tower001 100. Existing W/T placement now purchases once per valid placement; blocked, locked or unaffordable attempts charge nothing. Status shows credits. CPU setup and DEBUG placement are explicitly free; deletion gives no refund. Enable Config → FreeDebugPlacement to restore unlimited Level001 benchmark construction. [Settings and owner checks](FORTRESS/SYSTEMS/Resources/README.md). BM1 supplies the Ctrl menu; revised optional player/camera are now source implemented; fog remains planned.
+**Source Implemented / Awaiting Owner Validation.** Level001 uses a per-level wallet (1,000 starting credits), an allowed-building catalogue and Inspector-editable prices: walls 10, Tower001 100. Existing W/T placement now purchases once per valid placement; blocked, locked or unaffordable attempts charge nothing. Status shows credits. CPU setup and DEBUG placement are explicitly free; deletion gives no refund. Enable Config → FreeDebugPlacement to restore unlimited Level001 benchmark construction. [Settings and owner checks](FORTRESS/SYSTEMS/Resources/README.md). BM1 supplies the Ctrl menu; revised optional player/camera are now source implemented; FW0 fog is now source implemented.
 
 ## BM1 — category building menu
 
@@ -139,7 +139,7 @@ Before making substantial changes, inspect the current repository state, the app
 
 ## Revised PL0 + CAM0 — optional chassis and camera
 
-**Source Implemented / Awaiting Owner Validation.** Level001 stays player-free by default. Enable Config → SpawnPlayer (PlayerScene already points to PLAYER/Player.tscn) to spawn an arrow-key chassis beside the CPU. Configurable enemy rules can attack it using existing queued navigation and scalar damage; removal/death returns enemies to Citadel behavior. Placement rejects the player body. **C** toggles free/follow only for a living player; **Home** frames the map. Free Roam is always the default. Enemy clearing is now exclusively in F2's existing Clear control. F1/F2/Ctrl building and tower combat remain available. See [player/settings/objective events](PLAYER/README.md) and [camera/settings](CAMERA/README.md). No player weapons, fog or full defeat/results flow.
+**Source Implemented / Awaiting Owner Validation.** Level001 stays player-free by default. Enable Config → SpawnPlayer (PlayerScene already points to PLAYER/Player.tscn) to spawn an arrow-key chassis beside the CPU. Configurable enemy rules can attack it using existing queued navigation and scalar damage; removal/death returns enemies to Citadel behavior. Placement rejects the player body. **C** toggles free/follow only for a living player; **Home** frames the map. Free Roam is always the default. Enemy clearing is now exclusively in F2's existing Clear control. F1/F2/Ctrl building and tower combat remain available. See [player/settings/objective events](PLAYER/README.md) and [camera/settings](CAMERA/README.md). No player weapons or full defeat/results flow.
 
 ## EN2 — Enemy002 Building-Hunter Shooter
 
@@ -152,3 +152,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## AIR2 — Tower002 Anti-Air
 
 **Source Implemented / Awaiting Owner Validation.** **Ctrl → Defense → Anti-Air Tower / Tower002** in Level001/DEBUG. Default100 Credits (free in DEBUG),1×1/1000HP, Air-only targeting and airborne rounds that ignore ground obstacles/bodies. It uses Battle Tower-derived local AA art, a fixed base/rotating gun and current Level1 combat values. Common tower behavior/config now lives in `FORTRESS/BUILDINGS/SHARED/Combat/`, with stable Tower001 compatibility scripts and unchanged ground defaults. [Tower002 settings and owner checks](FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/README.md). F2 enemy003 provides targets. AIR3 and advanced tower systems remain planned; no FPS result claimed.
+
+## FW0 fog of war
+
+**Source Implemented / Awaiting Owner Validation.** Shared levels and DEBUG now start with CPU vision, optional player exploration, black unknown terrain and dim remembered terrain. Hidden enemy/combat visuals are masked while simulation continues. F2 → **Fog of War Enabled** reveals the full simulation for testing without resetting exploration. Master settings: `WORLD/FOG/FogMasterConfig.tres`; per-level Fog/FogEnabled overrides. [Architecture, limits and owner checks](WORLD/FOG/README.md). No minimap or fog-based AI culling.

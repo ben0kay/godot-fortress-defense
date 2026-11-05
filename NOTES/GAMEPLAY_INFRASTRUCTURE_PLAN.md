@@ -1,6 +1,6 @@
 # Fortress Defense — Gameplay Infrastructure Plan (BM0–BM1, PL0, CAM0, FW0)
 
-**Status:** BM0, BM1, revised PL0 and CAM0 **Source Implemented / Awaiting Owner Validation**. FW0 remains **Planned**. No later-pass implementation authorized by this note alone.
+**Status:** BM0, BM1, revised PL0 and CAM0 **Source Implemented / Awaiting Owner Validation**. FW0 is also **Source Implemented / Awaiting Owner Validation**. No later-pass implementation authorized by this note alone.
 **Repository / branch:** `ben0kay/godot-fortress-defense` / `main`  
 **Sequence:** BM0 (catalogue/resources) → BM1 (category-based build menu) → PL0 (player) → CAM0 (camera) → FW0 (fog of war). Each pass requires explicit approval.  
 **First:** read `AGENTS.md`, `NOTES/CodePreferences.md`, root `README.md`, this plan, owning READMEs, and current source/scenes. Preserve `LEVELS/Level001` combat-stress baseline and debug tools.
@@ -70,18 +70,18 @@ Do **not** implement power, ammo, heat, upgrades, research, production, logistic
 - **C** toggles follow for a living injected player. With none it safely stays free; death/removal returns to free automatically. Inspector configures zoom, follow smoothing/offset, pan sensitivity/button and world bounds.
 - C is reserved for camera toggling in every level. Enemy clearing/cancelling/pausing stays in the existing **F2 Clear** control; the old C clear shortcut is removed.
 - Ctrl/GUI input does not leak into camera/player movement or building placement. F1/F2 and W/T quick building controls remain intact. Arrow keys belong to the player, not the free camera.
-- Only follow runs continuously; free motion/zoom/resize is input/event-driven. No camera-driven world reveal; fog remains FW0, unimplemented.
+- Only follow runs continuously; free motion/zoom/resize is input/event-driven. No camera-driven world reveal; fog is owned independently by FW0.
 
-## FW0 — three-state fog of war (later)
+## FW0 — three-state fog of war
 
-**Ownership:** `WORLD/FogOfWar/` authoritative visibility/exploration state and sight-source updates; root `UI/DebugPanels/` debug toggle; renderer can be under WORLD while UI consumes state.
+**Source Implemented / Awaiting Owner Validation.** Owner: `WORLD/FOG/`; configuration and detailed limits/checks: [Fog README](../WORLD/FOG/README.md).
 
-- **Never explored:** opaque black; **explored but not currently visible:** dim; **currently visible:** full color. Per-world cell visibility should persist during a level, not globally between levels unless saves are later implemented.
-- Sight comes from **player, Citadel and eventually towers/scouts/buildings**, not from camera position. Expose source-specific reveal radii; decide LOS/terrain occlusion rules explicitly in FW0 before implementing complex masks. Use the existing grid/terrain as source of truth.
-- Separate simulated AI/combat from rendering visibility: fog must **not disable offscreen enemy simulation/attacks/paths**. Avoid accidentally leaking invisible enemies in the explored-but-not-visible area; remembered terrain/buildings and current actor visibility require explicit semantics.
-- Add a clear **Fog Enabled** checkbox/toggle to **F2 debug menu**, bypassing fog presentation for testing but leaving gameplay fog/exploration state intact. Existing F2 spawn controls remain; F1 generation controls remain. Show disabled state visually so FPS comparisons aren't misleading.
-- Cache/stagger expensive vision recomputation, favor visibility masks/shared cell state over an LOS check for every entity each tick. Handle regeneration, scene reset and source deletion without stale reveal.
-- Acceptance: move player to reveal, leave area dimmed, unopened areas black; free camera does not reveal; F2 hide/show works; enemies still fight under fog; removing a sight source updates visibility; no unwanted scanning per frame.
+- Existing grid-backed compact states retain exploration per level. Explicit CPU/optional-player circles use overlap counts, bounded phased source updates and dirty batches. Static sources do not poll; walls/terrain do not occlude sight.
+- One retained low-resolution mask drives a soft world overlay and shared dynamic visual clipping. Enemy movement, targeting, shots, flight and path/spawn budgets are unchanged. No AI culling or minimap implemented.
+- Friendly bases stay known/dim; unseen live HP, selection and gun feedback are hidden. This is remembered live base artwork, not a snapshot system. Dynamic enemy/projectile/effect visuals use the documented center-cell plus fragment rule.
+- LevelConfig references a master config and can start presentation disabled. F2's **Fog of War Enabled** bypasses presentation only; state keeps tracking and re-enabling restores it. Existing controls remain.
+- Source death/detach/removal cleans up contributions; scene regeneration resets exploration. Read-only states/queries/change notifications support a future minimap.
+- Pending owner checks: player on/off; moving/overlapping/source-loss vision; unexplored black and explored dim; camera independence; all enemy types remain active while hidden; no live visual leaks; F2 bypass/state preservation; regeneration; FPS on/off comparison. No runtime or performance acceptance claimed.
 
 ## Multi-level compatibility and later systems
 
