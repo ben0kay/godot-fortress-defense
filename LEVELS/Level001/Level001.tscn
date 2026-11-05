@@ -1,5 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://btrncc3f7jx7r"]
+
 [ext_resource type="PackedScene" path="res://LEVELS/SHARED/LevelBase.tscn" id="1"]
 [ext_resource type="Resource" path="res://LEVELS/Level001/Level001Config.tres" id="2"]
-[node name="Level001" instance=ExtResource("1")]
+
+[node name="Level001" unique_id=614095825 instance=ExtResource("1")]
 Config = ExtResource("2")

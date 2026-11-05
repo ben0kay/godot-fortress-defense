@@ -1,58 +1,37 @@
-[gd_resource type="Resource" script_class="LevelConfig" load_steps=11 format=3]
-[ext_resource type="Script" path="res://LEVELS/SHARED/LevelConfig.cs" id="1"]
-[ext_resource type="Script" path="res://WORLD/Grid/WorldGridConfig.cs" id="2"]
-[ext_resource type="Script" path="res://WORLD/Generation/WorldGenerationConfig.cs" id="3"]
-[ext_resource type="Script" path="res://ENEMIES/DATA/EnemyDefinition.cs" id="4"]
+[gd_resource type="Resource" script_class="LevelConfig" format=3 uid="uid://b14l1n07nq8a0"]
+
+[ext_resource type="Script" uid="uid://bhjncjyikhi86" path="res://LEVELS/SHARED/LevelConfig.cs" id="1"]
+[ext_resource type="Script" uid="uid://bk6d1o2sgsabh" path="res://WORLD/Grid/WorldGridConfig.cs" id="2"]
+[ext_resource type="Script" uid="uid://brpedmcwa28vk" path="res://WORLD/Generation/WorldGenerationConfig.cs" id="3"]
+[ext_resource type="Script" uid="uid://bgyp16i8rq2s3" path="res://ENEMIES/DATA/EnemyDefinition.cs" id="4"]
 [ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres" id="Catalogue"]
 [ext_resource type="PackedScene" path="res://PLAYER/Player.tscn" id="Player"]
-[ext_resource type="Resource" path="res://WORLD/FOG/FogMasterConfig.tres" id="Fog"]
+
+[sub_resource type="Resource" id="Enemy"]
+script = ExtResource("4")
+Radius = 10.0
+MovementSpeed = 110.0
+AttackRange = 40.0
+AttackCooldown = 1.2
+
+[sub_resource type="Resource" id="Generation"]
+script = ExtResource("3")
+TargetCoverage = 0.22
+Irregularity = 0.65
+Branching = 0.35
+
 [sub_resource type="Resource" id="Grid"]
 script = ExtResource("2")
 MapWidthCells = 63
 MapHeightCells = 63
 CellSize = 64.0
-AllowDiagonalMovement = true
-GroundClearanceCells = 0
-[sub_resource type="Resource" id="Generation"]
-script = ExtResource("3")
-Seed = 112358
-RandomizeSeedOnRegeneration = true
-TargetCoverage = 0.22
-ClusterCount = 12
-MinClusterSize = 24
-MaxClusterSize = 160
-Irregularity = 0.65
-MaxElongation = 4.0
-Branching = 0.35
-SmoothingPasses = 1
-MinimumFragmentSize = 12
-CpuClearingRadiusCells = 8
-EdgeSpawnClearanceCells = 2
-MaxGenerationAttempts = 6
-MinReachableEdgeCellsPerSide = 4
-[sub_resource type="Resource" id="Enemy"]
-script = ExtResource("4")
-EnemyId = "enemy001"
-MaxHealth = 30.0
-Radius = 10.0
-MovementSpeed = 110.0
-TurnSpeed = 12.0
-AttackDamage = 8.0
-AttackRange = 40.0
-AttackCooldown = 1.2
+
 [resource]
 script = ExtResource("1")
-LevelName = "Level001"
 Grid = SubResource("Grid")
 Generation = SubResource("Generation")
 EnemyStats = SubResource("Enemy")
 Catalogue = ExtResource("Catalogue")
-StartingCredits = 1000
+StartingCredits = 10000
 AllowedBuildingIds = PackedStringArray("wall001", "tower001", "tower002")
-FreeDebugPlacement = false
-Fog = ExtResource("Fog")
-FogEnabled = true
-SpawnPlayer = false
 PlayerScene = ExtResource("Player")
-PlayerRequiredForDefeat = false
-CitadelRequiredForDefeat = true

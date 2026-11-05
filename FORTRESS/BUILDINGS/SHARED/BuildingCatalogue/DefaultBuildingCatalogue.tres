@@ -1,24 +1,29 @@
-[gd_resource type="Resource" script_class="BuildingCatalogue" load_steps=12 format=3]
-[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/BuildingCatalogue.cs" id="1"]
-[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/BuildingCatalogueEntry.cs" id="2"]
-[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001Definition.tres" id="WallDef"]
-[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001.tscn" id="Wall"]
-[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001Definition.tres" id="TowerDef"]
-[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001.tscn" id="Tower"]
-[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Tower002Definition.tres" id="AADef"]
+[gd_resource type="Resource" script_class="BuildingCatalogue" format=3 uid="uid://d0pavxwbn5md7"]
+
+[ext_resource type="Script" uid="uid://c78b416j5h2nv" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/BuildingCatalogue.cs" id="1"]
+[ext_resource type="Script" uid="uid://l5pkydt4fp2d" path="res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/BuildingCatalogueEntry.cs" id="2"]
 [ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Tower002.tscn" id="AA"]
+[ext_resource type="Resource" uid="uid://bkxc5pmbc06uk" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Tower002Definition.tres" id="AADef"]
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001.tscn" id="Tower"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001Definition.tres" id="TowerDef"]
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001.tscn" id="Wall"]
+[ext_resource type="Resource" uid="uid://b3qlvuqp3fioe" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001Definition.tres" id="WallDef"]
+
 [sub_resource type="Resource" id="WallEntry"]
 script = ExtResource("2")
 Definition = ExtResource("WallDef")
 Scene = ExtResource("Wall")
+
 [sub_resource type="Resource" id="TowerEntry"]
 script = ExtResource("2")
 Definition = ExtResource("TowerDef")
 Scene = ExtResource("Tower")
+
 [sub_resource type="Resource" id="AAEntry"]
 script = ExtResource("2")
 Definition = ExtResource("AADef")
 Scene = ExtResource("AA")
+
 [resource]
 script = ExtResource("1")
 Entries = Array[ExtResource("2")]([SubResource("WallEntry"), SubResource("TowerEntry"), SubResource("AAEntry")])

@@ -1,18 +1,20 @@
-[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=5 format=3]
-[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
-[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="CostScript"]
-[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Artwork/aa_base.svg" id="Icon"]
+[gd_resource type="Resource" script_class="BuildingDefinition" format=3 uid="uid://bkxc5pmbc06uk"]
+
+[ext_resource type="Script" uid="uid://bkepiuhusslsy" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
+[ext_resource type="Script" uid="uid://dlcxtjo53q3a" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="CostScript"]
+[ext_resource type="Texture2D" uid="uid://2ei6ln6eki7n" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Artwork/aa_base.svg" id="Icon"]
+
 [sub_resource type="Resource" id="Price"]
 script = ExtResource("CostScript")
 Quantity = 100
+
 [resource]
 script = ExtResource("1")
 BuildingId = "tower002"
 DisplayName = "Anti-Air Tower / Tower002"
 Category = 1
-Footprint = Vector2i(1, 1)
-MaxHealth = 1000.0
-Purchasable = true
 Description = "Air-only turret. Shoots flyers over terrain and buildings; ignores ground enemies."
-Cost = Array[ExtResource("CostScript")]([SubResource("Price")])
 Icon = ExtResource("Icon")
+Purchasable = true
+Cost = Array[ExtResource("CostScript")]([SubResource("Price")])
+MaxHealth = 1000.0

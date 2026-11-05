@@ -1,18 +1,11 @@
-[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=5 format=3]
-[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
-[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="CostScript"]
-[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Artwork/wall_icon.svg" id="Icon"]
-[sub_resource type="Resource" id="Price"]
-script = ExtResource("CostScript")
-Quantity = 10
+[gd_resource type="Resource" script_class="BuildingDefinition" format=3 uid="uid://b3qlvuqp3fioe"]
+
+[ext_resource type="Script" uid="uid://bkepiuhusslsy" path="res://FORTRESS/BUILDINGS/SHARED/BuildingDefinition.cs" id="1"]
+[ext_resource type="Script" uid="uid://dlcxtjo53q3a" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="CostScript"]
+
 [resource]
 script = ExtResource("1")
 BuildingId = "wall001"
 DisplayName = "Wall001"
 Category = 1
-Footprint = Vector2i(1, 1)
 MaxHealth = 120.0
-Purchasable = true
-Description = "Solid defense; redirects ground enemies."
-Cost = Array[ExtResource("CostScript")]([SubResource("Price")])
-Icon = ExtResource("Icon")
