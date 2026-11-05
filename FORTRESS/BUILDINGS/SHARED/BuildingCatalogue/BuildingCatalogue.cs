@@ -18,8 +18,11 @@ public partial class BuildingCatalogue : Resource
         {
             if (entry?.Definition == null || entry.Scene == null) throw new InvalidOperationException("Incomplete catalogue entry.");
             entry.Definition.Validate();
-            if (!entry.Definition.Purchasable || !lookup.TryAdd(entry.Definition.BuildingId, entry))
-                throw new InvalidOperationException("Catalogue contains a non-purchasable or duplicate building.");
+            string id = entry.Definition.BuildingId;
+            if (!entry.Definition.Purchasable)
+                throw new InvalidOperationException($"Catalogue building '{id}' is not purchasable. Enable Purchasable on '{entry.Definition.ResourcePath}' or remove its catalogue entry.");
+            if (!lookup.TryAdd(id, entry))
+                throw new InvalidOperationException($"Catalogue contains duplicate BuildingId '{id}' ({entry.Definition.ResourcePath}).");
             Node prototype = entry.Scene.Instantiate();
             try
             {
