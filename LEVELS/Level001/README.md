@@ -1,0 +1,50 @@
+# Level001 — WG0 procedural battlefield
+
+**Status: Source Implemented / Awaiting Owner Validation.** Open `LEVELS/Level001/Level001.tscn` in Godot .NET, build C#, and run **F6**. F5 still runs the independent DEBUG sandbox.
+
+## Initial world
+
+`Level001.tscn` inherits `../SHARED/LevelBase.tscn` and supplies `Level001Config.tres`. Defaults: **63×63 cells ×64 pixels = 4032×4032 pixels**, target **22% dead terrain**, 12 connected cluster seeds, center CPU and an approximately 8-cell-radius ground clearing. Dead terrain is solid black, unbuildable and impassable. Ground is muted blue-gray. No per-cell scenes or processing scripts: one renderer and one static body with merged rectangular shapes cover the authoritative solid cells exactly.
+
+The existing inherited Citadel and Wall001 keep shared health/placement/destruction. Enemy001 uses the existing runtime, queue and edge spawner, with level-local stats: 10px radius, 110px/s and **40px contact range** (the debug world's 24px range cannot reach a target from a 64px cell). Other defaults remain 30 HP, 8 damage / 1.2s, 0.8s spawn interval and 20 active maximum. No new enemy system or pressure modes.
+
+`PlayerSpawn` is a **Marker2D only** beside the CPU. Its ground cell is reserved against building/terrain placement but stays traversable. It has no player sprite/controller; inspect its position in the Remote scene tree or F1 details.
+
+## Inspector settings
+
+Select root **Config → Level001Config.tres**:
+
+| Resource | Settings |
+| --- | --- |
+| Grid | Width/height in cells, cell size, diagonals, whole-cell clearance |
+| Generation / Reproducibility | Original seed (112358), randomized vs sequential next seed, max random attempts (6) |
+| Generation / Terrain Clusters | Coverage (0.22), count (12), size bounds (24–160), irregularity (0.65), elongation (up to 4), branching (0.35), smoothing (1), minimum fragment (12) |
+| Generation / Playable Areas | CPU clearing radius (8 cells), protected edge band (2 cells), minimum reachable edge cells per side (4) |
+| EnemyStats | Existing Enemy001 HP/radius/speed/turn/contact stats, scoped to this level |
+
+The spawner and path-budget nodes remain Inspector-editable on the inherited scene. Terrain colors/classification are under `WORLD/Terrain/TerrainDefinitions/`. Grid dimensions in cells and cell size are authoritative; pixel extent is their product. Rectangular worlds are supported. Restart after authoring changes. Invalid/impossible clearing, edge or numeric inputs fail clearly instead of rerolling forever.
+
+## Controls and regeneration
+
+- **F1:** world details and **Regenerate World / Regenerate Same Seed** buttons. Seed, actual accepted coverage, attempts/accepted/rejected counts, derived seed, repair use, collision rectangle count and player cell are shown.
+- **Regenerate World:** reload with a different random seed; if RandomizeSeedOnRegeneration is off, use current seed +1. Initial launch always uses the authored seed.
+- **Regenerate Same Seed** or **R:** reload the original accepted layout for the current seed/settings, resetting all enemies, walls, CPU health, reservations, collision and path work.
+- **Wheel / middle-drag:** zoom / pan to inspect the finite world. Starts framed to show the whole map; zoom in to inspect individual units.
+- **Left-click/drag:** place walls; click existing structure to select. **Right-click/Delete:** remove wall. CPU is protected from accidental removal.
+- **P/C:** toggle spawning / clear enemies and pause spawning. **B:** optional cell/route overlay; S/G set its demonstration endpoints. H/K remain developer damage/kill controls.
+
+Regeneration passes a single scene-scoped seed through a clean reload. It does **not** edit/save the authored `.tres`, keep old actors alive, regenerate per frame or reuse obsolete paths. Same seed **and same generation settings/code version** reproduce the initial terrain; placements and elapsed combat are reset, not restored. Accepted count is 1; rejected counts are per regeneration. Up to 6 random candidates plus one repaired candidate are validated, so the maximum displayed attempt count is 7.
+
+## Generation/validation contracts
+
+Growth uses directional connected frontiers, randomized elongation and smooth lattice noise, followed by boundary cleanup and minimum-fragment filtering. Several clusters can merge; count/size settings control growth seeds/budgets, not a guarantee of exactly 12 separate components. Coverage is approximate after cleanup, protected space and optional repair.
+
+CPU footprint/approaches and player cell are checked before any terrain is accepted. A startup flood treats the CPU footprint as blocked and uses the same clearance policy as shared navigation, proving routes from appropriate edge regions on all four sides. If bounded candidates fail, one repair carves clearance-wide cardinal connections, cleans fragments and revalidates; repair is reported and can reduce coverage/introduce straighter openings. Impossible settings still fail instead of silently loading an invalid world.
+
+The existing spawner filters edge candidates through initial CPU connectivity and current walkability/occupancy. Player-built walls can subsequently seal the CPU; existing queued repath and accessible-wall breach behavior remains active. Failed route decisions sleep until topology changes, as in ST1.
+
+## Brief owner checks / limitations
+
+Build and run F6; inspect 4032px extent, black formations, central clearing, marker reservation and enemies reaching/damaging the CPU. Try wall placement on dead terrain (rejected), beside the CPU (allowed), and on the reserved player cell (rejected). Enclose CPU and inspect wall breach/recovery. F1 → same seed should restore identical initial terrain; new world should change shapes and reset counts/HP/obstacles without ghosts. Check rectangular dimensions and visible physics shapes against the black regions. Run DEBUG/test.tscn separately to confirm the fixed sandbox remains usable.
+
+Only source/diff and scene/resource checks were possible here: Godot and dotnet are unavailable. No build, editor acceptance or FPS claim. Terrain is generated synchronously once at startup; there is no streaming. Appearance is intentionally grid-based black geometry. Existing ST1 limitations remain (overlapping enemies, pauses during queued replacements, heuristic breach selection). This is a level foundation, not a completed campaign: no player, victory/progression, towers, four pressure modes, water/lava, deposits, biomes, fog or construction animation.

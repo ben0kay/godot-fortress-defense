@@ -46,3 +46,7 @@ The small status UI is under root `UI/DebugPanels/`. It refreshes HP/counts at 4
 5. Try H on selected wall and K on an enemy; inspect brief rings and count/selection cleanup. C/P/R should not leave enemy callbacks, reservations or pending work behind.
 
 Source/diff and scene/resource reference review only in this environment: Godot/dotnet unavailable. No build, editor acceptance or FPS result claimed. BF1/ST1 is source implemented; ST2 priorities/metrics/10–200 presets and ST3 tower/projectiles remain planned. The earlier `Foundation/TestBuilding.tscn` BF0 fixture remains available as an inherited-scene reference, but is no longer the default placed object.
+
+## WG0 shared services
+
+The sandbox remains the fixed 40×26 stress encounter and the F5 launch target. Proper procedural content is separate in `LEVELS/Level001/Level001.tscn` (run F6). WG0 extracts the existing setup/input into `LEVELS/SHARED/LevelController.cs`; `FoundationSandbox` only supplies its fixed obstacles. GridDebugView preserves its script/UID as a compatibility subclass of the shared terrain renderer. The existing GridDebugView node path is preserved. Terrain collision is merged into rectangular shapes; DEBUG terrain editing still works, and wall edits keep their incremental navigation updates. No campaign config or new pressure modes are imposed on this sandbox.

@@ -197,6 +197,12 @@ A reproducible **stress scenario** should include at least 200 active enemies wi
 
 **Minimal testing policy still applies:** Codex should implement the instrumentation and simple *manual* stress controls, but the owner runs prolonged FPS benchmarks and editor acceptance checks unless specifically requested otherwise.
 
+## WG0 — Level001 procedural world foundation
+
+**Status: Source Implemented / Awaiting Owner Validation.** WG0 is separately authorized ahead of full ST4 fog/benchmark work. `LEVELS/Level001/Level001.tscn` inherits shared LevelBase; LevelController now composes existing services for both production and DEBUG. Defaults: 63×63 cells at64px (4032px square), approximate22% black dead clusters,12 growth seeds,8-cell CPU clearing, protected edge band and traversable reserved player marker. Startup validates CPU footprint/approaches and edge reachability; at most6 random candidates plus1 deterministic repair are validated. F1 exposes seed/coverage/attempt counts and new/same-seed full-scene regeneration. Terrain collision/rendering uses merged exact solid rectangles, not per-cell scenes. Level-local Enemy001 range40px supports64px cells; existing spawning/path/breach code is reused.
+
+See `../LEVELS/Level001/README.md`, `../WORLD/Generation/README.md` and `../WORLD/Terrain/README.md`. Source/diff and scene-reference review only; no Godot/dotnet available for a build/runtime check or FPS claim. No player controller, deposits, water/lava, biomes, fog, streaming, campaign progression, four pressure modes or towers were implemented. DEBUG remains the F5 stress sandbox; Level001 runs with F6. This does not mark full FD2/ST4 or a campaign accepted.
+
 ## Current focused-track implementation
 
 BF1/ST1 has a real CPU-defense sandbox, inherited Citadel and Wall001, one arrow ground seeker, contact damage, accessible-boundary breach fallback and a minimal cooperative path queue. Root `DEBUG/README.md` lists exact defaults, controls, config paths and owner checks. ST2 advanced priorities, instrumentation and stress presets and ST3 tower/projectiles remain planned. No build/runtime/FPS claim: Godot/dotnet unavailable; source/diff review only. The broader FD phases below are not marked accepted by implementing this focused slice.

@@ -1,8 +1,8 @@
-# WORLD — BF0/ST0 + ST1 navigation
+# WORLD — grid, navigation and WG0 generation
 
 **Status: Source Implemented / Awaiting Owner Validation.**
 
-`Grid/WorldGrid.cs` is the single authority for finite terrain and cell-to-building occupancy. `Navigation/GroundNavigation.cs` derives one shared ground A* view. DEBUG provides the demonstration, not gameplay ownership. ST1 adds `GroundReachability.cs` and swept segment checks consumed by the bounded enemy request queue. No procedural generation, deposits or fog yet.
+`Grid/WorldGrid.cs` is the single authority for finite terrain and cell-to-building occupancy. `Navigation/GroundNavigation.cs` derives one shared ground A* view. DEBUG provides the demonstration, not gameplay ownership. ST1 adds `GroundReachability.cs` and swept segment checks consumed by the bounded enemy request queue. WG0 adds reusable seeded cluster generation/validation and terrain rendering under `Generation/` and `Terrain/`, used by `LEVELS/Level001`. Deposits and fog remain planned.
 
 ## Configuration and coordinates
 
@@ -14,7 +14,7 @@ Anchor = top-left occupied cell; building origin = footprint rectangle center. R
 
 Terrain and building references are separate arrays. Out-of-map is blocked. Placement checks every cell before claiming any; removal releases the stored rectangle, even if authored definition data was subsequently changed. A footprint mutation increments `Revision` once and publishes one `TopologyChanged(Rect2I)` after the complete edit. Terrain rectangles also publish one event only if something changed. Rejected edits publish nothing.
 
-Terrain has layer-1 static cell collision; placed buildings have one layer-1 static rectangle matching their exact footprint. Collision changes requested at removal are deferred safely; navigation changes immediately. The placement service additionally rejects live enemy body/clearance-cell overlap through EnemyRegistry. DEBUG applies the same check to solid terrain additions. Deposits and costs remain future restrictions.
+Terrain has layer-1 collision merged from contiguous solid row runs on one static body; placed buildings have one layer-1 static rectangle matching their exact footprint. Collision changes requested at removal are deferred safely; navigation changes immediately. The placement service additionally rejects live enemy body/clearance-cell overlap through EnemyRegistry. DEBUG applies the same check to solid terrain additions. WG0 additionally reserves the traversable player-marker cell against building/solid-terrain placement. Deposits and costs remain future restrictions.
 
 ## Ground navigation
 
@@ -25,6 +25,10 @@ Clearance is deliberately conservative: `GroundClearanceCells=N` requires the sq
 `FindPath` returns world-space cell centers or an empty array for blocked/out-of-bounds/unreachable endpoints; it never returns a partial route. `GetApproachCells` returns walkable cardinal perimeter candidates outside a solid footprint with clearance separation, **not a guarantee of reachability**. Callers choose/search reachable candidates under future budgets. Do not query the blocked center of a building.
 
 ST1 `GroundReachability` provides one reusable stamped-array flood workspace, visited cooperatively under `ENEMIES/MOVEMENT/EnemyPathRequests` budgets. It proves reachable CPU contact cells or finds accessible breach-building boundaries before one shared A* query. No per-enemy grids or full-scene target searches. Remaining-route bounds selectively queue edits; affected units pause and every movement step checks current solids. Advanced priorities, safe-prefix handoffs and instrumentation remain ST2. See `../ENEMIES/MOVEMENT/README.md`. Additional flying/phasing views should derive from these same occupancy arrays when authorized.
+
+## WG0 proper level
+
+`LEVELS/Level001/Level001.tscn` uses its own 63×63 ×64px config, approximate 22% black dead terrain, an 8-cell CPU clearing and reserved player marker. See [generation](Generation/README.md), [terrain/collision](Terrain/README.md) and [Level001 controls/settings](../LEVELS/Level001/README.md). Bulk terrain is accepted once before A* initialization; shared `LevelController` composes existing services in both proper levels and DEBUG. Neither the debug grid config nor the default project launch path is replaced.
 
 ## References reviewed
 

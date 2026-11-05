@@ -14,9 +14,12 @@ public partial class WorldGrid : Node2D
     public Rect2I Bounds => new(Vector2I.Zero, Dimensions);
     public event Action<Rect2I> TopologyChanged;
     private bool[] _terrain;
+    private bool[] _reservedGround;
+    public System.Collections.Generic.IReadOnlyList<Rect2I> TerrainRectangles { get; private set; } = System.Array.Empty<Rect2I>();
+    public int TerrainCollisionShapeCount => TerrainRectangles.Count;
     private Building[] _occupants;
     private StaticBody2D _terrainBody;
-    private readonly Dictionary<Vector2I, CollisionShape2D> _terrainShapes = new();
+    private readonly List<CollisionShape2D> _terrainShapes = new();
 
     // Initialize once; runtime config edits require a new world, never silently erase occupants.
     public override void _Ready()
@@ -24,7 +27,8 @@ public partial class WorldGrid : Node2D
         Config ??= new WorldGridConfig(); Config.Validate();
         Dimensions = new(Config.MapWidthCells, Config.MapHeightCells); CellSize = Config.CellSize;
         AllowDiagonals = Config.AllowDiagonalMovement; ClearanceCells = Config.GroundClearanceCells;
-        _terrain = new bool[Dimensions.X * Dimensions.Y]; _occupants = new Building[_terrain.Length];
+        _terrain = new bool[Dimensions.X * Dimensions.Y]; _reservedGround = new bool[_terrain.Length];
+        _occupants = new Building[_terrain.Length];
         _terrainBody = new StaticBody2D { Name = "TerrainCollision", CollisionLayer = 1, CollisionMask = 0 };
         AddChild(_terrainBody);
     }
@@ -32,6 +36,8 @@ public partial class WorldGrid : Node2D
     #region Queries
     public bool Contains(Vector2I cell) => Bounds.HasPoint(cell);
     private int Index(Vector2I cell) => cell.Y * Dimensions.X + cell.X;
+    public TerrainType TerrainAt(Vector2I cell) => IsTerrain(cell) ? TerrainType.DeadCell : TerrainType.Ground;
+    public bool IsBuildable(Vector2I cell) => !IsBlocked(cell) && !_reservedGround[Index(cell)];
     public bool IsTerrain(Vector2I cell) => !Contains(cell) || _terrain[Index(cell)];
     public Building BuildingAt(Vector2I cell) => Contains(cell) ? _occupants[Index(cell)] : null;
     public bool IsBlocked(Vector2I cell) => IsTerrain(cell) || BuildingAt(cell) != null;
@@ -50,7 +56,7 @@ public partial class WorldGrid : Node2D
         if (!Fits(area)) return false;
         for (int y = area.Position.Y; y < area.End.Y; y++)
             for (int x = area.Position.X; x < area.End.X; x++)
-                if (IsBlocked(new(x, y))) return false;
+                if (!IsBuildable(new(x, y))) return false;
         return true;
     }
 
@@ -122,31 +128,61 @@ public partial class WorldGrid : Node2D
         if (changed) Publish(area);
     }
 
-    // Natural terrain remains distinct from buildings for future traversal policies.
+    // Reserving a player marker prevents construction but never blocks movement/navigation.
+    public bool TryReserveGround(Rect2I area)
+    {
+        if (!CanOccupy(area)) return false;
+        for (int y = area.Position.Y; y < area.End.Y; y++)
+            for (int x = area.Position.X; x < area.End.X; x++) _reservedGround[Index(new(x, y))] = true;
+        return true;
+    }
+
+    // Startup bulk commit: one owned terrain copy, collision rebuild and topology notification.
+    public bool TryApplyTerrain(bool[] solid)
+    {
+        if (solid == null || solid.Length != _terrain.Length) return false;
+        for (int i = 0; i < solid.Length; i++)
+            if (_occupants[i] != null || _reservedGround[i]) return false;
+        _terrain = (bool[])solid.Clone(); RebuildTerrainCollision(); Publish(Bounds); return true;
+    }
+
+    // Small debug edits still use the same logical cells; buildings never trigger terrain mesh rebuilds.
     public bool TrySetTerrain(Rect2I area, bool solid)
     {
         if (!Fits(area)) return false;
         for (int y = area.Position.Y; y < area.End.Y; y++)
             for (int x = area.Position.X; x < area.End.X; x++)
-                if (BuildingAt(new(x, y)) != null) return false;
+            {
+                int index = Index(new(x, y));
+                if (_occupants[index] != null || (solid && _reservedGround[index])) return false;
+            }
         bool changed = false;
         for (int y = area.Position.Y; y < area.End.Y; y++)
             for (int x = area.Position.X; x < area.End.X; x++)
             {
-                Vector2I cell = new(x, y); int index = Index(cell);
+                int index = Index(new(x, y));
                 if (_terrain[index] == solid) continue;
                 _terrain[index] = solid; changed = true;
-                if (solid)
-                {
-                    var shape = new CollisionShape2D { Shape = new RectangleShape2D { Size = Vector2.One * CellSize },
-                        Position = ((Vector2)cell + Vector2.One * .5f) * CellSize };
-                    _terrainShapes.Add(cell, shape); _terrainBody.AddChild(shape);
-                }
-                else if (_terrainShapes.Remove(cell, out var removedShape))
-                { removedShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true); removedShape.QueueFree(); }
             }
-        if (changed) Publish(area);
+        if (changed) { RebuildTerrainCollision(); Publish(area); }
         return true;
+    }
+
+    // One passive shape per merged rectangle, never one scene/script/body per cell.
+    private void RebuildTerrainCollision()
+    {
+        foreach (CollisionShape2D shape in _terrainShapes)
+        { shape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true); shape.QueueFree(); }
+        _terrainShapes.Clear(); TerrainRectangles = global::TerrainRectangles.Build(_terrain, Dimensions);
+        foreach (Rect2I rect in TerrainRectangles)
+        {
+            var shape = new CollisionShape2D
+            {
+                Position = ((Vector2)rect.Position + (Vector2)rect.Size * .5f) * CellSize,
+                Shape = new RectangleShape2D { Size = (Vector2)rect.Size * CellSize }
+            };
+            _terrainShapes.Add(shape); _terrainBody.AddChild(shape);
+        }
     }
 
     // Subscribers update derived navigation before later consumers redraw/query it.

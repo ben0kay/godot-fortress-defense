@@ -1,0 +1,30 @@
+[gd_scene format=3]
+[node name="FoundationPanel" type="CanvasLayer"]
+[node name="Controls" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 8.0
+mouse_filter = 2
+text = "LEVEL001 — PROCEDURAL FORTRESS DEFENSE\nLMB / drag: wall | RMB / Delete: remove wall | Wheel: zoom | MMB drag: pan | P: spawning | C: clear enemies | R: restart same seed"
+[node name="Status" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 58.0
+mouse_filter = 2
+text = "Generating world…"
+[node name="WorldDebug" type="VBoxContainer" parent="."]
+visible = false
+offset_left = 16.0
+offset_top = 125.0
+offset_right = 1000.0
+mouse_filter = 2
+[node name="Details" type="Label" parent="WorldDebug"]
+layout_mode = 2
+mouse_filter = 2
+[node name="Actions" type="HBoxContainer" parent="WorldDebug"]
+layout_mode = 2
+mouse_filter = 2
+[node name="NewWorld" type="Button" parent="WorldDebug/Actions"]
+layout_mode = 2
+text = "Regenerate World"
+[node name="SameSeed" type="Button" parent="WorldDebug/Actions"]
+layout_mode = 2
+text = "Regenerate Same Seed"

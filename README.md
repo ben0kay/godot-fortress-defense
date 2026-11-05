@@ -4,7 +4,7 @@ A top-down, sci-fi **fortress-defense, action, and base-management** game built 
 
 The goal is to recreate and then expand the gameplay of my earlier **VECTOR TD 2026** GameMaker project, while using the cleaner, modular, documented architecture established in **godot-tower-defense**.
 
-> **Project status:** BF0/ST0 and BF1/ST1 are **Source Implemented / Awaiting Owner Validation**: shared inherited buildings, centered Citadel, placeable Wall001, gradual Enemy001 edge spawning, safe continuous movement, contact damage and reachable wall-breach fallback in `DEBUG/test.tscn`. See [controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). ST2 advanced priorities/profiling/stress presets, ST3 tower shooting, player combat, procedural generation, power and logistics remain planned.
+> **Project status:** BF0/ST0 and BF1/ST1 are **Source Implemented / Awaiting Owner Validation**: shared inherited buildings, centered Citadel, placeable Wall001, gradual Enemy001 edge spawning, safe continuous movement, contact damage and reachable wall-breach fallback in `DEBUG/test.tscn`. See [controls and manual checks](DEBUG/README.md) and [WORLD contracts](WORLD/README.md). ST2 advanced priorities/profiling/stress presets, ST3 tower shooting, player combat, power and logistics remain planned. **WG0** now adds [Level001 procedural world](LEVELS/Level001/README.md): 4032×4032px, seeded black terrain clusters, central clearing, marker reservation and regeneration. Run that scene with F6; F5 keeps the fixed DEBUG sandbox. All new WG0 work is Source Implemented / Awaiting Owner Validation.
 
 ## Reference repositories
 

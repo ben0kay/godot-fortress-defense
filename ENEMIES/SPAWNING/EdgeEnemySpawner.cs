@@ -4,6 +4,8 @@ using Godot;
 public partial class EdgeEnemySpawner : Node
 {
     [Export] public PackedScene EnemyScene { get; set; }
+    [Export] public EnemyDefinition DefinitionOverride { get; set; }
+    public System.Func<Vector2I, bool> SpawnCellFilter { get; set; }
     private bool _spawningEnabled = true;
     [Export] public bool SpawningEnabled
     { get => _spawningEnabled; set { _spawningEnabled = value; RefreshProcessing(); } }
@@ -34,7 +36,9 @@ public partial class EdgeEnemySpawner : Node
         try
         {
             if (prototype is not Enemy enemy || enemy.Definition == null) throw new System.InvalidOperationException("Spawner requires an Enemy scene/definition.");
-            _definition = enemy.Definition; _definition.Validate(grid.CellSize);
+            _definition = DefinitionOverride ?? enemy.Definition; _definition.Validate(grid.CellSize);
+            if (_definition.AttackRange < (grid.ClearanceCells + .5f) * grid.CellSize)
+                throw new System.InvalidOperationException("Enemy attack range cannot reach a legal approach on this grid.");
         }
         finally { prototype.Free(); }
         _random.Seed = Seed;
@@ -62,10 +66,10 @@ public partial class EdgeEnemySpawner : Node
                 : edge < width * 2 + height ? new(inset + edge - width - height, inset + height - 1)
                 : new(inset, inset + edge - width * 2 - height);
             Vector2 position = _grid.CellCenter(cell);
-            if (!_navigation.IsWalkable(cell) || !_grid.SegmentClear(position, position, _definition.Radius)
+            if ((SpawnCellFilter != null && !SpawnCellFilter(cell)) || !_navigation.IsWalkable(cell) || !_grid.SegmentClear(position, position, _definition.Radius)
                 || position.DistanceSquaredTo(_citadel.GlobalPosition) < Mathf.Pow(Mathf.Max(0, MinCitadelDistance), 2)
                 || !_registry.SpawnSpaceFree(position, _definition.Radius)) continue;
-            Enemy enemy = EnemyScene.Instantiate<Enemy>();
+            Enemy enemy = EnemyScene.Instantiate<Enemy>(); enemy.Definition = _definition;
             enemy.Initialize(_grid, _registry, _requests, _citadel);
             enemy.Position = _container.ToLocal(position); _container.AddChild(enemy);
             return;

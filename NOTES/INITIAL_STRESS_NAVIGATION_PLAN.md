@@ -234,6 +234,9 @@ Minimal ST1 queue is intentional groundwork for ST2, not its priority/profiler/p
 
 ### ST4 — Procedural layout and fog foundation
 **Status: Planned** · Depends ST3
+
+**WG0 ahead-of-track note:** A separate authorized Level001 procedural world foundation is now Source Implemented / Awaiting Owner Validation. It reuses the ST1 services and leaves `DEBUG/test.tscn` fixed. Seeded clusters, CPU/player/edge validation, batched collision and new/same-seed reload controls are in place; **fog and the rest of ST4 remain planned**. See `../LEVELS/Level001/README.md`.
+
 - Seed-driven static terrain/obstacle patches and CPU clearing with valid spawn edges; no infinite map streaming.
 - Introduce separate explored/currently-visible fog state and black/dim/full rendering; cull concealed enemy visuals without altering simulation.
 - Avoid full-map per-frame raycasts or redraws. Give fog a dedicated config and DEBUG counters if useful.
