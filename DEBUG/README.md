@@ -50,3 +50,9 @@ Source/diff and scene/resource reference review only in this environment: Godot/
 ## WG0 shared services
 
 The sandbox remains the fixed 40×26 stress encounter and the F5 launch target. Proper procedural content is separate in `LEVELS/Level001/Level001.tscn` (run F6). WG0 extracts the existing setup/input into `LEVELS/SHARED/LevelController.cs`; `FoundationSandbox` only supplies its fixed obstacles. GridDebugView preserves its script/UID as a compatibility subclass of the shared terrain renderer. The existing GridDebugView node path is preserved. Terrain collision is merged into rectangular shapes; DEBUG terrain editing still works, and wall edits keep their incremental navigation updates. No campaign config or new pressure modes are imposed on this sandbox.
+
+## Reusable FPS / enemy / spawn panel
+
+`UI/DebugPanels/Debug.tscn` is instanced at `RootDebug/Debug` in the fixed sandbox and shared LevelBase, so Level001 inherits it. Top-right FPS/live-enemy/pending counts are always visible; **F2** expands Add10/50/100/200/custom, automatic-spawn toggle and clear controls. Requests are gradual (2/frame by default), share existing spawn validity checks, and cap active+pending at200. Clear or C cancels queued work and pauses automatic spawning. See `../UI/DebugPanels/README.md` for reuse/binding and cap semantics.
+
+Scene organization is now RootWorld, RootFortress, RootEnemies, RootCamera, RootUI and RootDebug. These plain containers do not process. LevelController uses the corresponding grouped paths; gameplay owners remain unchanged. F1 is still Level001's world-generation panel, not this reusable F2 panel. Advanced ST2 priorities/profiling remain planned.

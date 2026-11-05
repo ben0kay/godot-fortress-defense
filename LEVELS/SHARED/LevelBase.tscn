@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelController.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -19,51 +19,67 @@
 [ext_resource type="Resource" path="res://WORLD/Terrain/TerrainDefinitions/Ground.tres" id="15"]
 [ext_resource type="Resource" path="res://WORLD/Terrain/TerrainDefinitions/DeadCell.tres" id="16"]
 
+[ext_resource type="PackedScene" path="res://UI/DebugPanels/Debug.tscn" id="Debug"]
+
 [node name="LevelBase" type="Node2D"]
 script = ExtResource("1")
 CitadelScene = ExtResource("8")
 WallScene = ExtResource("10")
 
-[node name="WorldGrid" type="Node2D" parent="."]
+[node name="RootWorld" type="Node2D" parent="."]
+
+[node name="RootFortress" type="Node2D" parent="."]
+
+[node name="RootEnemies" type="Node2D" parent="."]
+
+[node name="RootCamera" type="Node2D" parent="."]
+
+[node name="RootUI" type="Node" parent="."]
+
+[node name="RootDebug" type="Node" parent="."]
+
+[node name="WorldGrid" type="Node2D" parent="RootWorld"]
 script = ExtResource("2")
 Config = ExtResource("3")
 
-[node name="GroundNavigation" type="Node" parent="."]
+[node name="GroundNavigation" type="Node" parent="RootWorld"]
 script = ExtResource("4")
 
-[node name="BuildingRegistry" type="Node" parent="."]
+[node name="BuildingRegistry" type="Node" parent="RootFortress"]
 script = ExtResource("5")
 
-[node name="BuildingPlacement" type="Node" parent="."]
+[node name="BuildingPlacement" type="Node" parent="RootFortress"]
 script = ExtResource("6")
 
-[node name="Buildings" type="Node2D" parent="."]
+[node name="Buildings" type="Node2D" parent="RootFortress"]
 
-[node name="Enemies" type="Node2D" parent="."]
+[node name="Enemies" type="Node2D" parent="RootEnemies"]
 z_index = 1
 
-[node name="EnemyRegistry" type="Node" parent="."]
+[node name="EnemyRegistry" type="Node" parent="RootEnemies"]
 script = ExtResource("11")
 
-[node name="EnemyPathRequests" type="Node" parent="."]
+[node name="EnemyPathRequests" type="Node" parent="RootEnemies"]
 script = ExtResource("12")
 
-[node name="EdgeEnemySpawner" type="Node" parent="."]
+[node name="EdgeEnemySpawner" type="Node" parent="RootEnemies"]
 script = ExtResource("13")
 EnemyScene = ExtResource("14")
 
-[node name="StatusTimer" type="Timer" parent="."]
+[node name="StatusTimer" type="Timer" parent="RootUI"]
 wait_time = 0.25
 autostart = true
 
-[node name="TerrainRenderer" type="Node2D" parent="."]
+[node name="TerrainRenderer" type="Node2D" parent="RootWorld"]
 z_index = -1
 script = ExtResource("7")
 GroundDefinition = ExtResource("15")
 DeadDefinition = ExtResource("16")
 
-[node name="PlayerSpawn" type="Marker2D" parent="."]
+[node name="PlayerSpawn" type="Marker2D" parent="RootWorld"]
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="RootCamera"]
 
-[node name="FoundationPanel" parent="." instance=ExtResource("9")]
+[node name="FoundationPanel" parent="RootUI" instance=ExtResource("9")]
+
+[node name="Debug" parent="RootDebug" instance=ExtResource("Debug")]

@@ -218,7 +218,10 @@ Minimal ST1 queue is intentional groundwork for ST2, not its priority/profiler/p
 - **Owner acceptance:** blocked-but-open route works around multi-cell obstacles; fully enclosed CPU triggers non-phasing ground enemies to attack a wall, then resume Citadel pursuit after breach.
 
 ### ST2 — Shared scheduling and profiler overlay
-**Status: Planned** · Depends ST1
+**Status: Partially Source Implemented / Awaiting Owner Validation** · Depends ST1
+
+Owner-authorized basic debug slice: linked `UI/DebugPanels/Debug.tscn` under RootDebug, real FPS, registry live count, pending count, F2 controls for bounded manual adds/custom counts and clear. Shared LevelBase/DEBUG now have grouped root containers. Manual adds reuse the edge spawner with frame/cap limits; no new enemy system. Advanced route priorities/validation budgets, visibility tiers and subsystem timing/profiling below remain planned; no rendered stress benchmark was run.
+
 - F1 UI panels and DEBUG counters; configurable staggered AI and path query budgets.
 - Camera/visibility-based decision tiers (default visible ~3–5/s, distant fog ~1/s) with independent reliable combat/movement.
 - Cap synchronous path requests after wall placement, update revision and dirty queues. Add bounded 10/50/100/200 spawner with reset.

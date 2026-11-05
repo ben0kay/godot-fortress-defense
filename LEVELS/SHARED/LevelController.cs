@@ -6,6 +6,8 @@ public partial class LevelController : Node2D
     [Export] public LevelConfig Config { get; set; }
     [Export] public PackedScene CitadelScene { get; set; }
     [Export] public PackedScene WallScene { get; set; }
+    public EnemyRegistry DebugEnemies => _enemies;
+    public EdgeEnemySpawner DebugSpawner => _spawner;
     private WorldGrid _grid;
     private GroundNavigation _navigation;
     private BuildingPlacement _placement;
@@ -34,8 +36,8 @@ public partial class LevelController : Node2D
         if (Config == null) return;
         if (Config.Grid == null || Config.Generation == null || Config.EnemyStats == null)
             throw new System.InvalidOperationException("Level config requires grid, generation and enemy settings.");
-        GetNode<WorldGrid>("WorldGrid").Config = Config.Grid;
-        GetNode<EdgeEnemySpawner>("EdgeEnemySpawner").DefinitionOverride = Config.EnemyStats;
+        GetNode<WorldGrid>("RootWorld/WorldGrid").Config = Config.Grid;
+        GetNode<EdgeEnemySpawner>("RootEnemies/EdgeEnemySpawner").DefinitionOverride = Config.EnemyStats;
         _seed = _pendingScene == SceneFilePath && _pendingSeed.HasValue ? _pendingSeed.Value : Config.Generation.Seed;
         if (_pendingScene == SceneFilePath) { _pendingScene = null; _pendingSeed = null; }
     }
@@ -44,12 +46,12 @@ public partial class LevelController : Node2D
     // Terrain is committed before A* initialization and enemy creation, avoiding thousands of live invalidations.
     public override void _Ready()
     {
-        _grid = GetNode<WorldGrid>("WorldGrid"); _navigation = GetNode<GroundNavigation>("GroundNavigation");
-        _placement = GetNode<BuildingPlacement>("BuildingPlacement");
-        _enemies = GetNode<EnemyRegistry>("EnemyRegistry"); _spawner = GetNode<EdgeEnemySpawner>("EdgeEnemySpawner");
-        var requests = GetNode<EnemyPathRequests>("EnemyPathRequests");
-        _view = GetNodeOrNull<TerrainRenderer>("TerrainRenderer") ?? GetNode<TerrainRenderer>("GridDebugView"); _status = GetNode<Label>("FoundationPanel/Status");
-        _camera = GetNode<Camera2D>("Camera2D"); _statusTimer = GetNode<Timer>("StatusTimer");
+        _grid = GetNode<WorldGrid>("RootWorld/WorldGrid"); _navigation = GetNode<GroundNavigation>("RootWorld/GroundNavigation");
+        _placement = GetNode<BuildingPlacement>("RootFortress/BuildingPlacement");
+        _enemies = GetNode<EnemyRegistry>("RootEnemies/EnemyRegistry"); _spawner = GetNode<EdgeEnemySpawner>("RootEnemies/EdgeEnemySpawner");
+        var requests = GetNode<EnemyPathRequests>("RootEnemies/EnemyPathRequests");
+        _view = GetNodeOrNull<TerrainRenderer>("RootWorld/TerrainRenderer") ?? GetNode<TerrainRenderer>("RootWorld/GridDebugView"); _status = GetNode<Label>("RootUI/FoundationPanel/Status");
+        _camera = GetNode<Camera2D>("RootCamera/Camera2D"); _statusTimer = GetNode<Timer>("RootUI/StatusTimer");
         Vector2I cpuSize = SceneFootprint(CitadelScene), map = _grid.Dimensions;
         Rect2I cpuArea = new((map - cpuSize) / 2, cpuSize);
         if (Config != null)
@@ -59,7 +61,7 @@ public partial class LevelController : Node2D
         }
         else PopulateSandboxTerrain(_grid);
         _navigation.Initialize(_grid); requests.Initialize(_grid, _navigation);
-        _placement.Initialize(_grid, GetNode<BuildingRegistry>("BuildingRegistry"), GetNode<Node2D>("Buildings"));
+        _placement.Initialize(_grid, GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), GetNode<Node2D>("RootFortress/Buildings"));
         _placement.AdditionalValidation = area => _enemies.CanPlace(_grid, area);
         _wallFootprint = SceneFootprint(WallScene); _view.Initialize(_grid, _navigation, _wallFootprint);
         if (!_placement.TryPlace(CitadelScene, cpuArea.Position, out _citadel))
@@ -68,11 +70,11 @@ public partial class LevelController : Node2D
         {
             Rect2I markerArea = new(_generated.PlayerCell, Vector2I.One);
             if (!_grid.TryReserveGround(markerArea)) throw new System.InvalidOperationException("Player spawn could not be reserved.");
-            var marker = GetNode<Marker2D>("PlayerSpawn"); marker.GlobalPosition = _grid.CellCenter(_generated.PlayerCell);
+            var marker = GetNode<Marker2D>("RootWorld/PlayerSpawn"); marker.GlobalPosition = _grid.CellCenter(_generated.PlayerCell);
             _spawner.Seed = unchecked((ulong)_seed);
             _spawner.SpawnCellFilter = cell => _generated.ReachableFromCpu[cell.Y * map.X + cell.X];
         }
-        _spawner.Initialize(_grid, _navigation, _enemies, requests, GetNode<Node2D>("Enemies"), _citadel);
+        _spawner.Initialize(_grid, _navigation, _enemies, requests, GetNode<Node2D>("RootEnemies/Enemies"), _citadel);
         _start = new(_grid.ClearanceCells, map.Y / 2);
         _goal = new(cpuArea.Position.X - _grid.ClearanceCells - 1, map.Y / 2);
         _grid.TopologyChanged += OnTopologyChanged;
@@ -89,7 +91,7 @@ public partial class LevelController : Node2D
     }
     private void WireWorldPanel()
     {
-        _worldPanel = GetNodeOrNull<Control>("FoundationPanel/WorldDebug");
+        _worldPanel = GetNodeOrNull<Control>("RootUI/FoundationPanel/WorldDebug");
         if (_worldPanel == null) return;
         _worldDetails = _worldPanel.GetNode<Label>("Details");
         _newWorld = _worldPanel.GetNode<Button>("Actions/NewWorld"); _sameWorld = _worldPanel.GetNode<Button>("Actions/SameSeed");
@@ -174,7 +176,10 @@ public partial class LevelController : Node2D
             }
         }
         if (input is InputEventMouseMotion motion)
-        { if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom; else if (_painting) PaintWall(); }
+        {
+            _painting &= Input.IsMouseButtonPressed(MouseButton.Left); _panning &= Input.IsMouseButtonPressed(MouseButton.Middle);
+            if (_panning) _camera.GlobalPosition -= motion.Relative / _camera.Zoom; else if (_painting) PaintWall();
+        }
         if (input is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.F1 && _worldPanel != null) _worldPanel.Visible = !_worldPanel.Visible;
@@ -184,7 +189,7 @@ public partial class LevelController : Node2D
             if (key.Keycode == Key.H) _selected?.ApplyDamage(25);
             if (key.Keycode == Key.Delete && _selected != _citadel) _selected?.Remove();
             if (key.Keycode == Key.P) _spawner.SpawningEnabled = !_spawner.SpawningEnabled;
-            if (key.Keycode == Key.C) { _spawner.SpawningEnabled = false; _enemies.ClearEnemies(); _notice = "Enemies cleared; P resumes spawning"; }
+            if (key.Keycode == Key.C) { _spawner.SpawningEnabled = false; _spawner.CancelDebugSpawns(); _enemies.ClearEnemies(); _notice = "Enemies cleared; P resumes spawning"; }
             if (key.Keycode == Key.K)
             {
                 Enemy hovered = null;

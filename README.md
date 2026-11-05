@@ -120,3 +120,7 @@ Work in small, independently testable passes. Keep the project playable after ea
 This is a **separate sister project**, not a replacement for either reference repository. The target is to preserve what made Vector TD 2026 distinctive—direct player combat, destructible defenses, enemy counterattacks, power and physical logistics—while benefiting from the modular structure and maintainability of Godot Tower Defense.
 
 Before making substantial changes, inspect the current repository state, the appropriate feature README, [the coding preferences](NOTES/CodePreferences.md), and only the relevant source features in the two reference projects.
+
+## Reusable development overlay
+
+`UI/DebugPanels/Debug.tscn` is linked under RootDebug in LevelBase/Level001 and DEBUG/test. It shows FPS/live enemies and has **F2** manual spawn controls. Edit the packed scene once to update all instances. See [debug reuse and settings](UI/DebugPanels/README.md). RootWorld, RootFortress, RootEnemies, RootCamera and RootUI keep the rest of the tree readable. Only this basic ST2 debug slice is source implemented; advanced scheduling/profiling remains planned, and editor validation remains with the owner.

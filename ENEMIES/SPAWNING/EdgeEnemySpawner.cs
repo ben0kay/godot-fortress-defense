@@ -13,6 +13,9 @@ public partial class EdgeEnemySpawner : Node
     private int _maxActiveEnemies = 20;
     [Export] public int MaxActiveEnemies
     { get => _maxActiveEnemies; set { _maxActiveEnemies = value; RefreshProcessing(); } }
+    [Export] public int MaxDebugSpawnsPerFrame { get; set; } = 2;
+    public int PendingDebugSpawns { get; private set; }
+    public bool CanSpawn => _grid != null && EnemyTargeting.Live(_citadel);
     [Export] public int MaxSpawnAttempts { get; set; } = 32;
     [Export] public float MinCitadelDistance { get; set; } = 160;
     [Export] public ulong Seed { get; set; } = 1;
@@ -45,17 +48,41 @@ public partial class EdgeEnemySpawner : Node
         _citadel.Detached += OnCitadelLost; _registry.Changed += RefreshProcessing; RefreshProcessing();
     }
 
-    // No catch-up loop: at most one creation per interval/frame, even following a hitch.
+    // Manual requests share the same placement/cap executor as natural spawning; no instant scene bursts.
+    public int QueueDebugSpawns(int count)
+    {
+        if (!CanSpawn) return 0;
+        int accepted = Mathf.Clamp(count, 0, 200 - _registry.Count - PendingDebugSpawns);
+        PendingDebugSpawns += accepted;
+        MaxActiveEnemies = Mathf.Max(MaxActiveEnemies, _registry.Count + PendingDebugSpawns);
+        RefreshProcessing(); return accepted;
+    }
+    public void CancelDebugSpawns() { PendingDebugSpawns = 0; RefreshProcessing(); }
+
+    // A manual batch is bounded per frame. Natural spawning retains its interval with no catch-up burst.
     public override void _Process(double delta)
     {
-        if (_grid == null || !SpawningEnabled || !EnemyTargeting.Live(_citadel) || _registry.Count >= Mathf.Clamp(MaxActiveEnemies, 0, 200)) return;
+        if (!CanSpawn || _registry.Count >= Mathf.Clamp(MaxActiveEnemies, 0, 200)) return;
+        if (PendingDebugSpawns > 0)
+        {
+            for (int i = 0; i < Mathf.Clamp(MaxDebugSpawnsPerFrame, 1, 8) && PendingDebugSpawns > 0
+                && _registry.Count < Mathf.Clamp(MaxActiveEnemies, 0, 200); i++)
+            { PendingDebugSpawns--; if (!TrySpawnOne()) { PendingDebugSpawns++; break; } }
+            RefreshProcessing(); return;
+        }
+        if (!SpawningEnabled) return;
         _elapsed += delta;
         float interval = float.IsFinite(SpawnInterval) ? Mathf.Max(.05f, SpawnInterval) : .8f;
         if (_elapsed < interval) return;
-        _elapsed = 0;
+        _elapsed = 0; TrySpawnOne();
+    }
+
+    // One bounded edge search; a blocked batch remains pending until space opens or it is cancelled.
+    private bool TrySpawnOne()
+    {
         int inset = _grid.ClearanceCells;
         int width = _grid.Dimensions.X - inset * 2, height = _grid.Dimensions.Y - inset * 2;
-        if (width < 1 || height < 1) return;
+        if (width < 1 || height < 1) return false;
         int perimeter = width * 2 + height * 2;
         int first = _random.RandiRange(0, perimeter - 1);
         for (int i = 0; i < Mathf.Clamp(MaxSpawnAttempts, 1, perimeter); i++)
@@ -72,20 +99,21 @@ public partial class EdgeEnemySpawner : Node
             Enemy enemy = EnemyScene.Instantiate<Enemy>(); enemy.Definition = _definition;
             enemy.Initialize(_grid, _registry, _requests, _citadel);
             enemy.Position = _container.ToLocal(position); _container.AddChild(enemy);
-            return;
+            return true;
         }
+        return false;
     }
     // Disabled/full spawners sleep; registry changes or Inspector setters wake them.
     private void RefreshProcessing()
     {
         if (_grid == null || !IsInsideTree()) return;
-        SetProcess(SpawningEnabled && EnemyTargeting.Live(_citadel) && _registry.Count < Mathf.Clamp(MaxActiveEnemies, 0, 200));
+        SetProcess((SpawningEnabled || PendingDebugSpawns > 0) && EnemyTargeting.Live(_citadel) && _registry.Count < Mathf.Clamp(MaxActiveEnemies, 0, 200));
     }
-    private void OnCitadelLost() => RefreshProcessing();
+    private void OnCitadelLost() { PendingDebugSpawns = 0; RefreshProcessing(); }
     public override void _ExitTree()
     {
         if (GodotObject.IsInstanceValid(_citadel)) _citadel.Detached -= OnCitadelLost;
         if (GodotObject.IsInstanceValid(_registry)) _registry.Changed -= RefreshProcessing;
-        _random.Dispose();
+        PendingDebugSpawns = 0; SpawnCellFilter = null; _random.Dispose();
     }
 }

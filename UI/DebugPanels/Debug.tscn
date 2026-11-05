@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://UI/DebugPanels/DebugOverlay.cs" id="1"]
+[node name="Debug" type="CanvasLayer"]
+layer = 50
+script = ExtResource("1")
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -440.0
+offset_top = 12.0
+offset_right = -12.0
+[node name="Layout" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+[node name="Stats" type="Label" parent="Panel/Layout"]
+layout_mode = 2
+text = "FPS — | Enemies —"
+mouse_filter = 2
+[node name="Toggle" type="Button" parent="Panel/Layout"]
+layout_mode = 2
+text = "Debug spawn controls (F2)"
+[node name="Controls" type="VBoxContainer" parent="Panel/Layout"]
+layout_mode = 2
+visible = false
+[node name="Presets" type="HBoxContainer" parent="Panel/Layout/Controls"]
+layout_mode = 2
+[node name="Add10" type="Button" parent="Panel/Layout/Controls/Presets"]
+layout_mode = 2
+text = "Add 10"
+[node name="Add50" type="Button" parent="Panel/Layout/Controls/Presets"]
+layout_mode = 2
+text = "Add 50"
+[node name="MorePresets" type="HBoxContainer" parent="Panel/Layout/Controls"]
+layout_mode = 2
+[node name="Add100" type="Button" parent="Panel/Layout/Controls/MorePresets"]
+layout_mode = 2
+text = "Add 100"
+[node name="Add200" type="Button" parent="Panel/Layout/Controls/MorePresets"]
+layout_mode = 2
+text = "Add 200"
+[node name="Custom" type="HBoxContainer" parent="Panel/Layout/Controls"]
+layout_mode = 2
+[node name="Amount" type="SpinBox" parent="Panel/Layout/Controls/Custom"]
+layout_mode = 2
+min_value = 1.0
+max_value = 200.0
+value = 10.0
+[node name="Add" type="Button" parent="Panel/Layout/Controls/Custom"]
+layout_mode = 2
+text = "Add custom count"
+[node name="Automatic" type="CheckBox" parent="Panel/Layout/Controls"]
+layout_mode = 2
+text = "Automatic spawning"
+[node name="Clear" type="Button" parent="Panel/Layout/Controls"]
+layout_mode = 2
+text = "Clear enemies + queued spawns"
+[node name="Message" type="Label" parent="Panel/Layout/Controls"]
+layout_mode = 2
+text = "Adds are gradual and use valid map edges."
+autowrap_mode = 2
+custom_minimum_size = Vector2(410, 42)
+mouse_filter = 2
+[node name="Refresh" type="Timer" parent="."]
+wait_time = 0.25
+autostart = true
