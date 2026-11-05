@@ -12,7 +12,9 @@
 
 > **EN2:** Enemy002 Building-Hunter Shooter is **Source Implemented / Awaiting Owner Validation**; see [behavior/settings/owner checks](../ENEMIES/TYPES/Ranged/Enemy002/README.md). This adds fair bounded acquisition/routine targeting, stationary building buckets, shared hostile rounds and typed F2 batches without implementing later enemy roles or claiming measured FPS.
 
-> **AIR0 + AIR1:** Shared movement/target/projectile layer capabilities and Enemy003 Basic Flyer are **Source Implemented / Awaiting Owner Validation**. See [contracts/settings/owner checks](../ENEMIES/TYPES/Flying/Enemy003/README.md). Flyers add no ground A* or terrain sweeps. The prior owner-observed200-ground-enemy60FPS scenario is a benchmark reference only; mixed-layer FPS remains unmeasured. **AIR2 Tower002 and AIR3 gunship remain Planned**, with no assets/scripts/scenes created for them.
+> **AIR0 + AIR1:** Shared movement/target/projectile layer capabilities and Enemy003 Basic Flyer are **Source Implemented / Awaiting Owner Validation**. See [contracts/settings/owner checks](../ENEMIES/TYPES/Flying/Enemy003/README.md). Flyers add no ground A* or terrain sweeps. The prior owner-observed200-ground-enemy60FPS scenario is a benchmark reference only; mixed-layer FPS remains unmeasured. **AIR2 Tower002 is now Source Implemented / Awaiting Owner Validation**; **AIR3 gunship remains Planned**.
+
+> **AIR2:** [Tower002 Anti-Air](../FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/README.md) is **Source Implemented / Awaiting Owner Validation**. Air-only catalogue building, local AA art, shared projectile-tower component and existing spatial/airborne shot contracts. Tower001 keeps its stable resource/script paths and ground behavior. No AIR3 or advanced tower systems.
 
 ## Intent and non-negotiables
 

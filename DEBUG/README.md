@@ -71,4 +71,6 @@ Revised PL0/CAM0: this sandbox has no player by default and uses the shared free
 
 EN2: F2 type selector supports enemy001/enemy002 batches, mixed under the same200 combined guard. Enemy002 is amber with a visible forward barrel and straight hostile rounds, with building-only targeting whether a player is present or absent. Normal automatic spawning stays Enemy001. See the Enemy002 README for tuning and owner scenarios.
 
-AIR1: F2 → enemy003 spawns cyan winged impact flyers, independent of blocked/dead ground cells. They only damage the CPU; Tower001 remains Ground-only. Ground placement ignores airborne overlap, and B/MMB terrain edits beneath flyers do not trigger repaths. Mixed types share existing spawn limits. AIR2/AIR3 remain planned.
+AIR1: F2 → enemy003 spawns cyan winged impact flyers, independent of blocked/dead ground cells. They only damage the CPU; Tower001 remains Ground-only. Ground placement ignores airborne overlap, and B/MMB terrain edits beneath flyers do not trigger repaths. Mixed types share existing spawn limits. AIR2 now supplies Tower002; AIR3 remains planned.
+
+AIR2: Ctrl → Defense → Anti-Air Tower / Tower002 is freely placeable using the shared menu, with Air-only combat. W/T retain their original wall/Tower001 quick selections.

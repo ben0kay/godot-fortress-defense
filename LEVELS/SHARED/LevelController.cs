@@ -76,7 +76,7 @@ public partial class LevelController : Node2D
         Resources = GetNode<ResourceWallet>("RootFortress/Resources");
         Resources.Initialize(Config?.StartingCredits ?? 0);
         var catalogue = Config?.Catalogue ?? GD.Load<BuildingCatalogue>("res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres");
-        _placement.ConfigurePurchases(catalogue, Resources, Config?.AllowedBuildingIds ?? new[] { "wall001", "tower001" });
+        _placement.ConfigurePurchases(catalogue, Resources, Config?.AllowedBuildingIds ?? new[] { "wall001", "tower001", "tower002" });
         _placement.CatalogueChanged += OnPlacementAvailabilityChanged;
         Resources.BalanceChanged += OnBalanceChanged; OnBalanceChanged();
         _projectiles = GetNode<Node2D>("RootCombat/Projectiles"); _placement.Placed += OnBuildingPlaced;

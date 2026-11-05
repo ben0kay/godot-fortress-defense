@@ -1,0 +1,22 @@
+[gd_scene load_steps=7 format=3]
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/SHARED/Building.tscn" id="1"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Combat/ProjectileTower.cs" id="2"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Tower002Definition.tres" id="3"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Tower002CombatConfig.tres" id="4"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Artwork/aa_base.svg" id="5"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower002/Artwork/aa_gun.svg" id="6"]
+[node name="Tower002" instance=ExtResource("1")]
+script = ExtResource("2")
+Definition = ExtResource("3")
+CombatConfig = ExtResource("4")
+[node name="BaseSprite" type="Sprite2D" parent="Visuals" index="0"]
+texture = ExtResource("5")
+[node name="TurretPivot" type="Node2D" parent="Visuals" index="1"]
+[node name="GunSprite" type="Sprite2D" parent="Visuals/TurretPivot"]
+texture = ExtResource("6")
+[node name="Muzzle" type="Marker2D" parent="Visuals/TurretPivot"]
+position = Vector2(0, -28.5)
+[node name="Flash" type="Polygon2D" parent="Visuals/TurretPivot/Muzzle"]
+visible = false
+polygon = PackedVector2Array(0, -10, 2, -3, 6, -4, 3, 0, 6, 3, 1, 2, -3, 4, -2, 0, -5, -3, -1, -3)
+color = Color(1, 0.85, 0.3, 0.9)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ProjectileTowerConfig" load_steps=2 format=3]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Combat/ProjectileTowerConfig.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Damage = 30.0
+ShotsPerSecond = 1.68
+RangePixels = 323.4
+ProjectileSpeed = 2300.0
+RotationSpeedDegrees = 216.0
+AimToleranceDegrees = 12.0
+SearchInterval = 0.15
+SpreadDegrees = 2.5
+ProjectileRadius = 1.5
+TracerLength = 18.0
+TargetLayers = 2

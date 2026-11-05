@@ -17,3 +17,5 @@ Call `BuildingPlacement.TryPurchaseAndPlace(id, anchor, out building, out failur
 ## Brief owner checks
 
 Run Level001: see1,000 credits; place W wall (990), T tower (890). Try occupied/terrain/reserved/enemy cells: balance stays unchanged. Set a low starting balance or remove tower001 from AllowedBuildingIds and confirm failed attempts leave world/balance unchanged. R creates a fresh session. DEBUG and explicitly enabled free Level001 placement never charge. Confirm inherited combat/navigation still operate. BM1 now exposes purchases through the shared root UI/BuildMenu. Purchasing materials, income and later player/camera/fog passes remain planned. No runtime or FPS validation claimed.
+
+AIR2 adds tower002 at100 Credits to the authored catalogue and Level001/default DEBUG allowlist. The same BM0 transaction/free-debug bypass applies; no wallet or refund behavior changes.
