@@ -77,3 +77,9 @@ Source/diff/resource-path checks only in this environment; no installed .NET bui
 - To exercise weapon range exceeding personal sight, temporarily set a tower's VisionRadiusOverride to 64 on its scene and place a new one. An enemy farther away but inside weapon range must stay untargeted until another friendly source reveals its center cell. Remove that other source or move the enemy out of vision; aiming/new shots must stop at the next combat check. Test Ground/Enemy001 and Air/Enemy003 separately, then restore -1.
 - Repeat the hidden/revealed checks with F2 presentation disabled. Already-fired bullets must keep travelling/resolving normally.
 - Inspect many overlapping placements and range-override changes: bounded queue processing, no repeated static-circle updates and no source leaks on removal. FPS and gameplay acceptance remain owner checks.
+
+## FOG-PERF1A — hidden enemy CPU cosmetics
+
+**Source Implemented / Awaiting Owner Validation.** FogMasterConfig → OptimizeHiddenEnemyVisuals defaults true. The ENEMIES/PERFORMANCE coordinator uses existing IsVisible center-cell queries, dirty-region events and enemy movement/index notifications to classify enemies and suppress only hidden EnemyVectorVisual flash/redraw work. FogPresentation's shared shader and batched mask uploads are unchanged; cached cosmetic classification never controls combat eligibility or simulation.
+
+F2 has a separate Optimize Hidden Enemy Visuals checkbox and O(1) total/visible/hidden counters at 4 Hz. Runtime overrides live on the coordinator, not the master resource. Classification/counters stay logical with either checkbox off. Fog presentation bypass temporarily restores all cosmetics for inspection; re-enable sleeps current hidden visuals without replaying past flashes. [Implementation, lifecycle, limits and owner checks](../../ENEMIES/PERFORMANCE/README.md). No measured FPS gain, AI throttling, extra fog grid or minimap.

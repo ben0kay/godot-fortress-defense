@@ -9,13 +9,16 @@ public partial class EnemyRegistry : Node
     private readonly EnemySpatialIndex _spatial = new();
     public float MaxEnemyRadius => _spatial.MaxRadius;
     public void Query(Rect2 bounds, List<Enemy> result) => _spatial.Query(bounds, result);
-    internal void UpdatePosition(Enemy enemy) { if (_enemies.Contains(enemy)) _spatial.Update(enemy); }
+    internal void UpdatePosition(Enemy enemy)
+    { if (_enemies.Contains(enemy)) { _spatial.Update(enemy); PositionChanged?.Invoke(enemy); } }
     public IEnumerable<Enemy> Enemies => _enemies;
     public int Count => _enemies.Count;
     public event Action Changed;
     public event Action<Enemy> Added;
+    public event Action<Enemy> Removed;
+    public event Action<Enemy> PositionChanged;
     internal void Add(Enemy enemy) { if (_enemies.Add(enemy)) { _spatial.Update(enemy); Added?.Invoke(enemy); Changed?.Invoke(); } }
-    internal void Remove(Enemy enemy) { if (_enemies.Remove(enemy)) { _spatial.Remove(enemy); if (_enemies.Count == 0) _spatial.Clear(); Changed?.Invoke(); } }
+    internal void Remove(Enemy enemy) { if (_enemies.Remove(enemy)) { _spatial.Remove(enemy); if (_enemies.Count == 0) _spatial.Clear(); Removed?.Invoke(enemy); Changed?.Invoke(); } }
 
     // Only run on a placement click, not per enemy per frame. Prevent an enemy being sealed inside a new solid.
     public bool CanPlace(WorldGrid grid, Rect2I area)

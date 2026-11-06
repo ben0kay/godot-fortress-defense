@@ -22,6 +22,9 @@ public partial class FogMasterConfig : Resource
     [Export] public bool UpdateOnSourceCellChange { get; set; } = true;
     [Export] public UpdateMode RendererUpdateMode { get; set; } = UpdateMode.Batched;
 
+    [ExportGroup("Enemy Presentation Performance")]
+    [Export] public bool OptimizeHiddenEnemyVisuals { get; set; } = true;
+
     // Reject unsupported LOS and invalid settings rather than silently changing their meaning.
     public void Validate()
     {

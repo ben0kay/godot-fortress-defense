@@ -6,3 +6,4 @@
 script = ExtResource("1")
 ExploredOpacity = 0.7
 VisibilityUpdateInterval = 0.15
+OptimizeHiddenEnemyVisuals = true

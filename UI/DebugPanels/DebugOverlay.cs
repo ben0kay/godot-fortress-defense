@@ -4,6 +4,9 @@ using Godot;
 public partial class DebugOverlay : CanvasLayer
 {
     [Export] public FogOfWar Fog { get; set; }
+    [Export] public EnemyVisibilityCoordinator EnemyVisibility { get; set; }
+    private CheckBox _optimizeVisuals;
+    private Label _visibilityStats;
     private CheckBox _fogEnabled;
     private Label _fogStats;
     [Export] public EnemyRegistry Registry { get; set; }
@@ -29,6 +32,9 @@ public partial class DebugOverlay : CanvasLayer
         _fogEnabled = GetNode<CheckBox>("Panel/Layout/Controls/FogEnabled");
         _fogStats = GetNode<Label>("Panel/Layout/Controls/FogStats");
         _fogEnabled.Toggled += OnFogEnabled;
+        _optimizeVisuals = GetNode<CheckBox>("Panel/Layout/Controls/OptimizeVisuals");
+        _visibilityStats = GetNode<Label>("Panel/Layout/Controls/VisibilityStats");
+        _optimizeVisuals.Toggled += OnOptimizeVisuals;
         _enemyType = GetNode<OptionButton>("Panel/Layout/Controls/EnemyType");
         _targeting = GetNode<Label>("Panel/Layout/Controls/Targeting");
         _enemyType.ItemSelected += OnEnemyTypeSelected;
@@ -50,13 +56,18 @@ public partial class DebugOverlay : CanvasLayer
     private Button Button(string path) => GetNode<Button>("Panel/Layout/Controls/" + path);
     private void BindLevel()
     {
-        Fog ??= _level.Fog; Registry ??= _level.DebugEnemies; Spawner ??= _level.DebugSpawner;
+        EnemyVisibility ??= _level.EnemyVisibility; Fog ??= _level.Fog; Registry ??= _level.DebugEnemies; Spawner ??= _level.DebugSpawner;
         _level.Ready -= BindLevel; Refresh();
     }
 
     // Four-Hz reads only; enemy counts come from the registry rather than scene scans.
     private void Refresh()
     {
+        bool visibility = GodotObject.IsInstanceValid(EnemyVisibility) && EnemyVisibility.IsInitialized;
+        _optimizeVisuals.Disabled = !visibility;
+        _optimizeVisuals.SetPressedNoSignal(visibility && EnemyVisibility.OptimizationEnabled);
+        _visibilityStats.Text = visibility && _controls.Visible
+            ? $"Enemies {EnemyVisibility.TotalEnemies} | Visible {EnemyVisibility.VisibleEnemies} | Hidden {EnemyVisibility.HiddenEnemies}\nHidden visuals {(EnemyVisibility.OptimizationEnabled ? "ON" : "OFF")}{(EnemyVisibility.OptimizationEnabled && !EnemyVisibility.OptimizationEffective ? " (fog bypass: cosmetics awake)" : "")}" : "";
         bool fog = GodotObject.IsInstanceValid(Fog);
         _fogEnabled.Disabled = !fog;
         _fogEnabled.SetPressedNoSignal(fog && Fog.PresentationEnabled);
@@ -88,6 +99,8 @@ public partial class DebugOverlay : CanvasLayer
         _message.Text = $"Queued {accepted} of {count}. Safety cap: 200 active + pending."; Refresh();
     }
     private void OnEnemyTypeSelected(long index) => Refresh();
+    private void OnOptimizeVisuals(bool enabled)
+    { if (GodotObject.IsInstanceValid(EnemyVisibility)) EnemyVisibility.SetOptimizationEnabled(enabled); Refresh(); }
     private void OnFogEnabled(bool enabled)
     { if (GodotObject.IsInstanceValid(Fog)) Fog.SetPresentationEnabled(enabled); Refresh(); }
     private void OnAutomatic(bool enabled)
@@ -106,6 +119,7 @@ public partial class DebugOverlay : CanvasLayer
     }
     public override void _ExitTree()
     {
+        if (GodotObject.IsInstanceValid(_optimizeVisuals)) _optimizeVisuals.Toggled -= OnOptimizeVisuals;
         if (GodotObject.IsInstanceValid(_fogEnabled)) _fogEnabled.Toggled -= OnFogEnabled;
         if (GodotObject.IsInstanceValid(_level)) _level.Ready -= BindLevel;
         if (GodotObject.IsInstanceValid(_enemyType)) _enemyType.ItemSelected -= OnEnemyTypeSelected;

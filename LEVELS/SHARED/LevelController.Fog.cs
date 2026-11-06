@@ -4,6 +4,7 @@ using Godot;
 public partial class LevelController
 {
     public FogOfWar Fog { get; private set; }
+    public EnemyVisibilityCoordinator EnemyVisibility { get; private set; }
     private void InitializeFog()
     {
         Fog = GetNode<FogOfWar>("RootWorld/FogOfWar");
@@ -13,6 +14,8 @@ public partial class LevelController
             GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), _projectiles, this);
         Fog.GetNode<BuildingVisionSources>("BuildingSources").Initialize(Fog,
             GetNode<BuildingRegistry>("RootFortress/BuildingRegistry"), _citadel);
+        EnemyVisibility = GetNode<EnemyVisibilityCoordinator>("RootEnemies/EnemyVisibility");
+        EnemyVisibility.Initialize(Fog, _enemies);
         if (PlayerAlive) Fog.RegisterSource(CurrentPlayer.GetInstanceId(), CurrentPlayer, Fog.Config.PlayerVisionRadius, true);
     }
 }

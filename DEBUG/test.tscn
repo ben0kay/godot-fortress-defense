@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://DEBUG/Foundation/FoundationSandbox.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -33,6 +33,8 @@
 [ext_resource type="PackedScene" path="res://ENEMIES/TYPES/Flying/Enemy003/Enemy003.tscn" id="Enemy003"]
 
 [ext_resource type="PackedScene" path="res://WORLD/FOG/FogOfWar.tscn" id="Fog"]
+
+[ext_resource type="Script" path="res://ENEMIES/PERFORMANCE/EnemyVisibilityCoordinator.cs" id="EnemyVisibility"]
 
 [node name="TestWorld" type="Node2D"]
 script = ExtResource("1")
@@ -116,3 +118,6 @@ script = ExtResource("TargetRoster")
 script = ExtResource("Objectives")
 
 [node name="FogOfWar" parent="RootWorld" instance=ExtResource("Fog")]
+
+[node name="EnemyVisibility" type="Node" parent="RootEnemies"]
+script = ExtResource("EnemyVisibility")

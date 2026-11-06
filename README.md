@@ -164,3 +164,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## COMBAT1 friendly fire over walls
 
 **Source Implemented / Awaiting Owner Validation.** Friendly ground towers can acquire/shoot visible enemies over Wall001. BuildingDefinition.BlocksFriendlyTowerProjectiles defaults true; only explicitly opted-out barriers are skipped. Other buildings, CPU, dead terrain and bounds still block. Shared acquisition/pre-fire/projectile sweeps agree; ground movement, hostile wall hits, AA and FW1 logical sight remain unchanged. [Collision policy and owner checks](COMBAT/README.md#combat1--friendly-tower-rounds-over-low-barriers).
+
+## FOG-PERF1A hidden enemy cosmetics
+
+**Source Implemented / Awaiting Owner Validation.** Hidden shared enemy visuals can now skip flash ticks and cosmetic redraw work while gameplay simulation continues unchanged. F2 adds **Optimize Hidden Enemy Visuals** plus logical visible/hidden counts; turning fog presentation off restores normal cosmetics for inspection. Initial setting: FogMasterConfig.OptimizeHiddenEnemyVisuals=true. [Lifecycle, settings and owner checks](ENEMIES/PERFORMANCE/README.md). No measured FPS gain or AI throttling is claimed.
