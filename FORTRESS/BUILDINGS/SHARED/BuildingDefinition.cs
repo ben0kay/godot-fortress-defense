@@ -18,6 +18,8 @@ public partial class BuildingDefinition : Resource
     [ExportGroup("Foundation")]
     [Export] public Vector2I Footprint { get; set; } = Vector2I.One;
     [Export] public float MaxHealth { get; set; } = 100;
+    [ExportGroup("Projectile Obstruction / COMBAT1")]
+    [Export] public bool BlocksFriendlyTowerProjectiles { get; set; } = true;
 
     // Definitions are read once on spawn; a footprint never silently changes while reserved.
     public void Validate()

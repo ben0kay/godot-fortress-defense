@@ -39,6 +39,7 @@ public partial class Building : Node2D, ICombatTarget
     public string BuildingId { get; private set; }
     public Vector2I Footprint { get; private set; }
     public Rect2I OccupiedArea { get; private set; }
+    public bool BlocksFriendlyTowerProjectiles { get; private set; } = true;
     public float MaxHealth { get; private set; }
     public float Health { get; private set; }
     public bool IsDestroyed { get; private set; }
@@ -61,7 +62,8 @@ public partial class Building : Node2D, ICombatTarget
         if (_initialized) throw new InvalidOperationException("Building already initialized.");
         if (Definition == null) throw new InvalidOperationException("Building definition is required.");
         Definition.Validate(); BuildingId = Definition.BuildingId; Footprint = Definition.Footprint;
-        MaxHealth = Health = Definition.MaxHealth; _initialized = true;
+        MaxHealth = Health = Definition.MaxHealth;
+        BlocksFriendlyTowerProjectiles = Definition.BlocksFriendlyTowerProjectiles; _initialized = true;
     }
 
     // A bare base scene is not self-placing; all insertion goes through the placement service.

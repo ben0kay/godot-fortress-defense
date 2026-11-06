@@ -19,3 +19,4 @@ Purchasable = true
 Description = "Solid defense; redirects ground enemies."
 Cost = Array[ExtResource("CostScript")]([SubResource("Price")])
 Icon = ExtResource("Icon")
+BlocksFriendlyTowerProjectiles = false

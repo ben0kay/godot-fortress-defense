@@ -160,3 +160,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## FW1 building vision and tower visibility
 
 **Source Implemented / Awaiting Owner Validation.** Every friendly building now reveals terrain: CPU retains its dedicated radius, Tower001/Tower002 default to authored weapon range, and walls/ordinary structures use FogMasterConfig.DefaultBuildingVisionRadius (64px). Building.VisionRadiusOverride supports independent sight. Offensive towers only acquire/track/fire at currently visible eligible enemies, including with F2 presentation disabled; fired shots continue normally. [Provider/lifecycle/settings and owner checks](WORLD/FOG/README.md). Existing fog renderer and enemy simulation are preserved.
+
+## COMBAT1 friendly fire over walls
+
+**Source Implemented / Awaiting Owner Validation.** Friendly ground towers can acquire/shoot visible enemies over Wall001. BuildingDefinition.BlocksFriendlyTowerProjectiles defaults true; only explicitly opted-out barriers are skipped. Other buildings, CPU, dead terrain and bounds still block. Shared acquisition/pre-fire/projectile sweeps agree; ground movement, hostile wall hits, AA and FW1 logical sight remain unchanged. [Collision policy and owner checks](COMBAT/README.md#combat1--friendly-tower-rounds-over-low-barriers).

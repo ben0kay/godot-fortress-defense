@@ -14,7 +14,7 @@ public partial class EnemyRangedConfig : Resource
 
     public void Validate(float range, float radius)
     {
-        if (!Enum.IsDefined(CollisionProfile) || CollisionProfile == ProjectileCollisionProfile.Airborne || !float.IsFinite(ProjectileSpeed) || ProjectileSpeed <= 0 || !float.IsFinite(ProjectileLifetime) || ProjectileLifetime <= 0
+        if (!Enum.IsDefined(CollisionProfile) || CollisionProfile == ProjectileCollisionProfile.Airborne || CollisionProfile == ProjectileCollisionProfile.FriendlyTowerGround || !float.IsFinite(ProjectileSpeed) || ProjectileSpeed <= 0 || !float.IsFinite(ProjectileLifetime) || ProjectileLifetime <= 0
             || !float.IsFinite(ProjectileRadius) || ProjectileRadius <= 0 || !float.IsFinite(TracerLength) || TracerLength <= 0
             || !float.IsFinite(AimToleranceDegrees) || AimToleranceDegrees <= 0 || AimToleranceDegrees > 180
             || !float.IsFinite(ProjectileSpeed * ProjectileLifetime) || ProjectileSpeed * ProjectileLifetime < range + radius * 2)

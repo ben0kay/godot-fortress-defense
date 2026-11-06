@@ -48,3 +48,5 @@ AIR0 exposes FirstWorldBoundaryFraction for finite air-shot travel without readi
 ## FW0 visibility
 
 **Source Implemented / Awaiting Owner Validation.** See [fog ownership, config and limits](FOG/README.md). Shared LevelBase/DEBUG bind CPU and optional player sources through the existing WorldGrid. F2's **Fog of War Enabled** bypasses presentation only; exploration keeps tracking. Enemy visuals, shots and destruction effects are clipped without changing simulation. Friendly bases remain known/dim; unseen HP/selection/turret feedback is suppressed. LevelConfig → Fog/FogEnabled selects settings/initial presentation; camera controls never reveal terrain. Debug diagnostics refresh at 4 Hz, and standalone Debug instances can receive an explicit Fog node reference. Runtime and FPS comparisons remain owner checks.
+
+COMBAT1 adds an explicit FriendlyTower filter to FirstObstacleFraction, reusing the existing swept occupancy query and earliest-hit ordering. It skips only opted-out building snapshots (Wall001), never terrain/bounds. Generic SegmentClear/default obstruction queries and navigation remain unchanged. [Grid policy and compatibility](Grid/README.md).

@@ -82,7 +82,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _searchTimer -= (float)delta; _shotTimer = Mathf.Max(-.05f, _shotTimer - (float)delta);
         if (_searchTimer <= 0)
         {
-            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates, _fog, _stats.TargetLayers);
+            _target = CombatTargeting.Closest(_enemies, _grid, this, _stats.RangePixels, _candidates, _fog, _stats.TargetLayers, _stats.ProjectileRadius);
             _searchTimer = Mathf.Max(.05f, _stats.SearchInterval);
         }
         // Check the cached reference before Track: hidden targets must not leak their current aim position.

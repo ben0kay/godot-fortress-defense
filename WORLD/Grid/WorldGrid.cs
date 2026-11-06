@@ -3,6 +3,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+// Query-only policy: occupancy, terrain and physical collision are never changed by projectile filtering.
+public enum WorldProjectileFilter { AllSolids, FriendlyTower }
+
 public partial class WorldGrid : Node2D
 {
     [Export] public WorldGridConfig Config { get; set; }
@@ -104,11 +107,13 @@ public partial class WorldGrid : Node2D
 
     // First obstacle entry for fast projectiles, using the same solids as movement/collision.
     // PositiveInfinity means no contact; source footprint may be ignored during barrel exit.
-    public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, Building ignored = null)
-        => FirstObstacleFraction(from, to, radius, out _, ignored);
+    public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, Building ignored = null,
+        WorldProjectileFilter filter = WorldProjectileFilter.AllSolids)
+        => FirstObstacleFraction(from, to, radius, out _, ignored, filter);
 
-    // Hostile and friendly shots share the same earliest solid hit; report a building only if it precedes terrain/bounds.
-    public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, out Building hitBuilding, Building ignored = null)
+    // One swept scan for both policies: only explicit friendly shots skip opted-out buildings; terrain/bounds always block.
+    public float FirstObstacleFraction(Vector2 from, Vector2 to, float radius, out Building hitBuilding, Building ignored = null,
+        WorldProjectileFilter filter = WorldProjectileFilter.AllSolids)
     {
         hitBuilding = null;
         Vector2 a = ToLocal(from), b = ToLocal(to), delta = b - a;
@@ -122,13 +127,15 @@ public partial class WorldGrid : Node2D
         for (int y = top; y <= bottom; y++) for (int x = left; x <= right; x++)
         {
             Vector2I cell = new(x, y);
-            if (!IsTerrain(cell) && (BuildingAt(cell) == null || BuildingAt(cell) == ignored)) continue;
+            bool terrain = IsTerrain(cell); Building occupant = BuildingAt(cell);
+            if (!terrain && (occupant == null || occupant == ignored
+                || (filter == WorldProjectileFilter.FriendlyTower && !occupant.BlocksFriendlyTowerProjectiles))) continue;
             Vector2 low = (Vector2)cell * CellSize - Vector2.One * radius;
             Vector2 high = ((Vector2)cell + Vector2.One) * CellSize + Vector2.One * radius;
             enter = 0; exit = 1;
             if (Clip(a.X, delta.X, low.X, high.X, ref enter, ref exit) && Clip(a.Y, delta.Y, low.Y, high.Y, ref enter, ref exit)
-                && (enter < best || (enter == best && IsTerrain(cell))))
-            { best = enter; hitBuilding = IsTerrain(cell) ? null : BuildingAt(cell); }
+                && (enter < best || (enter == best && terrain)))
+            { best = enter; hitBuilding = terrain ? null : occupant; }
         }
         return best;
     }

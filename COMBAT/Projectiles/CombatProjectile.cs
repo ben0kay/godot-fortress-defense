@@ -32,7 +32,7 @@ public partial class CombatProjectile : Node2D
     public void InitializeHostile(WorldGrid grid, Vector2 direction, float damage, float speed, float lifetime, float radius, float length,
         ProjectileCollisionProfile collision = ProjectileCollisionProfile.GroundObstructed, ICombatTarget intended = null)
     {
-        if (!System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.Airborne
+        if (!System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.Airborne || collision == ProjectileCollisionProfile.FriendlyTowerGround
             || (collision == ProjectileCollisionProfile.IntendedGroundTarget && !CombatTarget.IsAlive(intended)))
             throw new System.ArgumentException("Invalid building-target projectile profile.");
         _collision = collision;
@@ -51,8 +51,10 @@ public partial class CombatProjectile : Node2D
         Vector2 end = from + _direction * travel;
         Building ignored = GodotObject.IsInstanceValid(_source) ? _source : null;
         Building buildingHit = null;
-        float obstruction = _collision == ProjectileCollisionProfile.GroundObstructed
-            ? _grid.FirstObstacleFraction(from, end, _radius, out buildingHit, ignored)
+        bool ground = _collision == ProjectileCollisionProfile.GroundObstructed || _collision == ProjectileCollisionProfile.FriendlyTowerGround;
+        float obstruction = ground
+            ? _grid.FirstObstacleFraction(from, end, _radius, out buildingHit, ignored,
+                _collision == ProjectileCollisionProfile.FriendlyTowerGround ? WorldProjectileFilter.FriendlyTower : WorldProjectileFilter.AllSolids)
             : _grid.FirstWorldBoundaryFraction(from, end, _radius);
         float first = obstruction;
         if (_hostile)

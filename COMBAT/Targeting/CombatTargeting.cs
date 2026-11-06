@@ -9,7 +9,7 @@ public static class CombatTargeting
         && GodotObject.IsInstanceValid(fog) && fog.IsInsideTree() && fog.IsVisible(enemy.GlobalPosition);
 
     // Logical sight is mandatory, independent of presentation. Only nearby buckets are inspected, using a caller-owned scratch list and deterministic distance ties.
-    public static Enemy Closest(EnemyRegistry registry, WorldGrid grid, Building source, float range, List<Enemy> scratch, FogOfWar fog, EnemyTargetLayers layers = EnemyTargetLayers.Ground)
+    public static Enemy Closest(EnemyRegistry registry, WorldGrid grid, Building source, float range, List<Enemy> scratch, FogOfWar fog, EnemyTargetLayers layers = EnemyTargetLayers.Ground, float projectileRadius = 0)
     {
         Vector2 origin = source.GlobalPosition;
         registry.Query(new Rect2(origin - Vector2.One * range, Vector2.One * range * 2), scratch);
@@ -19,15 +19,18 @@ public static class CombatTargeting
             if (!Valid(enemy, origin, range, fog, layers)) continue;
             float distance = origin.DistanceSquaredTo(enemy.GlobalPosition);
             if (distance > score || (distance == score && best != null && enemy.GetInstanceId() >= best.GetInstanceId())) continue;
-            if (!ClearShot(grid, origin, enemy.GlobalPosition, 0, source, CombatLayers.ShotProfile(enemy))) continue;
+            if (!ClearShot(grid, origin, enemy.GlobalPosition, projectileRadius, source, CombatLayers.ShotProfile(enemy))) continue;
             score = distance; best = enemy;
         }
         return best;
     }
 
-    // Eligibility and obstruction are distinct: air shots ignore ground geometry while ground shots retain it.
+    // Friendly tower LOS uses the same filtered swept query as delivery; generic ground queries retain all solids.
     public static bool ClearShot(WorldGrid grid, Vector2 from, Vector2 to, float radius, Building source, ProjectileCollisionProfile profile) =>
-        profile == ProjectileCollisionProfile.Airborne || grid.SegmentClear(from, to, radius, source);
+        profile == ProjectileCollisionProfile.Airborne
+        || (profile == ProjectileCollisionProfile.FriendlyTowerGround
+            ? !float.IsFinite(grid.FirstObstacleFraction(from, to, radius, source, WorldProjectileFilter.FriendlyTower))
+            : grid.SegmentClear(from, to, radius, source));
 
     // The original Battle gun points upward, so the pivot includes a +90-degree forward correction.
     public static bool Track(Node2D pivot, Vector2 target, float speedDegrees, float toleranceDegrees, double delta)
