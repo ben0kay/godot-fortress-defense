@@ -14,6 +14,7 @@ public partial class BattlefieldCamera : Camera2D
     [Export] public Vector2 FramePadding { get; set; } = new(64, 120);
     [ExportGroup("Movement / Bounds")]
     [Export] public MouseButton PanButton { get; set; } = MouseButton.Middle;
+    [Export] public float KeyboardPanSpeed { get; set; } = 900;
     [Export] public float PanSensitivity { get; set; } = 1;
     [Export] public float FollowSmoothing { get; set; } = 10;
     [Export] public Vector2 FollowOffset { get; set; }
@@ -39,6 +40,7 @@ public partial class BattlefieldCamera : Camera2D
         if (_initialized || !float.IsFinite(MinimumZoom) || !float.IsFinite(MaximumZoom) || MinimumZoom <= 0 || MaximumZoom < MinimumZoom
             || !float.IsFinite(StartingZoom) || StartingZoom <= 0 || !float.IsFinite(FollowZoom) || FollowZoom <= 0
             || !float.IsFinite(ZoomStep) || ZoomStep <= 1 || !float.IsFinite(FollowSmoothing) || FollowSmoothing < 0
+            || !float.IsFinite(KeyboardPanSpeed) || KeyboardPanSpeed <= 0
             || !float.IsFinite(PanSensitivity) || PanSensitivity <= 0 || bounds.Size.X <= 0 || bounds.Size.Y <= 0)
             throw new InvalidOperationException("Invalid battlefield camera settings/bounds.");
         _bounds = bounds; _initialized = true; BindTarget(target); MakeCurrent();
@@ -67,17 +69,36 @@ public partial class BattlefieldCamera : Camera2D
     {
         IsFollowing = false; _dragging = false;
         Zoom = Vector2.One * Mathf.Clamp(_freeZoom, MinimumZoom, MaximumZoom); GlobalPosition = ClampPosition(_freePosition);
-        SetProcess(false); ModeChanged?.Invoke(); Notice?.Invoke("Camera: Free Roam (C: follow; Home: full map)");
+        SetProcess(true); ModeChanged?.Invoke(); Notice?.Invoke("Camera: Free Roam (C: follow; Home: full map)");
     }
     private void OnTargetLost() => BindTarget(null);
 
-    // Follow is the only continuous camera work; target availability is event-driven, never searched for.
+    // Free Roam only processes while panning with the keyboard.
     public override void _Process(double delta)
     {
+        if (!IsFollowing) { PanWithKeyboard(delta); return; }
         if (!CombatTarget.IsAlive(_target)) { ReturnToFree(); return; }
         float weight = FollowSmoothing <= 0 ? 1 : 1 - Mathf.Exp(-FollowSmoothing * (float)delta);
         GlobalPosition = ClampPosition(GlobalPosition.Lerp(_target.TargetNode.GlobalPosition + FollowOffset, weight));
     }
+    private void PanWithKeyboard(double delta)
+    {
+        if ((InputBlocked?.Invoke() ?? false) || GetViewport().GuiGetFocusOwner() != null)
+        { SetProcess(false); return; }
+
+        Vector2 direction = new(
+            (Input.IsPhysicalKeyPressed(Key.Right) ? 1 : 0) - (Input.IsPhysicalKeyPressed(Key.Left) ? 1 : 0),
+            (Input.IsPhysicalKeyPressed(Key.Down) ? 1 : 0) - (Input.IsPhysicalKeyPressed(Key.Up) ? 1 : 0));
+        if (direction == Vector2.Zero) { SetProcess(false); return; }
+
+        Vector2 next = ClampPosition(GlobalPosition + direction.Normalized() * (KeyboardPanSpeed * (float)delta) / Zoom.X);
+        if (next == GlobalPosition) return;
+        GlobalPosition = next;
+        _fullMap = false;
+    }
+
+    internal static bool IsPanKey(Key key) => key is Key.Up or Key.Down or Key.Left or Key.Right;
+
     public void FrameWorld()
     {
         if (IsFollowing) ReturnToFree();
@@ -96,6 +117,8 @@ public partial class BattlefieldCamera : Camera2D
             if (key.Keycode == ToggleKey) ToggleFollow(); else FrameWorld();
             GetViewport().SetInputAsHandled();
         }
+        if (!IsFollowing && input is InputEventKey arrow && IsPanKey(arrow.PhysicalKeycode == Key.None ? arrow.Keycode : arrow.PhysicalKeycode))
+            SetProcess(true);
         if (input is InputEventMouseButton mouse && mouse.ButtonIndex == PanButton && !mouse.Pressed) _dragging = false;
     }
     public override void _UnhandledInput(InputEvent input)
@@ -132,7 +155,11 @@ public partial class BattlefieldCamera : Camera2D
             _bounds.Size.Y <= half.Y * 2 ? center.Y : Mathf.Clamp(position.Y, _bounds.Position.Y + half.Y, _bounds.End.Y - half.Y));
     }
     public override void _Notification(int what)
-    { if (what == NotificationWMWindowFocusOut || what == NotificationApplicationFocusOut) _dragging = false; }
+    {
+        if (what != NotificationWMWindowFocusOut && what != NotificationApplicationFocusOut) return;
+        _dragging = false;
+        if (!IsFollowing) SetProcess(false);
+    }
     public override void _ExitTree()
     {
         if (_target != null && GodotObject.IsInstanceValid(_target.TargetNode)) _target.TargetLost -= OnTargetLost;

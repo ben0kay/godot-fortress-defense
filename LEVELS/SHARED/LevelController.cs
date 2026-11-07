@@ -249,6 +249,10 @@ public partial class LevelController : Node2D
         if (GodotObject.IsInstanceValid(_statusTimer)) _statusTimer.Timeout -= RefreshDisplay;
         if (GodotObject.IsInstanceValid(_newWorld)) _newWorld.Pressed -= RegenerateNew;
         if (GodotObject.IsInstanceValid(_sameWorld)) _sameWorld.Pressed -= RegenerateSame;
-        if (GodotObject.IsInstanceValid(_camera)) _camera.Notice -= OnCameraNotice;
+        if (GodotObject.IsInstanceValid(_camera))
+        {
+            _camera.Notice -= OnCameraNotice;
+            _camera.ModeChanged -= OnCameraModeChanged;
+        }
     }
 }

@@ -18,6 +18,7 @@ public partial class Player : Node2D, ICombatTarget
     public float Health { get; private set; }
     public bool IsDead { get; private set; }
     public Func<bool> InputBlocked { get; set; }
+    internal Func<Key, bool> MovementKeyBlocked { get; set; }
     public event Action HealthChanged;
     public event Action Died;
     public event Action TargetLost;
@@ -50,13 +51,15 @@ public partial class Player : Node2D, ICombatTarget
     }
     public void WakeMovement() { if (_initialized && TargetAlive) SetPhysicsProcess(true); }
 
+    private bool IsMovementKeyHeld(Key key) => !(MovementKeyBlocked?.Invoke(key) ?? false) && Input.IsPhysicalKeyPressed(key);
+
     // Full segment tests prevent tunnelling; separate axes permit simple wall sliding without a second collision grid.
     public override void _PhysicsProcess(double delta)
     {
         if (!TargetAlive || World == null || (InputBlocked?.Invoke() ?? false) || GetViewport().GuiGetFocusOwner() != null)
         { _velocity = Vector2.Zero; SetPhysicsProcess(false); return; }
-        Vector2 direction = new((Input.IsPhysicalKeyPressed(RightKey) ? 1 : 0) - (Input.IsPhysicalKeyPressed(LeftKey) ? 1 : 0),
-            (Input.IsPhysicalKeyPressed(DownKey) ? 1 : 0) - (Input.IsPhysicalKeyPressed(UpKey) ? 1 : 0));
+        Vector2 direction = new((IsMovementKeyHeld(RightKey) ? 1 : 0) - (IsMovementKeyHeld(LeftKey) ? 1 : 0),
+            (IsMovementKeyHeld(DownKey) ? 1 : 0) - (IsMovementKeyHeld(UpKey) ? 1 : 0));
         _velocity = _velocity.MoveToward(direction.Normalized() * MovementSpeed, Acceleration * (float)delta);
         Vector2 step = _velocity * (float)delta;
         MoveAxis(new(step.X, 0)); MoveAxis(new(0, step.Y));
@@ -100,5 +103,5 @@ public partial class Player : Node2D, ICombatTarget
         if (what == NotificationWMWindowFocusOut || what == NotificationApplicationFocusOut)
         { _velocity = Vector2.Zero; SetPhysicsProcess(false); }
     }
-    public override void _ExitTree() { PublishLost(); _flash?.Kill(); InputBlocked = null; }
+    public override void _ExitTree() { PublishLost(); _flash?.Kill(); InputBlocked = null; MovementKeyBlocked = null; }
 }

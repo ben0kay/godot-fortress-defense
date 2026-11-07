@@ -26,6 +26,7 @@ public partial class LevelController
                     throw new System.InvalidOperationException("Player spawn overlaps solids, bounds or another actor.");
                 GetNode<Node2D>("RootPlayer").AddChild(player); player.GlobalPosition = position;
                 CurrentPlayer = player; player.InputBlocked = () => _buildMenuOpen;
+                player.MovementKeyBlocked = key => !_camera.IsFollowing && BattlefieldCamera.IsPanKey(key);
             }
             catch { player.Free(); throw; }
         }
@@ -37,11 +38,13 @@ public partial class LevelController
         _camera.InputBlocked = () => _buildMenuOpen;
         _camera.PanAllowed = () => Config != null || !_overlay; // DEBUG's B + MMB terrain edit remains available.
         _camera.Notice += OnCameraNotice;
+        _camera.ModeChanged += OnCameraModeChanged;
         _camera.Initialize(_grid.FootprintRect(_grid.Bounds), CurrentPlayer);
         Objectives = GetNode<LevelObjectiveSignals>("Objectives");
         Objectives.Bind(_citadel, CurrentPlayer, Config?.PlayerRequiredForDefeat ?? false, Config?.CitadelRequiredForDefeat ?? true);
     }
     private bool PlayerAlive => GodotObject.IsInstanceValid(CurrentPlayer) && CurrentPlayer.TargetAlive;
     private bool CanPlaceActors(Rect2I area) => _enemies.CanPlace(_grid, area) && (!PlayerAlive || !CurrentPlayer.BlocksPlacement(_grid, area));
+    private void OnCameraModeChanged() { if (PlayerAlive) CurrentPlayer.WakeMovement(); }
     private void OnCameraNotice(string text) { _notice = text; if (_status != null && !_closing) RefreshDisplay(); }
 }
