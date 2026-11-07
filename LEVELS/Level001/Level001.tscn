@@ -5,3 +5,7 @@
 
 [node name="Level001" unique_id=614095825 instance=ExtResource("1")]
 Config = ExtResource("2")
+
+[node name="Camera2D" parent="RootCamera" index="0"]
+StartFullMap = false
+StartingZoom = 0.8
