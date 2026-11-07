@@ -22,8 +22,8 @@ Branching = 0.35
 
 [sub_resource type="Resource" id="Grid"]
 script = ExtResource("2")
-MapWidthCells = 63
-MapHeightCells = 63
+MapWidthCells = 127
+MapHeightCells = 127
 CellSize = 64.0
 
 [resource]
