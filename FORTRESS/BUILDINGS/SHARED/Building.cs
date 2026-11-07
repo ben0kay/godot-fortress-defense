@@ -63,7 +63,8 @@ public partial class Building : Node2D, ICombatTarget
         if (Definition == null) throw new InvalidOperationException("Building definition is required.");
         Definition.Validate(); BuildingId = Definition.BuildingId; Footprint = Definition.Footprint;
         MaxHealth = Health = Definition.MaxHealth;
-        BlocksFriendlyTowerProjectiles = Definition.BlocksFriendlyTowerProjectiles; _initialized = true;
+        BlocksFriendlyTowerProjectiles = Definition.BlocksFriendlyTowerProjectiles;
+        InitializeConstruction(); _initialized = true;
     }
 
     // A bare base scene is not self-placing; all insertion goes through the placement service.
@@ -125,6 +126,8 @@ public partial class Building : Node2D, ICombatTarget
         if (GodotObject.IsInstanceValid(_registry)) _registry.Unregister(this);
         if (GodotObject.IsInstanceValid(_grid)) _grid.Release(this, OccupiedArea);
         _grid = null; _registry = null;
-        SetSelected(false); Detached?.Invoke();
+        SetSelected(false);
+        if (!IsOperational) WorkCancelled?.Invoke(this);
+        Detached?.Invoke();
     }
 }

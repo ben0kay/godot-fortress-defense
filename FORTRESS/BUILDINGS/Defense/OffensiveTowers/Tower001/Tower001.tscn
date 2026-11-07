@@ -1,10 +1,13 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 [ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/SHARED/Building.tscn" id="1"]
 [ext_resource type="Script" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001.cs" id="2"]
 [ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001Definition.tres" id="3"]
 [ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Tower001CombatConfig.tres" id="4"]
 [ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/battle_base.svg" id="5"]
 [ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/battle_gun.svg" id="6"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionVisuals.cs" id="ConstructionVisuals"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/Construction/BattleConstructionArt.tres" id="ConstructionArt"]
+
 [node name="Tower001" instance=ExtResource("1")]
 script = ExtResource("2")
 Definition = ExtResource("3")
@@ -20,3 +23,8 @@ position = Vector2(0, -28.5)
 visible = false
 polygon = PackedVector2Array(0, -10, 2, -3, 6, -4, 3, 0, 6, 3, 1, 2, -3, 4, -2, 0, -5, -3, -1, -3)
 color = Color(1, 0.85, 0.3, 0.9)
+
+[node name="ConstructionSprite" type="Sprite2D" parent="Visuals" index="2"]
+visible = false
+script = ExtResource("ConstructionVisuals")
+Art = ExtResource("ConstructionArt")

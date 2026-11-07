@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="BuildingConstructionArt" load_steps=9 format=3]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionArt.cs" id="Art"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionStage.cs" id="Stage"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/Construction/stage0_foundation.svg" id="Tex0"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/Construction/stage1_frame.svg" id="Tex1"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Defense/OffensiveTowers/Tower001/Artwork/Construction/stage2_assembly.svg" id="Tex2"]
+
+[sub_resource type="Resource" id="Stage0"]
+script = ExtResource("Stage")
+Progress = 0.00
+Texture = ExtResource("Tex0")
+
+[sub_resource type="Resource" id="Stage1"]
+script = ExtResource("Stage")
+Progress = 0.35
+Texture = ExtResource("Tex1")
+
+[sub_resource type="Resource" id="Stage2"]
+script = ExtResource("Stage")
+Progress = 0.70
+Texture = ExtResource("Tex2")
+
+[resource]
+script = ExtResource("Art")
+Stages = Array[ExtResource("Stage")]([SubResource("Stage0"), SubResource("Stage1"), SubResource("Stage2")])

@@ -8,7 +8,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     private ProjectileTowerConfig _stats;
     private FogOfWar _fog;
     // Sight defaults to the placed weapon snapshot; the building override permits scouts/artillery later.
-    public override float? VisionRadius => base.VisionRadius ?? _stats?.RangePixels ?? CombatConfig?.RangePixels;
+    public override float? VisionRadius => IsOperational ? base.VisionRadius ?? _stats?.RangePixels ?? CombatConfig?.RangePixels : null;
     private Sprite2D _baseSprite, _gun;
     private Node2D _visuals, _turret;
     private Marker2D _muzzle;
@@ -33,6 +33,8 @@ public partial class ProjectileTower : Building, IBuildingCombat
         CombatConfig ??= new ProjectileTowerConfig(); CombatConfig.Validate();
         _stats = (ProjectileTowerConfig)CombatConfig.Duplicate(); _random.Seed = GetInstanceId();
         PresentationChanged += OnPresentation;
+        WorkCompleted += OnWorkCompleted;
+        OnPresentation();
         Placed += OnPlaced; Detached += OnDetached; SelectionChanged += OnSelection; HealthChanged += QueueRedraw;
     }
     private void OnPlaced()
@@ -53,7 +55,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     }
     private void OnEnemiesChanged()
     {
-        bool awake = _stats.TargetLayers != EnemyTargetLayers.None && IsPlaced && !IsDestroyed && GodotObject.IsInstanceValid(_enemies) && _enemies.Count > 0;
+        bool awake = IsOperational && _stats.TargetLayers != EnemyTargetLayers.None && IsPlaced && !IsDestroyed && GodotObject.IsInstanceValid(_enemies) && _enemies.Count > 0;
         if (!awake) { _target = null; _candidates.Clear(); _shotTimer = _flashTimer = 0; _flash.Visible = false; }
         SetPhysicsProcess(awake);
     }
@@ -77,7 +79,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     // Keep aim/fire responsive, but acquire only at staggered intervals; no full-scene target search.
     public override void _PhysicsProcess(double delta)
     {
-        if (!IsPlaced || IsDestroyed || !GodotObject.IsInstanceValid(_projectiles)) return;
+        if (!IsOperational || !IsPlaced || IsDestroyed || !GodotObject.IsInstanceValid(_projectiles)) return;
         _flashTimer = Mathf.Max(0, _flashTimer - (float)delta); _flash.Visible = HasCurrentVision && _flashTimer > 0;
         _searchTimer -= (float)delta; _shotTimer = Mathf.Max(-.05f, _shotTimer - (float)delta);
         if (_searchTimer <= 0)
@@ -103,10 +105,19 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _flashTimer = .045f; _flash.Visible = HasCurrentVision;
     }
 
+    private void OnWorkCompleted(Building site)
+    {
+        _searchTimer = Phase * Mathf.Max(.05f, _stats.SearchInterval);
+        OnPresentation();
+        OnEnemiesChanged();
+    }
+
     // Selection and health redraw on changes only; base platform never rotates with the turret.
     private void OnPresentation()
     {
-        _gun.Visible = HasCurrentVision; _flash.Visible = HasCurrentVision && _flashTimer > 0;
+        _baseSprite.Visible = IsOperational;
+        _gun.Visible = IsOperational && HasCurrentVision;
+        _flash.Visible = IsOperational && HasCurrentVision && _flashTimer > 0;
         OnSelection();
     }
     private void OnSelection()
@@ -119,7 +130,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         if (!IsPlaced || _stats == null || !HasCurrentVision) return;
         if (IsSelected)
         {
-            DrawArc(Vector2.Zero, _stats.RangePixels, 0, Mathf.Tau, 96, new Color(.3f, .8f, 1, .4f), 1, true);
+            if (IsOperational) DrawArc(Vector2.Zero, _stats.RangePixels, 0, Mathf.Tau, 96, new Color(.3f, .8f, 1, .4f), 1, true);
             DrawRect(new Rect2(-FootprintPixels * .5f, FootprintPixels).Grow(2), Colors.Yellow, false, 1);
         }
         Rect2 bar = new(new(-FootprintPixels.X * .5f, -FootprintPixels.Y * .5f - 7), new(FootprintPixels.X, 4));
@@ -127,6 +138,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
     }
     public override void _ExitTree()
     {
+        WorkCompleted -= OnWorkCompleted;
         Unbind(); PresentationChanged -= OnPresentation; Placed -= OnPlaced; Detached -= OnDetached; SelectionChanged -= OnSelection; HealthChanged -= QueueRedraw;
         base._ExitTree(); _stats?.Dispose(); _random.Dispose();
     }

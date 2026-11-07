@@ -7,6 +7,7 @@ public partial class BuildingPlacement : Node
 {
     public Func<Rect2I, bool> AdditionalValidation { get; set; }
     public event Action<Building> Placed;
+    public event Action<Building> ConstructionRequested;
     public event Action CatalogueChanged;
     public IReadOnlyDictionary<string, BuildingCatalogueEntry> Catalogue { get; private set; }
     private readonly HashSet<string> _allowed = new(StringComparer.Ordinal);
@@ -61,7 +62,7 @@ public partial class BuildingPlacement : Node
             failure = "Placement failed; no resources charged";
             if (!_wallet.TryPurchase(entry.Definition.Cost, () => TryClaim(entry.Scene, anchor, entry.Definition, out placed))) return false;
             building = placed; failure = "";
-            _wallet.PublishBalanceChanged(); Placed?.Invoke(placed);
+            _wallet.PublishBalanceChanged(); PublishPlacement(placed);
             return true;
         }
         finally { _busy = false; }
@@ -76,9 +77,16 @@ public partial class BuildingPlacement : Node
         try
         {
             if (!TryClaim(scene, anchor, null, out building)) return false;
-            Placed?.Invoke(building); return true;
+            PublishPlacement(building); return true;
         }
         finally { _busy = false; }
+    }
+
+    // Explicit post-commit construction contract for paid and intentionally free placements.
+    private void PublishPlacement(Building building)
+    {
+        Placed?.Invoke(building);
+        if (building.RequiresConstruction) ConstructionRequested?.Invoke(building);
     }
 
     // Any failed claim frees the candidate, invoking canonical occupancy/registry cleanup even after AddChild.

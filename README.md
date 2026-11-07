@@ -168,3 +168,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## FOG-PERF1A hidden enemy cosmetics
 
 **Source Implemented / Awaiting Owner Validation.** Hidden shared enemy visuals can now skip flash ticks and cosmetic redraw work while gameplay simulation continues unchanged. F2 adds **Optimize Hidden Enemy Visuals** plus logical visible/hidden counts; turning fog presentation off restores normal cosmetics for inspection. Initial setting: FogMasterConfig.OptimizeHiddenEnemyVisuals=true. [Lifecycle, settings and owner checks](ENEMIES/PERFORMANCE/README.md). No measured FPS gain or AI throttling is claimed.
+
+## C1 Battle Tower construction
+
+**Source Implemented / Awaiting Owner Validation.** Tower001 Level 1 places its foundation immediately, waits for a Citadel drone, and begins three seconds of staged work after beam deployment. The original turret and full vision activate at completion. The builder returns for reuse. See the [construction lifecycle](FORTRESS/BUILDINGS/SHARED/Construction/README.md) and [drone settings](FORTRESS/SYSTEMS/ConstructionDrones/README.md).
