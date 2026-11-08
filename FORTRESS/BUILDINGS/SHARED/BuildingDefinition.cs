@@ -21,6 +21,10 @@ public partial class BuildingDefinition : Resource
     [ExportGroup("Projectile Obstruction / COMBAT1")]
     [Export] public bool BlocksFriendlyTowerProjectiles { get; set; } = true;
 
+    [ExportGroup("Damage Response / DMG0")]
+    [Export] public DamageAffinityProfile DamageAffinity { get; set; }
+    [Export] public StatusImmunityProfile StatusImmunity { get; set; }
+
     // Definitions are read once on spawn; a footprint never silently changes while reserved.
     public void Validate()
     {

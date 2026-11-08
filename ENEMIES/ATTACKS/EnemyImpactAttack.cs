@@ -12,7 +12,7 @@ public sealed class EnemyImpactAttack
         float entry = CombatGeometry.SegmentRectEntry(from, to, target.TargetBounds(grid).Grow(enemy.Radius));
         if (!float.IsFinite(entry)) return false;
         _resolved = true; enemy.SetMovementPosition(from.Lerp(to, entry));
-        try { target.ApplyDamage(enemy.AttackDamage); }
+        try { target.ApplyDamage(enemy.AttackHit); }
         finally { enemy.Despawn(); }
         return true;
     }

@@ -1,4 +1,4 @@
-// Minimal scalar-damage target contract shared by static buildings and optional mobile actors.
+// Targeting and typed damage contract shared by static buildings and optional mobile actors.
 using Godot;
 using System;
 
@@ -8,6 +8,7 @@ public interface ICombatTarget
     bool TargetAlive { get; }
     Rect2 TargetBounds(WorldGrid grid);
     event Action TargetLost;
+    void ApplyDamage(DamageInfo hit);
     void ApplyDamage(float amount);
 }
 

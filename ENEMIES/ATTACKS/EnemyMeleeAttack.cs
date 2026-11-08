@@ -8,6 +8,6 @@ public sealed class EnemyMeleeAttack
     public bool TryAttack(Enemy enemy, WorldGrid grid, ICombatTarget target, bool ignoreGround = false)
     {
         if (_remaining > 0 || !EnemyTargeting.CanAttackFrom(grid, enemy.GlobalPosition, target, enemy.AttackRange, 0, ignoreGround)) return false;
-        _remaining = enemy.AttackCooldown; target.ApplyDamage(enemy.AttackDamage); return true;
+        _remaining = enemy.AttackCooldown; target.ApplyDamage(enemy.AttackHit); return true;
     }
 }

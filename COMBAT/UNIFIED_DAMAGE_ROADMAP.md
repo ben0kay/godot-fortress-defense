@@ -1,7 +1,7 @@
 # Unified Combat & Damage Roadmap — DMG0 onward
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** Planned (documentation only; no combat code implemented by this plan).
+**Status:** DMG0 Source Implemented / Awaiting Owner Validation. FX1 and DMG1 onward are Planned.
 
 ## Purpose and boundaries
 
@@ -112,4 +112,4 @@ For each pass preserve spatial buckets, swept collision, cached shot stats, even
 
 Test friendly and hostile delivery paths, player/building/Citadel/enemy receivers, ground/air masks, friendly shots over Wall001 only, hostile shots hitting walls, fog targeting with presentation disabled, damage after shooter removal, immunity per active layer, status immunity independence, many simultaneous attackers, teardown/reset. Avoid claiming future passes are completed just because their interfaces or notes exist.
 
-**Only DMG0 is next.** Do not implement FX1/DMG1/DMG2/DMG3/DMG4 without separate owner authorization.
+**DMG0 awaits owner validation.** FX1/DMG1/DMG2/DMG3/DMG4 each require separate owner authorization.

@@ -54,6 +54,9 @@ public partial class Building : Node2D, ICombatTarget
     private WorldGrid _grid;
     private BuildingRegistry _registry;
     private CollisionShape2D _collision;
+    private DamageResponseProfile _damageResponse;
+    private DamageAffinityProfile _damageAffinity;
+    private StatusImmunityProfile _statusImmunity;
     private bool _initialized;
 
     // Placement initializes before AddChild; inherited scene definitions remain shared authoring data.
@@ -62,6 +65,8 @@ public partial class Building : Node2D, ICombatTarget
         if (_initialized) throw new InvalidOperationException("Building already initialized.");
         if (Definition == null) throw new InvalidOperationException("Building definition is required.");
         Definition.Validate(); BuildingId = Definition.BuildingId; Footprint = Definition.Footprint;
+        _damageResponse = DamageResponseProfile.Default;
+        _damageAffinity = Definition.DamageAffinity; _statusImmunity = Definition.StatusImmunity;
         MaxHealth = Health = Definition.MaxHealth;
         BlocksFriendlyTowerProjectiles = Definition.BlocksFriendlyTowerProjectiles;
         InitializeConstruction(); _initialized = true;
@@ -96,11 +101,19 @@ public partial class Building : Node2D, ICombatTarget
         IsSelected = selected; SelectionChanged?.Invoke();
     }
 
-    // Scalar structural damage only; shields, resistances and weapons are later capabilities.
-    public void ApplyDamage(float amount)
+    // Developer damage uses the same typed receiver as gameplay.
+    public void ApplyDamage(float amount) => ApplyDamage(DamageInfo.FromLegacy(amount));
+
+    // Independent effect eligibility for future delivery after a surviving hit.
+    public bool AllowsStatusEffect(StatusEffectPayload effect) => StatusImmunityProfile.Allows(effect, _statusImmunity);
+
+    // Resolve the hit, then let this actor publish health and lifecycle changes.
+    public void ApplyDamage(DamageInfo hit)
     {
-        if (!IsPlaced || IsDestroyed || !float.IsFinite(amount) || amount <= 0) return;
-        Health = Mathf.Max(0, Health - amount);
+        if (!TargetAlive || hit.Amount == 0) return;
+        DamageResult result = DamageResolver.Resolve(hit, 0, 0, Health, _damageResponse, _damageAffinity);
+        if (result.HullLoss == 0) return;
+        Health = result.Hull;
         if (Health <= 0) Destroy();
         else HealthChanged?.Invoke();
     }

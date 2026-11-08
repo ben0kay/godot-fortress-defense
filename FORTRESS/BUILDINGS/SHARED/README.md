@@ -38,3 +38,5 @@ Catalogue authoring: all included definitions must retain Purchasable=true and t
 ## COMBAT1 projectile obstruction
 
 **Source Implemented / Awaiting Owner Validation.** BuildingDefinition → BlocksFriendlyTowerProjectiles defaults true; Building snapshots it at initialization. Wall001 authors false so friendly ground tower rounds/LOS pass over it. Other towers, CPU and all other existing definitions keep true. Future low barriers can author false without implementing combat or a type-name filter. This never changes physical collision, grid occupancy, navigation, vision or enemy projectile obstruction. Reload/place new instances after authoring changes. Shared filtered delivery is documented in [COMBAT](../../../COMBAT/README.md#combat1--friendly-tower-rounds-over-low-barriers).
+
+DMG0 routes structural damage through the shared typed resolver. Building owns HP, destruction, footprint release and construction cancellation. Assign optional **Damage Affinity** and **Status Immunity** resources in BuildingDefinition. See [COMBAT](../../../COMBAT/README.md#dmg0-typed-damage).

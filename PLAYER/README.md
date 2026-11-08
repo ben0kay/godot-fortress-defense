@@ -1,6 +1,6 @@
 # PL0 — optional modular player
 
-**Source Implemented / Awaiting Owner Validation.** `Player.tscn` is a small Node2D chassis with geometric aqua visuals inspired by VECTOR TD's player, scalar health, damage flash and health arc. No weapon, ability, upgrade, physics-body crowd system or global player singleton.
+**Source Implemented / Awaiting Owner Validation.** `Player.tscn` is a small Node2D chassis with geometric aqua visuals inspired by VECTOR TD's player, hull HP with typed damage, damage flash and health arc. No weapon, ability, upgrade, physics-body crowd system or global player singleton.
 
 In **Level001 root → Config**, enable **SpawnPlayer** and choose **PlayerScene** (authored default `res://PLAYER/Player.tscn`). The default is **disabled**, preserving the no-player benchmark. Shared level composition spawns at RootWorld/PlayerSpawn beside the CPU; RootPlayer is a plain container. Missing player is normal. Enabled spawning with a missing/wrong scene or obstructed spawn reports a clear authoring error. Player-required + spawning-disabled is invalid configuration, rather than a hidden defeat on optional-player levels.
 
@@ -17,3 +17,5 @@ EnemyDefinition exposes CitadelOnly / PreferNearbyPlayer (default) / NearestWith
 `LevelObjectiveSignals` exposes unconditional PlayerDied and CitadelDestroyed events plus one-shot DefeatRequested(reason). LevelConfig.PlayerRequiredForDefeat defaults false; CitadelRequiredForDefeat defaults true. Required-player removal also requests defeat; optional/no-player absence/death does not. EndSession unsubscribes during reload, and the objective node exits before actors during scene teardown. This is only an integration hook: no pause, mission-end flow or results screen. The CPU's existing death/spawner stop behavior remains intact even when its future defeat hook is disabled.
 
 Owner check: run Level001 unchanged (no player), then enable SpawnPlayer. Inspect arrow movement/collision, wall placement on actor, health/damage/death, and removal while followed. Configure an eligible enemy versus CitadelOnly, and compare player-required/optional death events. These are owner editor checks; no gameplay/FPS acceptance is claimed.
+
+DMG0 binds the shared response profile and optional **Damage Affinity** and **Status Immunity** resources on Player. The chassis still owns hit feedback, health and target-loss events. See [COMBAT](../COMBAT/README.md#dmg0-typed-damage).

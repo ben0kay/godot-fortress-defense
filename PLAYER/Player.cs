@@ -1,4 +1,4 @@
-// Optional drop-in chassis: keyboard movement, authoritative grid sweeps and scalar health; no weapons.
+// Optional drop-in chassis: keyboard movement, authoritative grid sweeps and typed health damage; no weapons.
 using Godot;
 using System;
 
@@ -15,6 +15,12 @@ public partial class Player : Node2D, ICombatTarget
     [ExportGroup("Health / Binding")]
     [Export] public float MaxHealth { get; set; } = 100;
     [Export] public WorldGrid World { get; set; }
+    [ExportGroup("Damage Response / DMG0")]
+    [Export] public DamageAffinityProfile DamageAffinity { get; set; }
+    [Export] public StatusImmunityProfile StatusImmunity { get; set; }
+    private DamageResponseProfile _damageResponse;
+    private DamageAffinityProfile _damageAffinity;
+    private StatusImmunityProfile _statusImmunity;
     public float Health { get; private set; }
     public bool IsDead { get; private set; }
     public Func<bool> InputBlocked { get; set; }
@@ -35,6 +41,8 @@ public partial class Player : Node2D, ICombatTarget
         if (world == null || !float.IsFinite(MovementSpeed) || MovementSpeed <= 0 || !float.IsFinite(Acceleration) || Acceleration <= 0
             || !float.IsFinite(Radius) || Radius <= 0 || Radius >= world.CellSize * .5f || !float.IsFinite(MaxHealth) || MaxHealth <= 0)
             throw new InvalidOperationException("Invalid player stats or world binding.");
+        _damageResponse = DamageResponseProfile.Default;
+        _damageAffinity = DamageAffinity; _statusImmunity = StatusImmunity;
         World = world; Health = MaxHealth; _initialized = true;
     }
     public override void _Ready()
@@ -75,10 +83,19 @@ public partial class Player : Node2D, ICombatTarget
     public bool BlocksPlacement(WorldGrid grid, Rect2I area) => TargetAlive
         && (grid.FootprintRect(area).Grow(Radius + .05f).HasPoint(GlobalPosition)
             || area.Grow(grid.ClearanceCells).HasPoint(grid.WorldToCell(GlobalPosition)));
-    public void ApplyDamage(float amount)
+    // Developer damage uses the same typed receiver as gameplay.
+    public void ApplyDamage(float amount) => ApplyDamage(DamageInfo.FromLegacy(amount));
+
+    // Independent effect eligibility for future delivery after a surviving hit.
+    public bool AllowsStatusEffect(StatusEffectPayload effect) => StatusImmunityProfile.Allows(effect, _statusImmunity);
+
+    // Resolve the hit, then let this actor publish health and lifecycle changes.
+    public void ApplyDamage(DamageInfo hit)
     {
-        if (!TargetAlive || !float.IsFinite(amount) || amount <= 0) return;
-        Health = Mathf.Max(0, Health - amount); HealthChanged?.Invoke(); QueueRedraw();
+        if (!TargetAlive || hit.Amount == 0) return;
+        DamageResult result = DamageResolver.Resolve(hit, 0, 0, Health, _damageResponse, _damageAffinity);
+        if (result.HullLoss == 0) return;
+        Health = result.Hull; HealthChanged?.Invoke(); QueueRedraw();
         if (Health <= 0)
         {
             IsDead = true; SetPhysicsProcess(false); Hide(); PublishLost(); Died?.Invoke(); QueueFree(); return;

@@ -31,6 +31,11 @@ public partial class Enemy : Node2D
     private EnemyPathRequests _requests;
     private readonly EnemyMovement _movement = new();
     private readonly EnemyMeleeAttack _attack = new();
+    private DamageResponseProfile _damageResponse;
+    private DamageAffinityProfile _damageAffinity;
+    private StatusImmunityProfile _statusImmunity;
+    private DamageInfo _attackHit;
+    internal DamageInfo AttackHit => _attackHit;
     private bool _attached, _noRoute;
 
     // Spawner supplies all references/stats once, before entering the tree.
@@ -39,6 +44,8 @@ public partial class Enemy : Node2D
         if (_attached) throw new System.InvalidOperationException("Enemy already initialized.");
         if (Definition == null) throw new System.InvalidOperationException("Enemy definition is required.");
         Definition.Validate(grid.CellSize);
+        _damageResponse = DamageResponseProfile.Default;
+        _damageAffinity = Definition.DamageAffinity; _statusImmunity = Definition.StatusImmunity;
         _grid = grid; _registry = registry; _requests = requests; StrategicTarget = citadel; NavigationTarget = citadel; _targets = targets;
         MovementLayer = Definition.MovementLayer; IsImpact = Definition.AttackBehavior == EnemyAttackBehavior.Impact;
         if (RadiusDoesNotFitWorld(Definition.Radius, grid)) throw new System.InvalidOperationException("Enemy radius does not fit world bounds.");
@@ -48,6 +55,7 @@ public partial class Enemy : Node2D
         MaxHealth = Health = Definition.MaxHealth; Radius = Definition.Radius;
         Speed = Definition.MovementSpeed; TurnSpeed = Definition.TurnSpeed;
         AttackRange = Definition.AttackRange; AttackDamage = Definition.AttackDamage; AttackCooldown = Definition.AttackCooldown;
+        _attackHit = new(AttackDamage, DamageType.Kinetic, new DamageSource(DamageSourceKind.Enemy, this));
         InitializeCapabilities();
         if (HuntsBuildings) { StrategicTarget = null; NavigationTarget = null; AcquisitionState = "Initial acquisition"; }
         _attached = true;
@@ -148,11 +156,19 @@ public partial class Enemy : Node2D
     public void SetMovementPosition(Vector2 position)
     { GlobalPosition = position; if (_attached && GodotObject.IsInstanceValid(_registry)) _registry.UpdatePosition(this); }
 
-    // Shared receiver used by real projectiles and developer damage controls.
-    public void ApplyDamage(float amount)
+    // Developer damage uses the same typed receiver as gameplay.
+    public void ApplyDamage(float amount) => ApplyDamage(DamageInfo.FromLegacy(amount));
+
+    // Independent effect eligibility for future delivery after a surviving hit.
+    public bool AllowsStatusEffect(StatusEffectPayload effect) => StatusImmunityProfile.Allows(effect, _statusImmunity);
+
+    // Resolve the hit, then let this actor publish health and lifecycle changes.
+    public void ApplyDamage(DamageInfo hit)
     {
-        if (IsDead || !float.IsFinite(amount) || amount <= 0) return;
-        Health = Mathf.Max(0, Health - amount); VisualChanged?.Invoke();
+        if (!_attached || IsDead || IsQueuedForDeletion() || hit.Amount == 0) return;
+        DamageResult result = DamageResolver.Resolve(hit, 0, 0, Health, _damageResponse, _damageAffinity);
+        if (result.HullLoss == 0) return;
+        Health = result.Hull; VisualChanged?.Invoke();
         if (Health == 0)
         {
             var pulse = new DestructionPulse { Radius = Radius * 2, Tint = Colors.OrangeRed };

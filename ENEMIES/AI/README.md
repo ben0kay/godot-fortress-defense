@@ -6,7 +6,7 @@ Reachability/selection runs inside the cooperative request queue described in `.
 
 ## Revised PL0 — optional mobile objective
 
-ICombatTarget (COMBAT) supplies scalar damage, target bounds and one-shot loss notifications for Building/Player. The original StrategicTarget remains the cached CPU; NavigationTarget is the chosen CPU/mobile objective, while ActiveTarget can still be a temporary breach building. EnemyTargeting.ChooseObjective owns the simple Inspector rule: CitadelOnly, PreferNearbyPlayer (default), or NearestWithinRange, with PlayerDetectionRange500px. Stats snapshot at spawn.
+ICombatTarget (COMBAT) supplies typed damage, target bounds and one-shot loss notifications for Building/Player. The original StrategicTarget remains the cached CPU; NavigationTarget is the chosen CPU/mobile objective, while ActiveTarget can still be a temporary breach building. EnemyTargeting.ChooseObjective owns the simple Inspector rule: CitadelOnly, PreferNearbyPlayer (default), or NearestWithinRange, with PlayerDetectionRange500px. Stats snapshot at spawn.
 
 EnemyTargetRoster caches one explicitly injected mobile target; it never searches scenes. A linked round-robin list processes at most4 cheap decisions/frame, normally at least.6s apart per enemy; higher populations can lengthen this interval. No player means no roster processing. Removal/death invalidates cached goals and queues CPU routes immediately; path work remains staggered by the existing shared queue.
 

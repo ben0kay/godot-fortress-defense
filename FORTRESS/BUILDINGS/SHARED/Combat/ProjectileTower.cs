@@ -6,6 +6,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
 {
     [Export] public ProjectileTowerConfig CombatConfig { get; set; }
     private ProjectileTowerConfig _stats;
+    private DamageInfo _shotHit;
     private FogOfWar _fog;
     // Sight defaults to the placed weapon snapshot; the building override permits scouts/artillery later.
     public override float? VisionRadius => IsOperational ? base.VisionRadius ?? _stats?.RangePixels ?? CombatConfig?.RangePixels : null;
@@ -32,6 +33,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _muzzle = GetNode<Marker2D>("Visuals/TurretPivot/Muzzle"); _flash = GetNode<Polygon2D>("Visuals/TurretPivot/Muzzle/Flash");
         CombatConfig ??= new ProjectileTowerConfig(); CombatConfig.Validate();
         _stats = (ProjectileTowerConfig)CombatConfig.Duplicate(); _random.Seed = GetInstanceId();
+        _shotHit = new(_stats.Damage, DamageType.Kinetic, new DamageSource(DamageSourceKind.FriendlyBuilding, this));
         PresentationChanged += OnPresentation;
         WorkCompleted += OnWorkCompleted;
         OnPresentation();
@@ -98,7 +100,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         float spread = Mathf.DegToRad(_random.RandfRange(-_stats.SpreadDegrees, _stats.SpreadDegrees));
         Vector2 direction = Vector2.Up.Rotated(_turret.GlobalRotation + spread);
         var bullet = new CombatProjectile();
-        bullet.Initialize(_grid, _enemies, this, direction, _stats.Damage, _stats.ProjectileSpeed,
+        bullet.Initialize(_grid, _enemies, this, direction, _shotHit, _stats.ProjectileSpeed,
             _stats.RangePixels + _grid.CellSize, _stats.ProjectileRadius, _stats.TracerLength, CombatLayers.Of(_target), collision);
         _projectiles.AddChild(bullet); bullet.GlobalPosition = _muzzle.GlobalPosition;
         _shotTimer = Mathf.Max(0, 1 / _stats.ShotsPerSecond + _shotTimer);

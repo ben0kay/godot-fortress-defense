@@ -11,13 +11,14 @@ public partial class CombatProjectile : Node2D
     private EnemyTargetLayers _targetLayers;
     private ProjectileCollisionProfile _collision;
     private Vector2 _direction;
-    private float _damage, _speed, _remainingDistance, _radius, _length;
+    private DamageInfo _damage;
+    private float _speed, _remainingDistance, _radius, _length;
     private bool _spent, _hostile;
     private readonly List<Enemy> _candidates = new();
 
     // No original target reference: missed rounds continue straight and may hit a different enemy.
     public void Initialize(WorldGrid grid, EnemyRegistry enemies, Building source, Vector2 direction,
-        float damage, float speed, float distance, float radius, float length,
+        DamageInfo damage, float speed, float distance, float radius, float length,
         EnemyTargetLayers targetLayers = EnemyTargetLayers.Ground, ProjectileCollisionProfile collision = ProjectileCollisionProfile.GroundObstructed)
     {
         if (!CombatLayers.Valid(targetLayers) || !System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.IntendedGroundTarget)
@@ -29,7 +30,7 @@ public partial class CombatProjectile : Node2D
     }
 
     // Ground hostile shots use first-solid hits; explicit overflight shots retain only their intended ground target.
-    public void InitializeHostile(WorldGrid grid, Vector2 direction, float damage, float speed, float lifetime, float radius, float length,
+    public void InitializeHostile(WorldGrid grid, Vector2 direction, DamageInfo damage, float speed, float lifetime, float radius, float length,
         ProjectileCollisionProfile collision = ProjectileCollisionProfile.GroundObstructed, ICombatTarget intended = null)
     {
         if (!System.Enum.IsDefined(collision) || collision == ProjectileCollisionProfile.Airborne || collision == ProjectileCollisionProfile.FriendlyTowerGround

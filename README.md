@@ -139,7 +139,7 @@ Before making substantial changes, inspect the current repository state, the app
 
 ## Revised PL0 + CAM0 — optional chassis and camera
 
-**Source Implemented / Awaiting Owner Validation.** Level001 stays player-free by default. Enable Config → SpawnPlayer (PlayerScene already points to PLAYER/Player.tscn) to spawn an arrow-key chassis beside the CPU. Configurable enemy rules can attack it using existing queued navigation and scalar damage; removal/death returns enemies to Citadel behavior. Placement rejects the player body. **C** toggles free/follow only for a living player; **Home** frames the map. Free Roam is always the default. Enemy clearing is now exclusively in F2's existing Clear control. F1/F2/Ctrl building and tower combat remain available. See [player/settings/objective events](PLAYER/README.md) and [camera/settings](CAMERA/README.md). No player weapons or full defeat/results flow.
+**Source Implemented / Awaiting Owner Validation.** Level001 stays player-free by default. Enable Config → SpawnPlayer (PlayerScene already points to PLAYER/Player.tscn) to spawn an arrow-key chassis beside the CPU. Configurable enemy rules can attack it using existing queued navigation and typed damage; removal/death returns enemies to Citadel behavior. Placement rejects the player body. **C** toggles free/follow only for a living player; **Home** frames the map. Free Roam is always the default. Enemy clearing is now exclusively in F2's existing Clear control. F1/F2/Ctrl building and tower combat remain available. See [player/settings/objective events](PLAYER/README.md) and [camera/settings](CAMERA/README.md). No player weapons or full defeat/results flow.
 
 ## EN2 — Enemy002 Building-Hunter Shooter
 
@@ -172,3 +172,7 @@ Before making substantial changes, inspect the current repository state, the app
 ## C1 Battle Tower construction
 
 **Source Implemented / Awaiting Owner Validation.** Tower001 Level 1 places its foundation immediately, waits for a Citadel drone, and begins three seconds of staged work after beam deployment. The original turret and full vision activate at completion. The builder returns for reuse. See the [construction lifecycle](FORTRESS/BUILDINGS/SHARED/Construction/README.md) and [drone settings](FORTRESS/SYSTEMS/ConstructionDrones/README.md).
+
+## DMG0 shared damage
+
+**Source Implemented / Awaiting Owner Validation.** Existing attacks share a typed damage packet and resolver. Enemy, Player and Building still own their health and lifecycle. See [damage authoring and owner checks](COMBAT/README.md#dmg0-typed-damage).

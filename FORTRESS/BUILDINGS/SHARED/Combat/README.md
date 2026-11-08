@@ -21,3 +21,5 @@ BindCombat now requires this world's initialized FogOfWar. Spatial/staggered acq
 ## COMBAT1 wall overflight
 
 **Source Implemented / Awaiting Owner Validation.** Ground shots select FriendlyTowerGround; acquisition, final muzzle LOS and delivery use the same filtered WORLD sweep and authored projectile radius. Wall001 opts out through BuildingDefinition.BlocksFriendlyTowerProjectiles=false, while ordinary structures, CPU and dead terrain still obstruct. Airborne shots, FW1 sight/layer checks, combat scheduling and in-flight enemy sweeps remain intact. Hostile shots cannot select this profile. No wall-specific tower branch or detector added. See [collision policy and owner checks](../../../../COMBAT/README.md#combat1--friendly-tower-rounds-over-low-barriers).
+
+DMG0 snapshots the configured damage into a Kinetic packet with weak tower attribution. Ground and air rounds copy it at launch and use the same typed enemy receiver. See [COMBAT](../../../../COMBAT/README.md#dmg0-typed-damage).

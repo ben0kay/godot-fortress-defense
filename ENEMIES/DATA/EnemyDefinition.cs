@@ -28,6 +28,10 @@ public partial class EnemyDefinition : Resource
     [ExportGroup("Optional Ranged Attack")]
     [Export] public EnemyRangedConfig RangedAttack { get; set; }
 
+    [ExportGroup("Damage Response / DMG0")]
+    [Export] public DamageAffinityProfile DamageAffinity { get; set; }
+    [Export] public StatusImmunityProfile StatusImmunity { get; set; }
+
     // Ground radii must fit the shared ground profile; flyers only require positive radius and world fit at spawn.
     public void Validate(float cellSize)
     {

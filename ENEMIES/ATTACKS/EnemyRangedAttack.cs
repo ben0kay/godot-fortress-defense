@@ -27,7 +27,7 @@ public sealed class EnemyRangedAttack
         direction = aim - muzzle;
         if (direction.LengthSquared() < .0001f || (_collision == ProjectileCollisionProfile.GroundObstructed && !grid.SegmentClear(muzzle, aim, _radius, target as Building))) return false;
         var bullet = new CombatProjectile();
-        bullet.InitializeHostile(grid, direction, enemy.AttackDamage, _speed, _lifetime, _radius, _length, _collision, target);
+        bullet.InitializeHostile(grid, direction, enemy.AttackHit, _speed, _lifetime, _radius, _length, _collision, target);
         projectiles.AddChild(bullet); bullet.GlobalPosition = muzzle;
         _remaining = enemy.AttackCooldown; return true;
     }

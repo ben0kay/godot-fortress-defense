@@ -1,7 +1,7 @@
 # DMG0 — Shared Typed Damage, Layer Affinities and Future Status Contracts
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** Planned — Codex implementation specification. This document does **not** mean source is implemented.  
+**Status:** Source Implemented / Awaiting Owner Validation. The specification below records the implemented scope and owner checks.
 **Companion:** [UNIFIED_DAMAGE_ROADMAP.md](UNIFIED_DAMAGE_ROADMAP.md).
 
 ## Task for Codex
