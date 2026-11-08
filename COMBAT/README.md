@@ -1,3 +1,7 @@
+## Planned unified damage migration (DMG0 first)
+
+**Status: Planned — no DMG0 source implementation yet.** Read [DMG0 implementation plan](DMG0_IMPLEMENTATION_PLAN.md) for the complete next Codex pass, and [unified damage roadmap](UNIFIED_DAMAGE_ROADMAP.md) for the later FX1/status effects, DMG1/splash, DMG2/beams, DMG3/defenses and DMG4/modifiers. These plans incorporate read-only references from Godot Tower Defense, VECTOR TD 2026 and GameMaker Space Shooter. Implement **DMG0 only** until further owner authorization; current scalar damage behavior below describes the existing source.
+
 # COMBAT — basic shared projectile/targeting foundation
 
 **Status: Source Implemented / Awaiting Owner Validation.**
