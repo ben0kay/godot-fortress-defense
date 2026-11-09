@@ -115,6 +115,10 @@ In particular:
 
 Work in small, independently testable passes. Keep the project playable after each major addition. Port **behavior and design intent**, not GameMaker-specific object/event patterns.
 
+## Planned PWR0 — Adaptive Power Mesh
+
+**Status: Planned, not implemented.** Fortress power will use a range-based relay graph (Citadel relay anchor, automatic proximity links, component merge/split and nearest-node non-relay attachments), **not** terrain-conductivity islands. Start with [PWR0 implementation plan](FORTRESS/SYSTEMS/PowerNetwork/PWR0_IMPLEMENTATION_PLAN.md) and use the [full power roadmap](FORTRESS/SYSTEMS/PowerNetwork/ADAPTIVE_POWER_MESH_ROADMAP.md) for PWR1–PWR5 scope. PWR0 only establishes topology; active output, Battle Tower consumption, relay buildings and generators are separate later passes.
+
 ## Development notes
 
 This is a **separate sister project**, not a replacement for either reference repository. The target is to preserve what made Vector TD 2026 distinctive—direct player combat, destructible defenses, enemy counterattacks, power and physical logistics—while benefiting from the modular structure and maintainability of Godot Tower Defense.
