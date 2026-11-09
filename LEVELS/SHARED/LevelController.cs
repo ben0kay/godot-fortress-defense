@@ -86,6 +86,7 @@ public partial class LevelController : Node2D
             throw new System.InvalidOperationException("Citadel does not fit the level clearing.");
         PowerNetwork = GetNode<PowerNetworkManager>("RootFortress/PowerNetwork");
         PowerNetwork.BindBuilding(_citadel, PowerRole.Relay, PowerNetwork.CitadelRelayRadius);
+        PowerNetwork.BindGenerator(_citadel, PowerNetwork.CitadelRelayRadius, PowerNetwork.CitadelEnergyPerSecond);
         if (_generated != null)
         {
             Rect2I markerArea = new(_generated.PlayerCell, Vector2I.One);
@@ -144,6 +145,12 @@ public partial class LevelController : Node2D
         string selected = EnemyTargeting.Live(_selected) && _selected.HasCurrentVision ? $" | Selected {_selected.BuildingId} {_selected.Health:0}/{_selected.MaxHealth:0} HP" : "";
         if (selected.Length > 0 && _selected.RequiresConstruction)
             selected += " | " + BuildingWorkStatus.Describe(_selected);
+        if (selected.Length > 0 && _selected is Tower001 { IsOperational: true, Capacitor: { } buffer } tower)
+        {
+            bool connected = PowerNetwork.NetworkFor(tower, PowerRole.Consumer).NetworkId >= 0;
+            selected += $" | Power {buffer.Charge:0.0}/{buffer.Capacity:0} | {(buffer.IsPowered ? "READY" : "NO POWER")}";
+            if (!connected) selected += " | OUT OF NETWORK";
+        }
         string player = PlayerAlive ? $"Player {CurrentPlayer.Health:0}/{CurrentPlayer.MaxHealth:0}" : "Player absent";
         _status.Text = $"{cpu} | {player} | Camera {(_camera.IsFollowing ? "FOLLOW" : "FREE")} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
         if (_generated != null)
@@ -172,7 +179,10 @@ public partial class LevelController : Node2D
     }
     // Optional combat capabilities are bound at composition, never through hard-coded paths in buildings.
     private void OnBuildingPlaced(Building building)
-    { if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles, Fog); }
+    {
+        if (building is Tower001 tower) tower.BindPower(PowerNetwork);
+        if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles, Fog);
+    }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.
     public override void _UnhandledInput(InputEvent input)
     {

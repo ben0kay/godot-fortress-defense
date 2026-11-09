@@ -9,7 +9,7 @@ public partial class PowerMeshSmoke : Node
     {
         CheckTopology();
         CheckBuildingLifecycle();
-        GD.Print("PWR0 power mesh smoke passed.");
+        GD.Print("PWR0/PWR1 power mesh smoke passed.");
         GetTree().Quit();
     }
 
@@ -59,18 +59,33 @@ public partial class PowerMeshSmoke : Node
         Require(placement.TryPlaceFree(cpuScene, new(1, 1), out Building cpu), "fixture Citadel placement");
         Require(placement.TryPlaceFree(towerScene, new(6, 1), out Building site), "fixture C1 placement");
         long relay = mesh.BindBuilding(cpu, PowerRole.Relay, mesh.CitadelRelayRadius);
-        mesh.BindBuilding(cpu, PowerRole.Generator, 400);
-        long consumer = mesh.BindBuilding(site, PowerRole.Consumer, 400);
+        mesh.BindGenerator(cpu, 400, 10);
+        var tower = (Tower001)site;
+        tower.BindPower(mesh);
+        mesh.Distribute(1, 1);
         Require(mesh.NetworkCount == 1 && mesh.EndpointCount == 1
-            && mesh.NetworkFor(consumer) == PowerMembership.Disconnected, "pending site is absent");
+            && mesh.NetworkFor(tower, PowerRole.Consumer) == PowerMembership.Disconnected
+            && tower.Capacitor.Charge == 0, "pending site is absent");
         site.StartConstruction();
         site.AdvanceConstruction(site.ConstructionDuration);
         Require(mesh.EndpointCount == 2 && mesh.NetworkFor(site, PowerRole.Consumer).RelayId == relay, "completed site joins");
+        Require(placement.TryPlaceFree(towerScene, new(8, 1), out Building secondSite), "second tower placement");
+        var second = (Tower001)secondSite;
+        second.BindPower(mesh);
+        second.StartConstruction();
+        second.AdvanceConstruction(second.ConstructionDuration);
+        mesh.Distribute(1, 1);
+        Require(tower.Capacitor.Charge == 3 && second.Capacitor.Charge == 3 && !tower.Capacitor.IsPowered, "finite shared budget and idle drain");
+        mesh.Distribute(2, 2);
+        Require(tower.Capacitor.IsPowered && tower.Capacitor.TrySpendShot() && tower.Capacitor.Charge == 5, "restart threshold and prepaid shot");
         cpu.Destroy();
-        Require(mesh.NetworkCount == 0 && mesh.EndpointCount == 1
-            && mesh.NetworkFor(consumer) == PowerMembership.Disconnected, "Citadel death removes both roles");
+        mesh.Distribute(1, 1);
+        Require(mesh.NetworkCount == 0 && mesh.EndpointCount == 2
+            && mesh.NetworkFor(tower, PowerRole.Consumer) == PowerMembership.Disconnected
+            && tower.Capacitor.Charge == 3 && !tower.Capacitor.IsPowered, "Citadel death cuts supply and stored power drains");
         site.Remove();
-        Require(mesh.EndpointCount == 0 && !mesh.Remove(consumer), "site removal clears registration");
+        second.Remove();
+        Require(mesh.EndpointCount == 0, "site removal clears registration");
     }
 
     // Surface mismatches in the editor output with the individual contract name.

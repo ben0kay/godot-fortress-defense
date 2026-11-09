@@ -6,4 +6,4 @@ DEBUG centers the scene and gives its reference directly to the enemy spawner. D
 
 WG0 Level001 places this same inherited scene in a protected central clearing; its shared placement/health remain unchanged. The player marker is a separate reserved traversable ground cell, not part of the CPU's blocked footprint. CPU art/collision size follows the level's grid cell size automatically.
 
-PWR0 binds the placed Citadel as the initial relay. Tune **Citadel Relay Radius** on `RootFortress/PowerNetwork` (default 400 world pixels). Destruction removes its membership. Electrical generation starts in PWR1. [Power Network](../../../SYSTEMS/PowerNetwork/README.md).
+PWR0 binds the placed Citadel as the initial relay. Tune **Citadel Relay Radius** on `RootFortress/PowerNetwork` (default 400 world pixels). Destruction removes its membership. PWR1 adds **Citadel Energy Per Second** (default 30) on the same manager. Destruction removes the generator and relay together. [Power Network](../../../SYSTEMS/PowerNetwork/README.md).

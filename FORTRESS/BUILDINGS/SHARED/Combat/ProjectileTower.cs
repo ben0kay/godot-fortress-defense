@@ -55,11 +55,21 @@ public partial class ProjectileTower : Building, IBuildingCombat
         _enemies.Changed += OnEnemiesChanged; _searchTimer = Phase * Mathf.Max(.05f, _stats.SearchInterval);
         OnEnemiesChanged();
     }
+    protected virtual bool WeaponPowered => true;
+    protected virtual bool TryPayForShot() => true;
+
+    // Power and enemy changes share the same wake/sleep boundary. A power outage preserves cooldown.
+    protected void RefreshWeaponActivity() => OnEnemiesChanged();
     private void OnEnemiesChanged()
     {
         bool awake = IsOperational && _stats.TargetLayers != EnemyTargetLayers.None && IsPlaced && !IsDestroyed && GodotObject.IsInstanceValid(_enemies) && _enemies.Count > 0;
-        if (!awake) { _target = null; _candidates.Clear(); _shotTimer = _flashTimer = 0; _flash.Visible = false; }
-        SetPhysicsProcess(awake);
+        bool powered = WeaponPowered;
+        if (!awake || !powered)
+        {
+            _target = null; _candidates.Clear(); _flashTimer = 0; _flash.Visible = false;
+            if (!awake) _shotTimer = 0;
+        }
+        SetPhysicsProcess(awake && powered);
     }
     private void OnDetached()
     {
@@ -97,6 +107,7 @@ public partial class ProjectileTower : Building, IBuildingCombat
         ProjectileCollisionProfile collision = CombatLayers.ShotProfile(_target);
         if (!CombatTargeting.ClearShot(_grid, _muzzle.GlobalPosition, _target.GlobalPosition, _stats.ProjectileRadius, this, collision))
         { _target = null; return; }
+        if (!TryPayForShot()) return;
         float spread = Mathf.DegToRad(_random.RandfRange(-_stats.SpreadDegrees, _stats.SpreadDegrees));
         Vector2 direction = Vector2.Up.Rotated(_turret.GlobalRotation + spread);
         var bullet = new CombatProjectile();

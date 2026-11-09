@@ -119,6 +119,7 @@ public partial class PowerNetworkManager : Node
     public bool Remove(long id)
     {
         if (!_entries.Remove(id, out var entry)) return false;
+        RemoveDelivery(id);
         if (entry.Active) { entry.Active = false; Invalidate(id, entry, true); }
         if (entry.Owner != null && _owners.TryGetValue(entry.Owner, out var binding))
         {
@@ -150,6 +151,7 @@ public partial class PowerNetworkManager : Node
         _owners.Clear(); _entries.Clear(); _activeRelays.Clear(); _components.Clear();
         _unvisited.Clear(); _frontier.Clear();
         EndpointCount = 0; _relayDirty = false; TopologyRevision++;
+        ClearDelivery();
     }
 
     private static void ValidateGeometry(Vector2 position, float radius)
@@ -175,6 +177,7 @@ public partial class PowerNetworkManager : Node
             if (entry.Active != wasActive) EndpointCount += entry.Active ? 1 : -1;
             entry.AttachmentRevision = 0;
         }
+        InvalidateDelivery();
     }
 
     // O(1) on the clean path. An endpoint with no mutual-range relay is disconnected.

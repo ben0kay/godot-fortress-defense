@@ -1,6 +1,6 @@
 # Energy buildings and Adaptive Power Mesh
 
-**Status: PWR0 Source Implemented / Awaiting Owner Validation.** Operational power gameplay starts in PWR1.
+**Status: PWR0 and PWR1 Source Implemented / Awaiting Owner Validation.** Citadel generation and Tower001 power are active.
 
 Fortress Defense uses a **range-based relay backbone**. The existing Citadel is the initial relay node; future placeable metallic Power Relays bridge independent networks and allow automatic merge/split when built or destroyed. Producers, batteries and consumers attach as leaves to their nearest in-range relay, never extending the backbone themselves. Each connected network will later share finite generation and storage, while individual buildings keep private capacitors.
 
