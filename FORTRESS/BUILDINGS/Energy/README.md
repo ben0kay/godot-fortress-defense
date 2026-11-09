@@ -1,7 +1,12 @@
-# Energy
+# Energy buildings and Adaptive Power Mesh
 
-**Status:** Organizational folder only; no building gameplay implemented.
+**Status: Planned — no operational power gameplay implemented yet.**
 
-Generators, solar panels, wind turbines, batteries and pylons/relays. Network calculation belongs in FORTRESS/SYSTEMS/PowerNetwork.
+Fortress Defense will use a **range-based relay backbone**, not terrain-based power islands. Citadel initially acts as a relay node; future placeable metallic Power Relays bridge independent networks and allow automatic merge/split when built or destroyed. Producers, batteries and consumers attach as leaves to their nearest in-range relay, never extending the backbone themselves. Each connected network will later share finite generation and storage, while individual buildings keep private capacitors.
 
-Every concrete placeable building scene here must inherit `FORTRESS/BUILDINGS/SHARED/Building.tscn`. Building category is not the same as its optional capabilities. Do not create duplicated placement, health, grid or resource systems per type.
+**Codex starting point:** [PWR0 topology implementation plan](../../SYSTEMS/PowerNetwork/PWR0_IMPLEMENTATION_PLAN.md).  
+**Full staged roadmap:** [Adaptive Power Mesh](../../SYSTEMS/PowerNetwork/ADAPTIVE_POWER_MESH_ROADMAP.md).
+
+Power topology/accounting belongs in `FORTRESS/SYSTEMS/PowerNetwork/`; actual generators, relays and batteries belong in this `FORTRESS/BUILDINGS/Energy/` folder. Each concrete placeable building must inherit `FORTRESS/BUILDINGS/SHARED/Building.tscn` and use the existing placement, health, credits and C1 construction mechanics. Building category is independent of opt-in power capability.
+
+PWR0 implements graph membership only; PWR1 adds Citadel output and Tower001 power consumption, PWR2 adds a placeable relay, PWR3 dedicated generators/batteries, PWR4 network UI and PWR5 advanced disruption/AI. **None of these plans authorizes later passes automatically.**
