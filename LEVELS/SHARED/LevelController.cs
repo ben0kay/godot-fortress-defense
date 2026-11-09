@@ -15,6 +15,7 @@ public partial class LevelController : Node2D
     private bool _buildMenuOpen, _placementAffordable;
     public ResourceWallet Resources { get; private set; }
     public BuildingPlacement Placement => _placement;
+    public PowerNetworkManager PowerNetwork { get; private set; }
     private string _creditDiagnostic = "Free DEBUG placement";
     public EnemyRegistry DebugEnemies => _enemies;
     public EdgeEnemySpawner DebugSpawner => _spawner;
@@ -83,6 +84,8 @@ public partial class LevelController : Node2D
         _view.Initialize(_grid, _navigation);
         if (!_placement.TryPlaceFree(CitadelScene, cpuArea.Position, out _citadel))
             throw new System.InvalidOperationException("Citadel does not fit the level clearing.");
+        PowerNetwork = GetNode<PowerNetworkManager>("RootFortress/PowerNetwork");
+        PowerNetwork.BindBuilding(_citadel, PowerRole.Relay, PowerNetwork.CitadelRelayRadius);
         if (_generated != null)
         {
             Rect2I markerArea = new(_generated.PlayerCell, Vector2I.One);

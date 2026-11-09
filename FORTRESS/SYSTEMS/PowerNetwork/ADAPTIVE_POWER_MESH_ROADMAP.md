@@ -1,7 +1,7 @@
 # Adaptive Power Mesh — Implementation Roadmap
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** **Planned**, documentation only. **PWR0** is the next standalone Codex implementation pass: [PWR0_IMPLEMENTATION_PLAN.md](PWR0_IMPLEMENTATION_PLAN.md).
+**Status:** **PWR0 Source Implemented / Awaiting Owner Validation.** PWR1–PWR5 remain planned. PWR0 specification: [PWR0_IMPLEMENTATION_PLAN.md](PWR0_IMPLEMENTATION_PLAN.md).
 
 ## Product direction
 
@@ -47,7 +47,7 @@ Use compact interfaces/components or an explicit registration API for node/leaf 
 
 | Pass | Status | Deliverable / boundary |
 | --- | --- | --- |
-| **PWR0** | **Planned, NEXT** | Range graph, deterministic relay connected components, nearest-leaf attachment, Citadel as initial node (topology only), lifecycle/merge/split, read-only diagnostics + focused checks. **No operational power costs or energy allocation yet.** |
+| **PWR0** | **Source Implemented / Awaiting Owner Validation** | Range graph, deterministic relay connected components, nearest-leaf attachment, Citadel as initial node (topology only), lifecycle/merge/split, read-only diagnostics + focused checks. **No operational power costs or energy allocation yet.** |
 | **PWR1** | Planned | Citadel small generation, Tower001 capacitor, idle/shot energy cost and no-power/recovery state, finite per-network energy-rate budget. Only Tower001 opts in first. Preserve DMG0 damage and C1 construction. |
 | **PWR2** | Planned | Constructible metallic Power Relay (price, health, C1 drone/stage artwork), build-menu entry, automatic bridge/split, range preview and connection feedback. |
 | **PWR3** | Planned | Placeable dedicated generator(s) and battery(s), per-network generation/storage, priority allocation; initial stable output (solar/wind variation later). |

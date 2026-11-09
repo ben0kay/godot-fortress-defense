@@ -78,3 +78,5 @@ AIR2: Ctrl → Defense → Anti-Air Tower / Tower002 is freely placeable using t
 ## FW0 visibility
 
 **Source Implemented / Awaiting Owner Validation.** See [fog ownership, config and limits](../WORLD/FOG/README.md). Shared LevelBase/DEBUG bind CPU and optional player sources through the existing WorldGrid. F2's **Fog of War Enabled** bypasses presentation only; exploration keeps tracking. Enemy visuals, shots and destruction effects are clipped without changing simulation. Friendly bases remain known/dim; unseen HP/selection/turret feedback is suppressed. LevelConfig → Fog/FogEnabled selects settings/initial presentation; camera controls never reveal terrain. Debug diagnostics refresh at 4 Hz, and standalone Debug instances can receive an explicit Fog node reference. Runtime and FPS comparisons remain owner checks.
+
+PWR0 adds power network, relay and endpoint counts to the expanded F2 panel. The initial Citadel is one relay in one network. [PWR0 setup and checks](../FORTRESS/SYSTEMS/PowerNetwork/README.md).

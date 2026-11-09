@@ -115,9 +115,9 @@ In particular:
 
 Work in small, independently testable passes. Keep the project playable after each major addition. Port **behavior and design intent**, not GameMaker-specific object/event patterns.
 
-## Planned PWR0 — Adaptive Power Mesh
+## PWR0 — Adaptive Power Mesh
 
-**Status: Planned, not implemented.** Fortress power will use a range-based relay graph (Citadel relay anchor, automatic proximity links, component merge/split and nearest-node non-relay attachments), **not** terrain-conductivity islands. Start with [PWR0 implementation plan](FORTRESS/SYSTEMS/PowerNetwork/PWR0_IMPLEMENTATION_PLAN.md) and use the [full power roadmap](FORTRESS/SYSTEMS/PowerNetwork/ADAPTIVE_POWER_MESH_ROADMAP.md) for PWR1–PWR5 scope. PWR0 only establishes topology; active output, Battle Tower consumption, relay buildings and generators are separate later passes.
+**Source Implemented / Awaiting Owner Validation.** The Citadel anchors a range-based relay graph in Level001 and DEBUG. Components can merge or split, and endpoints attach to a single nearest eligible relay. F2 shows counts in the expanded debug panel. [Setup, API and owner checks](FORTRESS/SYSTEMS/PowerNetwork/README.md) · [PWR1–PWR5 roadmap](FORTRESS/SYSTEMS/PowerNetwork/ADAPTIVE_POWER_MESH_ROADMAP.md).
 
 ## Development notes
 

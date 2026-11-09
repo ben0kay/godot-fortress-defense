@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://LEVELS/SHARED/LevelController.cs" id="1"]
 [ext_resource type="Script" path="res://WORLD/Grid/WorldGrid.cs" id="2"]
@@ -44,6 +44,8 @@
 [ext_resource type="Resource" path="res://FORTRESS/SYSTEMS/ConstructionDrones/DefaultConstructionDroneConfig.tres" id="DroneConfig"]
 [ext_resource type="PackedScene" path="res://FORTRESS/SYSTEMS/ConstructionDrones/ConstructionDrone.tscn" id="DroneScene"]
 
+[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/PowerNetwork/PowerNetworkManager.cs" id="PowerNetwork"]
+
 [node name="LevelBase" type="Node2D"]
 script = ExtResource("1")
 CitadelScene = ExtResource("8")
@@ -79,6 +81,9 @@ script = ExtResource("5")
 
 [node name="BuildingPlacement" type="Node" parent="RootFortress"]
 script = ExtResource("6")
+
+[node name="PowerNetwork" type="Node" parent="RootFortress"]
+script = ExtResource("PowerNetwork")
 
 [node name="Buildings" type="Node2D" parent="RootFortress"]
 

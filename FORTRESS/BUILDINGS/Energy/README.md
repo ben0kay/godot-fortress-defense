@@ -1,10 +1,10 @@
 # Energy buildings and Adaptive Power Mesh
 
-**Status: Planned — no operational power gameplay implemented yet.**
+**Status: PWR0 Source Implemented / Awaiting Owner Validation.** Operational power gameplay starts in PWR1.
 
-Fortress Defense will use a **range-based relay backbone**, not terrain-based power islands. Citadel initially acts as a relay node; future placeable metallic Power Relays bridge independent networks and allow automatic merge/split when built or destroyed. Producers, batteries and consumers attach as leaves to their nearest in-range relay, never extending the backbone themselves. Each connected network will later share finite generation and storage, while individual buildings keep private capacitors.
+Fortress Defense uses a **range-based relay backbone**. The existing Citadel is the initial relay node; future placeable metallic Power Relays bridge independent networks and allow automatic merge/split when built or destroyed. Producers, batteries and consumers attach as leaves to their nearest in-range relay, never extending the backbone themselves. Each connected network will later share finite generation and storage, while individual buildings keep private capacitors.
 
-**Codex starting point:** [PWR0 topology implementation plan](../../SYSTEMS/PowerNetwork/PWR0_IMPLEMENTATION_PLAN.md).  
+**PWR0 setup and checks:** [Power Network](../../SYSTEMS/PowerNetwork/README.md).
 **Full staged roadmap:** [Adaptive Power Mesh](../../SYSTEMS/PowerNetwork/ADAPTIVE_POWER_MESH_ROADMAP.md).
 
 Power topology/accounting belongs in `FORTRESS/SYSTEMS/PowerNetwork/`; actual generators, relays and batteries belong in this `FORTRESS/BUILDINGS/Energy/` folder. Each concrete placeable building must inherit `FORTRESS/BUILDINGS/SHARED/Building.tscn` and use the existing placement, health, credits and C1 construction mechanics. Building category is independent of opt-in power capability.

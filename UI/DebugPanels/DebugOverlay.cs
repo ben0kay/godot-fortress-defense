@@ -84,8 +84,12 @@ public partial class DebugOverlay : CanvasLayer
         _enemyType.Disabled = !spawner || _enemyType.ItemCount == 0;
         bool canSpawn = spawner && registry && Spawner.CanSpawnDebugType(_enemyType.Selected);
         var targets = spawner ? Spawner.TargetRoster : null;
-        _targeting.Text = _controls.Visible && GodotObject.IsInstanceValid(targets)
+        string diagnostics = _controls.Visible && GodotObject.IsInstanceValid(targets)
             ? $"Target jobs {targets.PendingAcquisitions} | Global {targets.GlobalSearches} | Local {targets.LocalSearches}" : "";
+        PowerNetworkManager power = _level?.PowerNetwork;
+        if (_controls.Visible && GodotObject.IsInstanceValid(power))
+            diagnostics += $"\nPower networks {power.NetworkCount} | Relays {power.NodeCount} | Endpoints {power.EndpointCount}";
+        _targeting.Text = diagnostics;
         foreach (Button button in _spawnButtons) button.Disabled = !canSpawn;
         _automatic.Text = spawner ? $"Automatic spawning ({Spawner.AutomaticEnemyType})" : "Automatic spawning";
         _automatic.Disabled = !spawner || !Spawner.CanSpawn;

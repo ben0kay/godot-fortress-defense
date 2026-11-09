@@ -13,3 +13,5 @@ RootCombat/Projectiles now hosts shared basic projectiles. LevelController binds
 ## FW0 visibility
 
 **Source Implemented / Awaiting Owner Validation.** See [fog ownership, config and limits](../WORLD/FOG/README.md). Shared LevelBase/DEBUG bind CPU and optional player sources through the existing WorldGrid. F2's **Fog of War Enabled** bypasses presentation only; exploration keeps tracking. Enemy visuals, shots and destruction effects are clipped without changing simulation. Friendly bases remain known/dim; unseen HP/selection/turret feedback is suppressed. LevelConfig → Fog/FogEnabled selects settings/initial presentation; camera controls never reveal terrain. Debug diagnostics refresh at 4 Hz, and standalone Debug instances can receive an explicit Fog node reference. Runtime and FPS comparisons remain owner checks.
+
+LevelBase owns `RootFortress/PowerNetwork`. LevelController binds the placed Citadel as a relay, and regeneration creates a fresh mesh with the new scene. [PWR0 setup and checks](../FORTRESS/SYSTEMS/PowerNetwork/README.md).

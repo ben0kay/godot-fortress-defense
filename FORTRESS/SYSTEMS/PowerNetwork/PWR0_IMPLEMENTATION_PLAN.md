@@ -1,7 +1,7 @@
 # PWR0 — Adaptive Power Mesh Topology Foundation (Codex Implementation Plan)
 
 **Target:** `ben0kay/godot-fortress-defense`, branch **`main`**.  
-**Status:** **Planned / not implemented**. Implement **PWR0 only**.  
+**Status:** **Source Implemented / Awaiting Owner Validation**. PWR0 only.
 **Context:** [ADAPTIVE_POWER_MESH_ROADMAP.md](ADAPTIVE_POWER_MESH_ROADMAP.md).
 
 ## Objective
