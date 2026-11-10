@@ -33,5 +33,5 @@ Generation = SubResource("Generation")
 EnemyStats = SubResource("Enemy")
 Catalogue = ExtResource("Catalogue")
 StartingCredits = 10000
-AllowedBuildingIds = PackedStringArray("wall001", "tower001", "tower002")
+AllowedBuildingIds = PackedStringArray("wall001", "tower001", "tower002", "power_relay")
 PlayerScene = ExtResource("Player")

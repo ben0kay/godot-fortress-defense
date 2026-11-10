@@ -48,7 +48,7 @@ public partial class LevelController
         var definition = _placement.Catalogue[SelectedBuildingId].Definition;
         bool show = _grid.Contains(_hover) && GetViewport().GuiGetHoveredControl() == null;
         bool valid = show && _placementAffordable && _placement.CanPlace(new Rect2I(_hover, definition.Footprint));
-        _buildMenu.Preview.Refresh(_grid, definition, _hover, show, valid);
+        _buildMenu.Preview.Refresh(_grid, definition, _hover, show, valid, PowerNetwork);
     }
     private void PaintBuilding()
     {

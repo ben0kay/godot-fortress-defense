@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001.tscn" id="Wall"]
 [ext_resource type="Resource" uid="uid://b3qlvuqp3fioe" path="res://FORTRESS/BUILDINGS/Defense/Walls/Wall001/Wall001Definition.tres" id="WallDef"]
 
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelay.tscn" id="Relay"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelayDefinition.tres" id="RelayDef"]
+
 [sub_resource type="Resource" id="WallEntry"]
 script = ExtResource("2")
 Definition = ExtResource("WallDef")
@@ -24,6 +27,11 @@ script = ExtResource("2")
 Definition = ExtResource("AADef")
 Scene = ExtResource("AA")
 
+[sub_resource type="Resource" id="RelayEntry"]
+script = ExtResource("2")
+Definition = ExtResource("RelayDef")
+Scene = ExtResource("Relay")
+
 [resource]
 script = ExtResource("1")
-Entries = Array[ExtResource("2")]([SubResource("WallEntry"), SubResource("TowerEntry"), SubResource("AAEntry")])
+Entries = Array[ExtResource("2")]([SubResource("WallEntry"), SubResource("TowerEntry"), SubResource("AAEntry"), SubResource("RelayEntry")])

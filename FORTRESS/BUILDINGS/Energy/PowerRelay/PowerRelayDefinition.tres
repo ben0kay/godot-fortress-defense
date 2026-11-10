@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="PowerRelayDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelayDefinition.cs" id="Definition"]
+[ext_resource type="Script" path="res://FORTRESS/SYSTEMS/Resources/ResourceCost.cs" id="Cost"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/Artwork/relay.svg" id="Icon"]
+
+[sub_resource type="Resource" id="Price"]
+script = ExtResource("Cost")
+Quantity = 60
+
+[resource]
+script = ExtResource("Definition")
+BuildingId = "power_relay"
+DisplayName = "Power Relay"
+Category = 2
+Description = "Extends the power mesh. Links to relays within both transmission radii after construction."
+Icon = ExtResource("Icon")
+Purchasable = true
+Footprint = Vector2i(1, 1)
+MaxHealth = 300.0
+LinkRadius = 320.0
+ConstructionSeconds = 3.0
+Cost = Array[ExtResource("Cost")]([SubResource("Price")])

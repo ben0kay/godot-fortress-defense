@@ -1,0 +1,21 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" path="res://FORTRESS/BUILDINGS/SHARED/Building.tscn" id="Base"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelay.cs" id="Relay"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelayDefinition.tres" id="Definition"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/Artwork/relay.svg" id="Body"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionVisuals.cs" id="Construction"]
+[ext_resource type="Resource" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/RelayConstructionArt.tres" id="Stages"]
+
+[node name="PowerRelay" instance=ExtResource("Base")]
+script = ExtResource("Relay")
+Definition = ExtResource("Definition")
+
+[node name="RelayBody" type="Sprite2D" parent="Visuals" index="0"]
+visible = false
+texture = ExtResource("Body")
+
+[node name="ConstructionSprite" type="Sprite2D" parent="Visuals" index="1"]
+visible = false
+script = ExtResource("Construction")
+Art = ExtResource("Stages")

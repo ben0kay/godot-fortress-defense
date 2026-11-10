@@ -205,6 +205,17 @@ public partial class PowerNetworkManager : Node
         return (uint)networkId < (uint)_components.Count ? _components[networkId] : Array.Empty<long>();
     }
 
+    // Placement preview uses the same mutual range rule without registering a hypothetical node.
+    public bool HasRelayLink(Vector2 position, float radius)
+    {
+        foreach (long id in _activeRelays)
+        {
+            Entry relay = _entries[id];
+            if (InRange(position, radius, relay, out _)) return true;
+        }
+        return false;
+    }
+
     // Direct-link query for inspecting physical relay edges, distinct from component membership.
     public bool AreRelaysLinked(long firstId, long secondId)
         => firstId != secondId && _entries.TryGetValue(firstId, out var first)
@@ -265,9 +276,12 @@ public partial class PowerNetworkManager : Node
 
     // Double intermediates keep squared range and distance finite for all valid float geometry.
     private static bool InRange(Entry a, Entry b, out double distanceSquared)
+        => InRange(a.Position, a.Radius, b, out distanceSquared);
+
+    private static bool InRange(Vector2 position, float linkRadius, Entry b, out double distanceSquared)
     {
-        double dx = (double)a.Position.X - b.Position.X, dy = (double)a.Position.Y - b.Position.Y;
-        double radius = Math.Min(a.Radius, b.Radius);
+        double dx = (double)position.X - b.Position.X, dy = (double)position.Y - b.Position.Y;
+        double radius = Math.Min(linkRadius, b.Radius);
         distanceSquared = dx * dx + dy * dy;
         return distanceSquared <= radius * radius;
     }

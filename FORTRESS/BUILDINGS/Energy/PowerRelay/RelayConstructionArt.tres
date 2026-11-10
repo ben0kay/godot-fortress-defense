@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BuildingConstructionArt" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionArt.cs" id="Art"]
+[ext_resource type="Script" path="res://FORTRESS/BUILDINGS/SHARED/Construction/BuildingConstructionStage.cs" id="Stage"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/Artwork/foundation.svg" id="Foundation"]
+[ext_resource type="Texture2D" path="res://FORTRESS/BUILDINGS/Energy/PowerRelay/Artwork/frame.svg" id="Frame"]
+
+[sub_resource type="Resource" id="FoundationStage"]
+script = ExtResource("Stage")
+Progress = 0.0
+Texture = ExtResource("Foundation")
+
+[sub_resource type="Resource" id="FrameStage"]
+script = ExtResource("Stage")
+Progress = 0.5
+Texture = ExtResource("Frame")
+
+[resource]
+script = ExtResource("Art")
+Stages = Array[ExtResource("Stage")]([SubResource("FoundationStage"), SubResource("FrameStage")])

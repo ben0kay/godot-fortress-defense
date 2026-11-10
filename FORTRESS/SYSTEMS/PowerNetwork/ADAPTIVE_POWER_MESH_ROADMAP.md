@@ -1,7 +1,7 @@
 # Adaptive Power Mesh — Implementation Roadmap
 
 **Repository:** `ben0kay/godot-fortress-defense` · **Branch:** `main`  
-**Status:** **PWR0 and PWR1 Source Implemented / Awaiting Owner Validation.** PWR2–PWR5 remain planned. PWR0 specification: [PWR0_IMPLEMENTATION_PLAN.md](PWR0_IMPLEMENTATION_PLAN.md).
+**Status:** **PWR0–PWR2 Source Implemented / Awaiting Owner Validation.** PWR3–PWR5 remain planned. PWR0 specification: [PWR0_IMPLEMENTATION_PLAN.md](PWR0_IMPLEMENTATION_PLAN.md).
 
 ## Product direction
 
@@ -35,7 +35,7 @@ FORTRESS/SYSTEMS/PowerNetwork/
 FORTRESS/BUILDINGS/Core/Citadel/
   [existing Citadel scene + opt-in future power producer/relay contract]
 FORTRESS/BUILDINGS/Energy/
-  PowerRelay/                   placeable building in PWR2, not PWR0
+  PowerRelay/                   placeable relay
   Generator/                    in PWR3
   Battery/                      in PWR3
 UI/...                          optional diagnostics & visuals later; never system owner
@@ -49,7 +49,7 @@ Use compact interfaces/components or an explicit registration API for node/leaf 
 | --- | --- | --- |
 | **PWR0** | **Source Implemented / Awaiting Owner Validation** | Range graph, deterministic relay connected components, nearest-leaf attachment, Citadel as initial node (topology only), lifecycle/merge/split, read-only diagnostics + focused checks. **No operational power costs or energy allocation yet.** |
 | **PWR1** | **Source Implemented / Awaiting Owner Validation** | Citadel small generation, Tower001 capacitor, idle/shot energy cost and no-power/recovery state, finite per-network energy-rate budget. Only Tower001 opts in first. Preserve DMG0 damage and C1 construction. |
-| **PWR2** | Planned | Constructible metallic Power Relay (price, health, C1 drone/stage artwork), build-menu entry, automatic bridge/split, range preview and connection feedback. |
+| **PWR2** | **Source Implemented / Awaiting Owner Validation** | Constructible metallic Power Relay (price, health, C1 drone/stage artwork), build-menu entry, automatic bridge/split, range preview and connection feedback. |
 | **PWR3** | Planned | Placeable dedicated generator(s) and battery(s), per-network generation/storage, priority allocation; initial stable output (solar/wind variation later). |
 | **PWR4** | Planned | Selected-only connected links/coverage view, local network Inspector totals, unmet demand, recharge and outage indicators. |
 | **PWR5** | Planned | Advanced priorities, optional environmental generation factors, network weakness/articulation-point analysis and enemy infrastructure sabotage roles. |

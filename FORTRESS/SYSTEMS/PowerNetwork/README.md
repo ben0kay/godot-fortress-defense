@@ -18,7 +18,7 @@ PWR0 defines topology. PWR1 uses it for generation and consumption, and PWR2 add
 
 ## Owner checks
 
-1. Run `TESTS/Power/PowerMeshSmoke.tscn` with **F6**. The output should say `PWR0/PWR1 power mesh smoke passed.` It covers relay merge/split, redundancy, radius boundaries, nearest endpoint ties, C1 completion and Citadel destruction.
+1. Run `TESTS/Power/PowerMeshSmoke.tscn` with **F6**. The output should say `PWR0/PWR1/PWR2 power mesh smoke passed.` It covers relay merge/split, redundancy, radius boundaries, nearest endpoint ties, C1 completion and Citadel destruction.
 2. Run Level001 and DEBUG. Open **F2** and confirm **1 network, 1 relay, 1 endpoint**. Destroy the Citadel and confirm the counts drop to zero. Reload or regenerate and confirm the initial counts return.
 3. Place Tower001 and let the C1 drone finish it, then spawn ground and air enemies. Check construction and combat as usual. Only Tower001 opts into PWR1 power.
 
@@ -41,6 +41,20 @@ The allocator reuses scratch storage and sleeps when no capacitor needs recharge
 
 ### PWR1 owner checks
 
-1. Run `TESTS/Power/PowerMeshSmoke.tscn` with **F6**. Look for `PWR0/PWR1 power mesh smoke passed.` It includes finite sharing, idle drain, paid shots, and loss of the Citadel.
+1. Run `TESTS/Power/PowerMeshSmoke.tscn` with **F6**. Look for `PWR0/PWR1/PWR2 power mesh smoke passed.` It includes finite sharing, idle drain, paid shots, and loss of the Citadel.
 2. In Level001, place a Battle Tower within 400 px of the Citadel and another outside that range. Wait for C1 to finish. The close tower should charge and fire. Select the far tower and check **NO POWER** and **OUT OF NETWORK**. Check Tower002 with flyers as usual.
 3. Build several Battle Towers in range and spawn a sustained ground group. Inspect their charge while idle and during firing. Destroy the Citadel and check that stored energy drains and the towers stop firing. Restart and confirm fresh empty capacitors.
+
+## PWR2 — Buildable Power Relay
+
+**Source Implemented / Awaiting Owner Validation.** Choose **Ctrl → Energy → Power Relay** in Level001 or DEBUG. Defaults are **60 credits**, **300 HP**, **1×1 cell**, **320 px link radius** and **3 seconds of active C1 drone work**. Edit these in `PowerRelayDefinition.tres`. DEBUG placement is free under its existing rules.
+
+The preview circle shows the prospective relay's radius. Cyan means it can link to at least one completed relay under mutual range, amber means it would be isolated, and red means placement is blocked. A cyan preview can lead to a network without generation. Select a completed relay for its linked component size or isolated status. Connection feedback is read-only.
+
+A relay joins only after C1 completion. It can bridge existing components and extend Citadel power to Battle Towers beyond direct range. Removing or destroying it can split the mesh. Towers retain their own charge and reattach if another relay qualifies. The relay itself has no generation or upkeep.
+
+### PWR2 owner checks
+
+1. Run `TESTS/Power/PowerMeshSmoke.tscn` with **F6**. The PWR2 fixture covers pending construction, extension, power delivery and destruction.
+2. Build a relay within 320 px of the Citadel centre and a Battle Tower within 320 px of that relay but over 400 px from the Citadel. Verify the tower starts charging after both finish construction.
+3. Destroy the relay. The tower should show **OUT OF NETWORK**, keep its stored charge, and eventually lose power. Confirm an isolated relay can still be built and appears as a separate network in F2.

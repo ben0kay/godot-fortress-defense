@@ -77,7 +77,7 @@ public partial class LevelController : Node2D
         Resources = GetNode<ResourceWallet>("RootFortress/Resources");
         Resources.Initialize(Config?.StartingCredits ?? 0);
         var catalogue = Config?.Catalogue ?? GD.Load<BuildingCatalogue>("res://FORTRESS/BUILDINGS/SHARED/BuildingCatalogue/DefaultBuildingCatalogue.tres");
-        _placement.ConfigurePurchases(catalogue, Resources, Config?.AllowedBuildingIds ?? new[] { "wall001", "tower001", "tower002" });
+        _placement.ConfigurePurchases(catalogue, Resources, Config?.AllowedBuildingIds ?? new[] { "wall001", "tower001", "tower002", "power_relay" });
         _placement.CatalogueChanged += OnPlacementAvailabilityChanged;
         Resources.BalanceChanged += OnBalanceChanged; OnBalanceChanged();
         _projectiles = GetNode<Node2D>("RootCombat/Projectiles"); _placement.Placed += OnBuildingPlaced;
@@ -151,6 +151,12 @@ public partial class LevelController : Node2D
             selected += $" | Power {buffer.Charge:0.0}/{buffer.Capacity:0} | {(buffer.IsPowered ? "READY" : "NO POWER")}";
             if (!connected) selected += " | OUT OF NETWORK";
         }
+        if (selected.Length > 0 && _selected is PowerRelay { IsOperational: true } relay)
+        {
+            int network = PowerNetwork.NetworkFor(relay).NetworkId;
+            int nodes = PowerNetwork.ConnectedNodes(network).Count;
+            selected += nodes > 1 ? $" | Linked mesh ({nodes} relays)" : " | Isolated relay";
+        }
         string player = PlayerAlive ? $"Player {CurrentPlayer.Health:0}/{CurrentPlayer.MaxHealth:0}" : "Player absent";
         _status.Text = $"{cpu} | {player} | Camera {(_camera.IsFollowing ? "FOLLOW" : "FREE")} | {_creditDiagnostic} | Enemies {_enemies.Count} | Spawning {(_spawner.SpawningEnabled && alive ? "ON" : "OFF")}{selected}\n{_notice}";
         if (_generated != null)
@@ -181,6 +187,7 @@ public partial class LevelController : Node2D
     private void OnBuildingPlaced(Building building)
     {
         if (building is Tower001 tower) tower.BindPower(PowerNetwork);
+        if (building is PowerRelay relay) relay.BindPower(PowerNetwork);
         if (building is IBuildingCombat combat) combat.BindCombat(_grid, _enemies, _projectiles, Fog);
     }
     // Wheel/middle-drag inspect the finite WG0 world; DEBUG retains its existing terrain-edit controls.

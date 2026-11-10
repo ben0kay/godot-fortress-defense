@@ -182,3 +182,5 @@ Before making substantial changes, inspect the current repository state, the app
 **Source Implemented / Awaiting Owner Validation.** Existing attacks share a typed damage packet and resolver. Enemy, Player and Building still own their health and lifecycle. See [damage authoring and owner checks](COMBAT/README.md#dmg0-typed-damage).
 
 PWR1 adds finite Citadel generation and a private capacitor for Tower001. Select a completed Battle Tower to see power status. [Power settings and owner checks](FORTRESS/SYSTEMS/PowerNetwork/README.md#pwr1--citadel-generation-and-battle-tower-power).
+
+PWR2 adds the buildable **Power Relay** under **Ctrl → Energy**. It extends the mesh after drone construction and can split it when destroyed. [Relay settings and owner checks](FORTRESS/SYSTEMS/PowerNetwork/README.md#pwr2--buildable-power-relay).

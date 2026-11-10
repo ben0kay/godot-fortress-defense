@@ -9,7 +9,7 @@ public partial class PowerMeshSmoke : Node
     {
         CheckTopology();
         CheckBuildingLifecycle();
-        GD.Print("PWR0/PWR1 power mesh smoke passed.");
+        GD.Print("PWR0/PWR1/PWR2 power mesh smoke passed.");
         GetTree().Quit();
     }
 
@@ -78,11 +78,37 @@ public partial class PowerMeshSmoke : Node
         Require(tower.Capacitor.Charge == 3 && second.Capacitor.Charge == 3 && !tower.Capacitor.IsPowered, "finite shared budget and idle drain");
         mesh.Distribute(2, 2);
         Require(tower.Capacitor.IsPowered && tower.Capacitor.TrySpendShot() && tower.Capacitor.Charge == 5, "restart threshold and prepaid shot");
-        cpu.Destroy();
+        var relayScene = GD.Load<PackedScene>("res://FORTRESS/BUILDINGS/Energy/PowerRelay/PowerRelay.tscn");
+        Require(placement.TryPlaceFree(relayScene, new(12, 2), out Building relaySite), "relay placement");
+        var bridge = (PowerRelay)relaySite;
+        bridge.BindPower(mesh);
+        Require(placement.TryPlaceFree(towerScene, new(20, 2), out Building farSite), "distant tower placement");
+        var far = (Tower001)farSite;
+        far.BindPower(mesh);
+        far.StartConstruction();
+        far.AdvanceConstruction(far.ConstructionDuration);
+        Require(mesh.NodeCount == 1 && mesh.NetworkFor(far, PowerRole.Consumer) == PowerMembership.Disconnected,
+            "unfinished relay does not extend coverage");
+        Require(mesh.HasRelayLink(bridge.GlobalPosition, 320) && !mesh.HasRelayLink(far.GlobalPosition, 320),
+            "preview uses completed relays and mutual range");
+        bridge.StartConstruction();
+        bridge.AdvanceConstruction(bridge.ConstructionDuration);
+        var farMembership = mesh.NetworkFor(far, PowerRole.Consumer);
+        Require(mesh.NodeCount == 2 && mesh.NetworkCount == 1 && farMembership.RelayId == mesh.NetworkFor(bridge).RelayId,
+            "completed relay extends the Citadel network");
         mesh.Distribute(1, 1);
+        double stored = far.Capacitor.Charge;
+        Require(stored > 0, "power delivered through relay");
+        bridge.ApplyDamage(bridge.MaxHealth);
+        Require(mesh.NodeCount == 1 && mesh.NetworkFor(far, PowerRole.Consumer) == PowerMembership.Disconnected
+            && far.Capacitor.Charge == stored, "relay destruction detaches tower without clearing its charge");
+        far.Remove();
+        double beforeOutage = tower.Capacitor.Charge;
+        cpu.Destroy();
+        mesh.Distribute(2, 2);
         Require(mesh.NetworkCount == 0 && mesh.EndpointCount == 2
             && mesh.NetworkFor(tower, PowerRole.Consumer) == PowerMembership.Disconnected
-            && tower.Capacitor.Charge == 3 && !tower.Capacitor.IsPowered, "Citadel death cuts supply and stored power drains");
+            && tower.Capacitor.Charge == beforeOutage - 4 && !tower.Capacitor.IsPowered, "Citadel death cuts supply and stored power drains");
         site.Remove();
         second.Remove();
         Require(mesh.EndpointCount == 0, "site removal clears registration");
