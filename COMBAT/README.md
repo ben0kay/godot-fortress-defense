@@ -18,6 +18,10 @@
 3. Verify Tower001 shoots over Wall001 while Enemy002 hits solid walls. Test hidden ground targets with fog presentation off, and Tower002 over ground solids. Remove an attacker after launch and check its in-flight hit. Reload/regenerate while shots are active.
 4. During C1 construction, damage or destroy the selected site with H or hostile fire and check HP, occupancy release and drone cancellation. For an affinity spot check, set an EnemyDefinition's Kinetic X to 0 and then restore it. Existing attacks carry no effects.
 
+## Planned PERF1 — shared projectiles, prepared for future lighting
+
+**Status: Planned (documentation only).** [PERF1 shared projectile implementation plan](Projectiles/PERF1_SHARED_PROJECTILES_PLAN.md) replaces the earlier idea of merely pooling individual Node2D bullet objects. The intended first pass uses a world-owned reusable shot-state array, one active-only simulation loop and one shared tracer renderer, retaining current swept hits, projectile appearances, PWR1 payment and all friendly/hostile collision profiles. **No lighting or glow changes in PERF1.** A later PERF2 adds optional cheap tracer halos, while LGT1 adds a strict world-wide light budget with only a few actual projectile lights, inspired by the existing Godot Tower Defense system. Neither is authorized by implementing PERF1.
+
 ## Shared projectile and targeting foundation
 
 **Status: Source Implemented / Awaiting Owner Validation.**
