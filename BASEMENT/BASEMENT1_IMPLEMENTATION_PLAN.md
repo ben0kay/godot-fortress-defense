@@ -49,5 +49,6 @@ Prefer a few small self-contained Godot 4 C# scripts/scenes under `BASEMENT/`, e
 6. Pan/zoom, save/load, reset work.
 7. Deleting `BASEMENT/` removes the entire feature without breaking Fortress.
 
-## Scope of this document
-**Planning only. Do not implement BASEMENT1 yet.** This document is intended as instructions for a later Codex implementation. Confirm the exact orientation/opening of the attached room during implementation if needed.
+## Implementation status
+
+**Source Implemented / Awaiting Owner Validation.** The annex extends east with its top edge aligned to the main room. See [launch instructions and controls](README.md).
